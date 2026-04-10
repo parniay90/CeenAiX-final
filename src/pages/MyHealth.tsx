@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import Sidebar from '../components/dashboard/Sidebar';
-import TopNav from '../components/dashboard/TopNav';
+import PatientSidebar from '../components/patient/PatientSidebar';
+import PatientTopNav from '../components/patient/PatientTopNav';
 import HealthRecordHeader from '../components/health/HealthRecordHeader';
 import TabNavigation from '../components/health/TabNavigation';
 import OverviewTab from '../components/health/OverviewTab';
@@ -20,25 +20,6 @@ import {
 export default function MyHealth() {
   const [activeTab, setActiveTab] = useState('overview');
 
-  const handleNavigate = (item: string) => {
-    const routes: { [key: string]: string } = {
-      dashboard: '/dashboard',
-      health: '/my-health',
-      appointments: '/appointments',
-      'ai-assistant': '/ai-assistant',
-      medications: '/medications',
-      'lab-results': '/lab-results',
-      imaging: '/imaging',
-      documents: '/documents',
-      messages: '/messages',
-      settings: '/settings',
-    };
-
-    if (routes[item]) {
-      window.location.href = routes[item];
-    }
-  };
-
   const patientInfo = {
     name: 'Ahmed Al Hashimi',
     dateOfBirth: 'March 15, 1985',
@@ -47,14 +28,11 @@ export default function MyHealth() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <TopNav
-        patientName="Ahmed Al Maktoum"
-        patientAvatar="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
-      />
+    <div className="min-h-screen bg-gray-50 flex">
+      <PatientSidebar currentPage="health" />
 
-      <div className="flex">
-        <Sidebar activeItem="health" onItemClick={handleNavigate} />
+      <div className="flex-1 ml-64 flex flex-col">
+        <PatientTopNav patientName="Ahmed Al Maktoum" />
 
         <div className="flex-1">
           <HealthRecordHeader

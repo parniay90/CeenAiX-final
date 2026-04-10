@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pill, Calendar, Bell, Clock, CreditCard, RefreshCw, CheckCircle, TrendingUp } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
-import TopNav from '../components/dashboard/TopNav';
+import PatientTopNav from '../components/patient/PatientTopNav';
 import ActiveMedicationsTab from '../components/medications/ActiveMedicationsTab';
 import TodaysScheduleTab from '../components/medications/TodaysScheduleTab';
 import RemindersTab from '../components/medications/RemindersTab';
@@ -288,11 +288,13 @@ export default function Medications() {
   const monthlyCost = activeMedications.reduce((sum, med) => sum + med.insurancePrice, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-50">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-50 flex">
       <PatientSidebar currentPage="medications" />
-      <TopNav patientName="Parnia Yazdkhasti" patientAvatar="https://i.pravatar.cc/150?img=5" />
 
-      <div className="ml-64 pt-16">
+      <div className="flex-1 ml-64 flex flex-col">
+        <PatientTopNav patientName="Parnia Yazdkhasti" />
+
+        <div className="flex-1">
         <div className="p-8">
           <div className="animate-fadeIn">
             <div className="flex items-start justify-between mb-8">
@@ -480,6 +482,7 @@ export default function Medications() {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

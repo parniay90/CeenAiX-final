@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Settings as SettingsIcon } from 'lucide-react';
 import { SettingsSection } from '../types/settings';
-import Sidebar from '../components/dashboard/Sidebar';
-import TopNav from '../components/dashboard/TopNav';
+import PatientSidebar from '../components/patient/PatientSidebar';
+import PatientTopNav from '../components/patient/PatientTopNav';
 import SettingsSidebar from '../components/settings/SettingsSidebar';
 import AccountSection from '../components/settings/AccountSection';
 import PrivacyDataSection from '../components/settings/PrivacyDataSection';
@@ -13,25 +13,6 @@ import HelpSupportSection from '../components/settings/HelpSupportSection';
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState<SettingsSection>('account');
-
-  const handleNavigate = (item: string) => {
-    const routes: { [key: string]: string } = {
-      dashboard: '/dashboard',
-      health: '/my-health',
-      appointments: '/appointments',
-      'ai-assistant': '/ai-assistant',
-      medications: '/medications',
-      'lab-results': '/lab-results',
-      imaging: '/imaging',
-      documents: '/documents',
-      messages: '/messages',
-      settings: '/settings',
-    };
-
-    if (routes[item]) {
-      window.location.href = routes[item];
-    }
-  };
 
   const getSectionTitle = () => {
     switch (activeSection) {
@@ -128,14 +109,11 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <TopNav
-        patientName="Parnia Yazdkhasti"
-        patientAvatar="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150"
-      />
+    <div className="min-h-screen bg-slate-50 flex">
+      <PatientSidebar currentPage="settings" />
 
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar activeItem="" onItemClick={handleNavigate} />
+      <div className="flex-1 ml-64 flex flex-col overflow-hidden">
+        <PatientTopNav patientName="Parnia Yazdkhasti" />
 
         <main className="flex-1 flex overflow-hidden">
           <div className="flex-1 flex overflow-hidden">
@@ -160,3 +138,4 @@ export default function Settings() {
     </div>
   );
 }
+

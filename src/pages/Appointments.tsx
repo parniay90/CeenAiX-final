@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
-import Sidebar from '../components/dashboard/Sidebar';
-import TopNav from '../components/dashboard/TopNav';
+import PatientSidebar from '../components/patient/PatientSidebar';
+import PatientTopNav from '../components/patient/PatientTopNav';
 import FilterPanel from '../components/appointments/FilterPanel';
 import AppointmentCard from '../components/appointments/AppointmentCard';
 import BookAppointmentDrawer from '../components/appointments/BookAppointmentDrawer';
@@ -11,25 +11,6 @@ import { MOCK_APPOINTMENTS, MOCK_PAST_APPOINTMENTS } from '../types/appointments
 
 export default function Appointments() {
   const [isBookingDrawerOpen, setIsBookingDrawerOpen] = useState(false);
-
-  const handleNavigate = (item: string) => {
-    const routes: { [key: string]: string } = {
-      dashboard: '/dashboard',
-      health: '/my-health',
-      appointments: '/appointments',
-      'ai-assistant': '/ai-assistant',
-      medications: '/medications',
-      'lab-results': '/lab-results',
-      imaging: '/imaging',
-      documents: '/documents',
-      messages: '/messages',
-      settings: '/settings',
-    };
-
-    if (routes[item]) {
-      window.location.href = routes[item];
-    }
-  };
 
   const upcomingAppointments = MOCK_APPOINTMENTS.filter(
     (apt) => apt.status !== 'Completed' && apt.status !== 'Cancelled'
@@ -58,17 +39,16 @@ export default function Appointments() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <TopNav
-        patientName="Ahmed Al Maktoum"
-        patientAvatar="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150"
-      />
+    <div className="min-h-screen bg-gray-50 flex">
+      <PatientSidebar currentPage="appointments" />
 
-      <div className="flex">
-        <Sidebar activeItem="appointments" onItemClick={handleNavigate} />
-        <FilterPanel onFilterChange={() => {}} />
+      <div className="flex-1 ml-64 flex flex-col">
+        <PatientTopNav patientName="Ahmed Al Maktoum" />
 
-      <div className="flex-1 p-6">
+        <div className="flex">
+          <FilterPanel onFilterChange={() => {}} />
+
+          <div className="flex-1 p-6">
         {hasTodayTeleconsult && todayTeleconsult && (
           <TeleconsultBanner
             doctorName={todayTeleconsult.doctorName}
@@ -128,7 +108,8 @@ export default function Appointments() {
         )}
 
         <PastAppointmentsSection appointments={MOCK_PAST_APPOINTMENTS} />
-      </div>
+          </div>
+        </div>
       </div>
 
       <BookAppointmentDrawer

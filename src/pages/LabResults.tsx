@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FlaskConical, CheckCircle, AlertTriangle, Calendar, Building2, AlertCircle } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
-import TopNav from '../components/dashboard/TopNav';
+import PatientTopNav from '../components/patient/PatientTopNav';
 import RecentResultsTab from '../components/labResults/RecentResultsTab';
 import MyTrendsTab from '../components/labResults/MyTrendsTab';
 import AllHistoryTab from '../components/labResults/AllHistoryTab';
@@ -310,11 +310,13 @@ export default function LabResults() {
   const totalUpcomingCost = upcomingOrder.tests.reduce((sum, t) => sum + t.patientCost, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-50">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-50 flex">
       <PatientSidebar currentPage="lab-results" />
-      <TopNav patientName="Parnia Yazdkhasti" patientAvatar="https://i.pravatar.cc/150?img=5" />
 
-      <div className="ml-64 pt-16">
+      <div className="flex-1 ml-64 flex flex-col">
+        <PatientTopNav patientName="Parnia Yazdkhasti" />
+
+        <div className="flex-1">
         <div className="p-8">
           <div className="animate-fadeIn">
             <div className="flex items-start justify-between mb-8">
@@ -478,6 +480,7 @@ export default function LabResults() {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
