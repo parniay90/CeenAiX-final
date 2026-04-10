@@ -4,7 +4,7 @@ import DiagnosticsTopBar, { DeptFilter } from '../components/diagnostics/Diagnos
 import DiagnosticsDashboard from '../components/diagnostics/dashboard/DiagnosticsDashboard';
 import MRIPage from '../components/diagnostics/mri/MRIPage';
 import CTScanPage from '../components/diagnostics/ct/CTScanPage';
-import LabPortalPage from '../components/diagnostics/lab/LabPortalPage';
+import LabRadiologyPortal from './LabRadiologyPortal';
 
 const FULL_SCREEN_PAGES = ['lab', 'mri', 'ct'];
 
@@ -19,7 +19,7 @@ const DiagnosticsPortal: React.FC = () => {
     switch (activePage) {
       case 'mri': return <MRIPage />;
       case 'ct':  return <CTScanPage />;
-      case 'lab': return <LabPortalPage onBack={() => setActivePage('dashboard')} />;
+      case 'lab': return <LabRadiologyPortal />;
       default:    return <DiagnosticsDashboard deptFilter={deptFilter} onNavigate={setActivePage} />;
     }
   };
