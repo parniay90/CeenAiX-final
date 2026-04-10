@@ -42,7 +42,7 @@ export default function PatientTopNav({ patientName = 'Ahmed Al Maktoum' }: Pati
   }, []);
 
   return (
-    <div className="bg-white border-b border-cyan-100 px-6 py-4 sticky top-0 z-50 shadow-sm shadow-cyan-500/5">
+    <div className="bg-white border-b border-cyan-100 px-6 py-4 z-50 shadow-sm shadow-cyan-500/5 flex-shrink-0">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
