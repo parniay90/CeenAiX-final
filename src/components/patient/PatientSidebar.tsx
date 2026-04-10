@@ -21,7 +21,7 @@ interface PatientSidebarProps {
 }
 
 const menuItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: Home, href: '/patient-dashboard' },
+  { id: 'dashboard', label: 'Dashboard', icon: Home, href: '/dashboard' },
   { id: 'appointments', label: 'Appointments', icon: Calendar, href: '/appointments' },
   { id: 'health', label: 'My Health', icon: Heart, href: '/my-health' },
   { id: 'medications', label: 'Medications', icon: Pill, href: '/medications' },

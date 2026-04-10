@@ -57,9 +57,7 @@ function App() {
         setView('landing');
       } else if (path === '/login') {
         setView('login');
-      } else if (path === '/dashboard') {
-        setView('patient-dashboard');
-      } else if (path === '/patient/home') {
+      } else if (path === '/dashboard' || path === '/patient-dashboard' || path === '/patient/home') {
         setView('patient-home');
       } else if (path === '/doctor/dashboard') {
         setView('doctor-dashboard');
