@@ -537,8 +537,8 @@ Is there anything from the list above I can help with? 😊`;
       <div className="flex flex-1 overflow-hidden">
         <PatientSidebar />
 
-        <main className="flex-1 overflow-y-auto">
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 overflow-hidden bg-slate-900">
+        <div className="h-full flex flex-col overflow-hidden">
           <div className="px-8 py-6 flex items-center justify-between border-b border-white/5">
             <div className="flex items-center gap-6">
               <div className="relative">
@@ -605,7 +605,7 @@ Is there anything from the list above I can help with? 😊`;
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto min-h-0">
             <div className="max-w-4xl mx-auto px-8 py-8">
               {messages.length === 0 && (
                 <>
