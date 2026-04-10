@@ -22,14 +22,14 @@ const DiagnosticsPortal: React.FC = () => {
 
   if (activePage === 'lab') {
     return (
-      <div className="flex h-screen overflow-hidden" style={{ background: '#080B12' }}>
+      <div className="flex h-screen overflow-hidden" style={{ background: '#F8FAFC' }}>
         <LabPortalPage onBack={() => setActivePage('dashboard')} />
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: '#0F1117' }}>
+    <div className="flex h-screen overflow-hidden" style={{ background: '#F8FAFC' }}>
       <DiagnosticsSidebar
         isCollapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(c => !c)}
