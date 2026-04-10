@@ -10,6 +10,7 @@ import PharmacyDashboard from './pages/PharmacyDashboard';
 import PharmacyPortal from './pages/pharmacy/PharmacyPortal';
 import DiagnosticsPortal from './pages/DiagnosticsPortal';
 import LaboratoryDashboard from './pages/LaboratoryDashboard';
+import LabRadPortal from './pages/labradiology/LabRadPortal';
 import MyHealth from './pages/MyHealth';
 import Appointments from './pages/Appointments';
 import Medications from './pages/Medications';
@@ -82,8 +83,8 @@ function App() {
         setView('pharmacy-portal');
       } else if (path === '/diagnostics/dashboard' || path.startsWith('/diagnostics/')) {
         setView('diagnostics-portal');
-      } else if (path === '/lab/dashboard') {
-        setView('lab-dashboard');
+      } else if (path.startsWith('/lab/')) {
+        setView('lab-rad-portal');
       } else if (path === '/my-health') {
         setView('my-health');
       } else if (path === '/appointments') {
@@ -165,6 +166,7 @@ function App() {
   if (view === 'pharmacy-portal') return <PharmacyPortal />;
   if (view === 'diagnostics-portal') return <DiagnosticsPortal />;
   if (view === 'lab-dashboard') return <LaboratoryDashboard />;
+  if (view === 'lab-rad-portal') return <LabRadPortal />;
   if (view === 'my-health') return <MyHealth />;
   if (view === 'appointments') return <Appointments />;
   if (view === 'medications') return <Medications />;
