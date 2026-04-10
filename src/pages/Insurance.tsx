@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ShieldCheck, Phone, Download, Printer, Share2, FileText, CircleDollarSign, Wallet, Clock, ChevronDown, ChevronUp, Copy, X, Search, AlertTriangle, CheckCircle2, XCircle } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
+import PatientTopNav from '../components/patient/PatientTopNav';
 
 type Tab = 'overview' | 'claims' | 'coverage' | 'preauth' | 'policy';
 type ClaimStatus = 'approved' | 'pending' | 'rejected' | 'resubmitted';
@@ -167,15 +168,13 @@ export default function Insurance() {
   };
 
   return (
-    <div className="flex h-screen bg-[#F0FDFA]">
-      <PatientSidebar />
+    <div className="min-h-screen bg-gray-50 flex">
+      <PatientSidebar currentPage="insurance" />
 
-      <div className="flex-1 flex flex-col ml-64 overflow-auto">
-        <div className="h-12 bg-gradient-to-r from-red-900/20 to-red-800/20 border-b border-red-800/30 flex items-center px-6">
-          <span className="text-red-300 text-sm font-medium">⚠️ Allergy Alert: Penicillin (SEVERE) · Sulfa drugs</span>
-        </div>
+      <div className="flex-1 ml-64 flex flex-col">
+        <PatientTopNav patientName="Ahmed Al Maktoum" />
 
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-8 overflow-auto">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between mb-8">
               <div>
