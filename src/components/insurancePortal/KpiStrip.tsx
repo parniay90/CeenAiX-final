@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ClipboardList, FileText, Zap, AlertTriangle, Clock, Users } from 'lucide-react';
 
-interface KpiCardProps {
-  icon: React.ReactNode;
+interface KpiCard {
+  icon: React.ElementType;
   iconBg: string;
+  iconColor: string;
   value: string;
   valueColor: string;
   label: string;
@@ -11,121 +12,114 @@ interface KpiCardProps {
   sub2?: string;
   sub2Color?: string;
   pulse?: boolean;
-  delay: number;
 }
 
-const KpiCard: React.FC<KpiCardProps> = ({
-  icon, iconBg, value, valueColor, label, sub1, sub2, sub2Color, pulse, delay,
-}) => {
+const cards: KpiCard[] = [
+  {
+    icon: ClipboardList,
+    iconBg: '#FEF3C7', iconColor: '#D97706',
+    value: '16', valueColor: '#D97706',
+    label: 'PENDING PRE-AUTHORIZATIONS',
+    sub1: '8 urgent (4h) · 8 standard',
+    pulse: true,
+  },
+  {
+    icon: FileText,
+    iconBg: '#DBEAFE', iconColor: '#2563EB',
+    value: '312', valueColor: '#1E293B',
+    label: 'CLAIMS SUBMITTED TODAY',
+    sub1: 'AED 1,247,840',
+    sub2: '78.2% auto-approved',
+    sub2Color: '#059669',
+  },
+  {
+    icon: Zap,
+    iconBg: '#D1FAE5', iconColor: '#059669',
+    value: '78.2%', valueColor: '#059669',
+    label: 'AI AUTO-APPROVAL RATE',
+    sub1: '244 of 312 claims today',
+    sub2: '↑ +2.1% vs last week',
+    sub2Color: '#059669',
+  },
+  {
+    icon: AlertTriangle,
+    iconBg: '#FEE2E2', iconColor: '#DC2626',
+    value: '5', valueColor: '#DC2626',
+    label: 'ACTIVE FRAUD ALERTS',
+    sub1: '2 HIGH risk · 3 medium',
+    pulse: true,
+  },
+  {
+    icon: Clock,
+    iconBg: '#CCFBF1', iconColor: '#0D9488',
+    value: '4.2h', valueColor: '#0D9488',
+    label: 'AVG PROCESSING TIME',
+    sub1: 'DHA target: 8h standard ✅',
+    sub2: '4h urgent ⚠️ (1 breach)',
+    sub2Color: '#D97706',
+  },
+  {
+    icon: Users,
+    iconBg: '#DBEAFE', iconColor: '#2563EB',
+    value: '8,247', valueColor: '#2563EB',
+    label: 'ACTIVE MEMBERS ON CEENAIX',
+    sub1: 'Gold 2,847 · Silver 3,104 · Basic 1,892',
+  },
+];
+
+const KpiCard: React.FC<{ card: KpiCard; idx: number }> = ({ card, idx }) => {
   const [visible, setVisible] = useState(false);
-
   useEffect(() => {
-    const t = setTimeout(() => setVisible(true), delay);
+    const t = setTimeout(() => setVisible(true), 150 + idx * 60);
     return () => clearTimeout(t);
-  }, [delay]);
+  }, [idx]);
 
+  const Icon = card.icon;
   return (
     <div
-      className={`bg-white rounded-2xl p-4 flex flex-col gap-3 transition-all duration-500 hover:scale-105 hover:shadow-lg cursor-pointer ${
-        pulse ? 'ring-2 ring-amber-400/50 animate-pulse' : ''
-      } ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}
-      style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.07)', borderRadius: 16, transitionDelay: `${delay}ms` }}
+      className="flex flex-col rounded-2xl p-4 cursor-pointer transition-all duration-200"
+      style={{
+        background: '#fff',
+        border: card.pulse ? '1.5px solid #FCA5A5' : '1px solid #E2E8F0',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(12px)',
+        transition: 'opacity 400ms ease, transform 400ms ease, box-shadow 150ms, background 150ms',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(30,58,95,0.12)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+      onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'translateY(0)'; }}
     >
-      <div className="flex items-start justify-between">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0`} style={{ background: iconBg }}>
-          {icon}
-        </div>
-        <span
-          className="font-bold leading-none"
-          style={{ fontFamily: 'DM Mono, monospace', fontSize: 28, color: valueColor }}
+      <div className="flex items-start justify-between mb-3">
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center"
+          style={{ background: card.iconBg }}
         >
-          {value}
-        </span>
-      </div>
-      <div>
-        <p className="uppercase tracking-wider text-slate-400 font-semibold leading-tight" style={{ fontSize: 10 }}>
-          {label}
-        </p>
-        <p className="text-slate-500 mt-1 leading-tight" style={{ fontSize: 11 }}>{sub1}</p>
-        {sub2 && (
-          <p className="mt-0.5 font-medium leading-tight" style={{ fontSize: 11, color: sub2Color ?? '#059669' }}>
-            {sub2}
-          </p>
+          <Icon style={{ width: 20, height: 20, color: card.iconColor }} />
+        </div>
+        {card.pulse && (
+          <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: card.iconColor }} />
         )}
       </div>
+      <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 30, fontWeight: 700, color: card.valueColor, lineHeight: 1, marginBottom: 4 }}>
+        {card.value}
+      </div>
+      <div style={{ fontSize: 10, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600, marginBottom: 6 }}>
+        {card.label}
+      </div>
+      <div style={{ fontSize: 11, color: '#64748B' }}>{card.sub1}</div>
+      {card.sub2 && (
+        <div style={{ fontSize: 11, color: card.sub2Color ?? '#64748B', marginTop: 2 }}>{card.sub2}</div>
+      )}
     </div>
   );
 };
 
-const KpiStrip: React.FC = () => {
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-      <KpiCard
-        icon={<ClipboardList size={18} className="text-amber-600" />}
-        iconBg="#FEF3C7"
-        value="16"
-        valueColor="#D97706"
-        label="Pending Pre-Authorizations"
-        sub1="8 urgent (4h) · 8 standard"
-        pulse
-        delay={150}
-      />
-      <KpiCard
-        icon={<FileText size={18} className="text-blue-600" />}
-        iconBg="#DBEAFE"
-        value="312"
-        valueColor="#1E293B"
-        label="Claims Submitted Today"
-        sub1="AED 1,247,840 total value"
-        sub2="78.2% auto-approved"
-        sub2Color="#059669"
-        delay={180}
-      />
-      <KpiCard
-        icon={<Zap size={18} className="text-emerald-600" />}
-        iconBg="#D1FAE5"
-        value="78.2%"
-        valueColor="#059669"
-        label="AI Auto-Approval Rate"
-        sub1="244 of 312 claims today"
-        sub2="↑ +2.1% vs last week"
-        sub2Color="#059669"
-        delay={210}
-      />
-      <KpiCard
-        icon={<AlertTriangle size={18} className="text-red-600" />}
-        iconBg="#FEE2E2"
-        value="5"
-        valueColor="#DC2626"
-        label="Active Fraud Alerts"
-        sub1="2 HIGH risk · 3 medium"
-        pulse
-        delay={240}
-      />
-      <KpiCard
-        icon={<Clock size={18} className="text-teal-600" />}
-        iconBg="#CCFBF1"
-        value="4.2h"
-        valueColor="#0D9488"
-        label="Avg Processing Time"
-        sub1="DHA target: 8h standard ✅"
-        sub2="4h urgent ⚠ (1 breach today)"
-        sub2Color="#D97706"
-        delay={270}
-      />
-      <KpiCard
-        icon={<Users size={18} className="text-blue-600" />}
-        iconBg="#DBEAFE"
-        value="8,247"
-        valueColor="#2563EB"
-        label="Active Members on CeenAiX"
-        sub1="Gold 2,847 · Silver 3,104"
-        sub2="Basic 1,892 · Thiqa 404"
-        sub2Color="#64748B"
-        delay={300}
-      />
-    </div>
-  );
-};
+const KpiStrip: React.FC = () => (
+  <div className="grid grid-cols-6 gap-4 mb-5">
+    {cards.map((card, idx) => (
+      <KpiCard key={card.label} card={card} idx={idx} />
+    ))}
+  </div>
+);
 
 export default KpiStrip;
