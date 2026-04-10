@@ -1,199 +1,246 @@
 import React, { useState } from 'react';
 import {
-  LayoutDashboard, Pill, Package, MessageSquare, BarChart3,
+  LayoutDashboard, Pill, Package, MessageSquare, BarChart2,
   DollarSign, Building2, Settings, ChevronLeft, ChevronRight,
-  AlertTriangle, LogOut, Activity
+  ShieldCheck, AlertTriangle, LogOut, Wifi
 } from 'lucide-react';
 
 interface PharmacySidebarProps {
-  isCollapsed: boolean;
-  onToggleCollapse: () => void;
   activePage: string;
   onNavigate: (page: string) => void;
 }
 
-const navItems = [
-  { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', section: 'MAIN', badge: 3, badgeType: 'blue' as const, href: '/pharmacy/dashboard' },
-  { id: 'prescriptions', icon: Pill, label: 'Prescriptions', section: 'MAIN', badge: 3, badgeType: 'blue' as const, href: '/pharmacy/prescriptions' },
-  { id: 'inventory', icon: Package, label: 'Inventory', section: 'MAIN', badge: 4, badgeType: 'amber' as const, href: '/pharmacy/inventory' },
-  { id: 'messages', icon: MessageSquare, label: 'Messages', section: 'MAIN', badge: 1, badgeType: 'blue' as const, href: '/pharmacy/messages' },
-  { id: 'reports', icon: BarChart3, label: 'Reports', section: 'ANALYTICS', href: '/pharmacy/reports' },
-  { id: 'revenue', icon: DollarSign, label: 'Revenue', section: 'ANALYTICS', href: '/pharmacy/revenue' },
-  { id: 'profile', icon: Building2, label: 'My Pharmacy', section: 'ACCOUNT', href: '/pharmacy/profile' },
-  { id: 'settings', icon: Settings, label: 'Settings', section: 'ACCOUNT', href: '/pharmacy/settings' },
+const navSections = [
+  {
+    title: 'MAIN',
+    items: [
+      { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', badge: '3', badgeType: 'blue' },
+      { id: 'prescriptions', icon: Pill, label: 'Prescriptions', badge: '3', badgeType: 'blue' },
+      { id: 'inventory', icon: Package, label: 'Inventory', badge: '4', badgeType: 'amber' },
+      { id: 'messages', icon: MessageSquare, label: 'Messages', badge: '1', badgeType: 'amber' },
+    ],
+  },
+  {
+    title: 'ANALYTICS',
+    items: [
+      { id: 'reports', icon: BarChart2, label: 'Reports', badge: null, badgeType: null },
+      { id: 'revenue', icon: DollarSign, label: 'Revenue', badge: null, badgeType: null },
+    ],
+  },
+  {
+    title: 'ACCOUNT',
+    items: [
+      { id: 'pharmacy-profile', icon: Building2, label: 'My Pharmacy', badge: null, badgeType: null },
+      { id: 'pharmacy-settings', icon: Settings, label: 'Settings', badge: null, badgeType: null },
+    ],
+  },
 ];
 
-const sections = ['MAIN', 'ANALYTICS', 'ACCOUNT'];
-
-const PharmacySidebar: React.FC<PharmacySidebarProps> = ({
-  isCollapsed,
-  onToggleCollapse,
-  activePage,
-  onNavigate,
-}) => {
+const PharmacySidebar: React.FC<PharmacySidebarProps> = ({ activePage, onNavigate }) => {
+  const [collapsed, setCollapsed] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
 
   const handleSignOut = () => {
     setSigningOut(true);
-    window.location.href = '/';
-  };
-
-  const handleNav = (item: typeof navItems[0]) => {
-    onNavigate(item.id);
-    window.history.pushState({}, '', item.href);
+    setTimeout(() => { window.location.href = '/'; }, 800);
   };
 
   return (
     <div
-      className="flex flex-col h-full transition-all duration-300 overflow-hidden"
-      style={{ background: '#064E3B', width: isCollapsed ? 72 : 260, minWidth: isCollapsed ? 72 : 260 }}
+      className="flex flex-col h-full relative transition-all duration-300 flex-shrink-0"
+      style={{ background: '#064E3B', width: collapsed ? 72 : 260 }}
     >
-      {/* Top logo */}
-      <div className="flex items-center justify-between px-4 py-4 border-b border-emerald-800/50" style={{ minHeight: 72 }}>
-        {!isCollapsed && (
+      <button
+        onClick={() => setCollapsed(!collapsed)}
+        className="absolute -right-3 top-16 w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center z-10 shadow-sm hover:shadow-md transition-shadow"
+      >
+        {collapsed ? (
+          <ChevronRight className="w-3 h-3 text-slate-500" />
+        ) : (
+          <ChevronLeft className="w-3 h-3 text-slate-500" />
+        )}
+      </button>
+
+      <div className="flex items-center h-16 px-4 border-b flex-shrink-0" style={{ borderColor: 'rgba(52,211,153,0.2)' }}>
+        {collapsed ? (
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white text-lg mx-auto"
+            style={{ background: 'linear-gradient(135deg, #059669, #047857)' }}
+          >
+            C
+          </div>
+        ) : (
           <div>
-            <div className="font-bold text-white leading-tight" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 18 }}>
+            <div className="font-bold text-white" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 18 }}>
               CeenAiX
             </div>
-            <div className="text-emerald-300 uppercase tracking-widest" style={{ fontSize: 10 }}>
+            <div className="uppercase tracking-widest" style={{ color: '#6EE7B7', fontSize: 9, fontFamily: 'DM Mono, monospace' }}>
               Pharmacy Portal
             </div>
           </div>
         )}
-        {isCollapsed && (
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-lg mx-auto"
-            style={{ background: 'linear-gradient(135deg, #059669, #047857)', fontFamily: 'Plus Jakarta Sans, sans-serif' }}
-          >
-            C
-          </div>
-        )}
-        {!isCollapsed && (
-          <button
-            onClick={onToggleCollapse}
-            className="text-emerald-300 hover:text-white transition-colors p-1 rounded"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-        )}
       </div>
 
-      {/* Pharmacy Identity Card */}
-      {!isCollapsed && (
-        <div className="mx-3 my-3 rounded-xl p-3" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(6,95,70,0.8)' }}>
-          <div className="font-bold text-white" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13 }}>
+      {!collapsed && (
+        <div
+          className="mx-3 my-3 rounded-xl p-3 flex-shrink-0"
+          style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(52,211,153,0.25)' }}
+        >
+          <div className="font-bold text-white" style={{ fontSize: 13, fontFamily: 'Inter, sans-serif' }}>
             Al Shifa Pharmacy
           </div>
-          <div className="text-emerald-200 mb-1" style={{ fontFamily: 'Inter, sans-serif', fontSize: 11 }}>
+          <div style={{ color: '#A7F3D0', fontSize: 11, fontFamily: 'Inter, sans-serif' }}>
             الشفاء للصيدلة
           </div>
-          <div className="text-emerald-300 mb-1" style={{ fontSize: 10 }}>
+          <div style={{ color: '#6EE7B7', fontSize: 10, marginTop: 2 }}>
             Al Barsha · DHA Licensed ✅
           </div>
-          <div className="text-white/70 mb-2" style={{ fontSize: 10 }}>
-            Rania Hassan | Head Pharmacist
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-emerald-300" style={{ fontSize: 10 }}>Active shift</span>
+          <div className="border-t mt-2 pt-2" style={{ borderColor: 'rgba(52,211,153,0.2)' }}>
+            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10, fontFamily: 'Inter, sans-serif' }}>
+              Rania Hassan | Head Pharmacist
+            </div>
+            <div className="flex items-center gap-1.5 mt-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span style={{ color: '#6EE7B7', fontSize: 10 }}>Active shift</span>
+              <Wifi className="w-3 h-3 ml-auto" style={{ color: '#6EE7B7' }} />
+            </div>
           </div>
         </div>
       )}
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-2">
-        {sections.map(section => {
-          const items = navItems.filter(i => i.section === section);
-          return (
-            <div key={section} className="mb-1">
-              {!isCollapsed && (
-                <div className="px-4 py-1.5 text-emerald-500 uppercase tracking-widest" style={{ fontSize: 9, fontFamily: 'DM Mono, monospace', fontWeight: 600 }}>
-                  {section}
-                </div>
-              )}
-              {items.map(item => {
-                const Icon = item.icon;
-                const isActive = activePage === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => handleNav(item)}
-                    className={`w-full flex items-center gap-3 transition-all duration-150 rounded-lg mx-2 ${isCollapsed ? 'justify-center px-0 py-3' : 'px-3 py-2.5'} ${isActive ? 'bg-emerald-700/60 text-white' : 'text-emerald-100/70 hover:text-white hover:bg-emerald-800/50'}`}
-                    style={{ width: isCollapsed ? 'calc(100% - 16px)' : 'calc(100% - 16px)', fontSize: 13 }}
-                    title={isCollapsed ? item.label : undefined}
-                  >
-                    <Icon className={`flex-shrink-0 ${isActive ? 'text-emerald-300' : 'text-emerald-400/70'}`} style={{ width: 16, height: 16 }} />
-                    {!isCollapsed && (
-                      <span className="flex-1 text-left" style={{ fontFamily: 'Inter, sans-serif', fontSize: 13 }}>
+      <nav className="flex-1 overflow-y-auto py-2" style={{ scrollbarWidth: 'none' }}>
+        {navSections.map(section => (
+          <div key={section.title} className="mb-2">
+            {!collapsed && (
+              <div
+                className="px-4 py-1 uppercase tracking-widest"
+                style={{ color: 'rgba(52,211,153,0.5)', fontSize: 9, fontFamily: 'DM Mono, monospace' }}
+              >
+                {section.title}
+              </div>
+            )}
+            {section.items.map(item => {
+              const Icon = item.icon;
+              const isActive = activePage === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => onNavigate(item.id)}
+                  className="w-full flex items-center transition-all duration-150 relative"
+                  style={{
+                    height: 44,
+                    padding: collapsed ? '0 14px' : '0 16px',
+                    justifyContent: collapsed ? 'center' : 'flex-start',
+                    background: isActive ? 'rgba(16,185,129,0.25)' : 'transparent',
+                    borderLeft: isActive ? '3px solid #34D399' : '3px solid transparent',
+                  }}
+                  onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; }}
+                  onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
+                >
+                  <Icon
+                    className="flex-shrink-0"
+                    style={{
+                      width: 18, height: 18,
+                      color: isActive ? '#34D399' : 'rgba(255,255,255,0.6)',
+                    }}
+                  />
+                  {!collapsed && (
+                    <>
+                      <span
+                        className="ml-3 flex-1 text-left"
+                        style={{
+                          fontFamily: 'Inter, sans-serif',
+                          fontSize: 13,
+                          fontWeight: isActive ? 600 : 400,
+                          color: isActive ? '#fff' : 'rgba(255,255,255,0.75)',
+                        }}
+                      >
                         {item.label}
                       </span>
-                    )}
-                    {!isCollapsed && item.badge && (
-                      <span
-                        className={`text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center ${item.badgeType === 'blue' ? 'bg-blue-500' : 'bg-amber-500'} ${item.badgeType === 'blue' ? 'animate-pulse' : ''}`}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
-                    {isCollapsed && item.badge && (
-                      <span
-                        className={`absolute top-1 right-1 w-2 h-2 rounded-full ${item.badgeType === 'blue' ? 'bg-blue-400' : 'bg-amber-400'}`}
-                        style={{ position: 'relative', marginLeft: -6, marginTop: -8 }}
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          );
-        })}
+                      {item.badge && (
+                        <span
+                          className="text-white font-bold rounded-full flex items-center justify-center"
+                          style={{
+                            minWidth: 18, height: 18, fontSize: 10,
+                            padding: '0 5px',
+                            background: item.badgeType === 'blue' ? '#3B82F6' : '#F59E0B',
+                          }}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </>
+                  )}
+                  {collapsed && item.badge && (
+                    <span
+                      className="absolute top-2 right-2 w-4 h-4 rounded-full flex items-center justify-center text-white font-bold"
+                      style={{ fontSize: 9, background: item.badgeType === 'blue' ? '#3B82F6' : '#F59E0B' }}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
-      {/* Today Summary */}
-      {!isCollapsed && (
-        <div className="mx-3 mb-2 rounded-xl p-3" style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(6,95,70,0.5)' }}>
-          <div className="text-emerald-300 mb-1.5" style={{ fontSize: 11 }}>
-            12 prescriptions today
+      {!collapsed && (
+        <div
+          className="mx-3 mb-2 rounded-xl p-3 flex-shrink-0"
+          style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(52,211,153,0.15)' }}
+        >
+          <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11, fontFamily: 'Inter, sans-serif', lineHeight: 1.7 }}>
+            <div>12 prescriptions today</div>
+            <div style={{ color: '#6EE7B7', fontSize: 10 }}>8 dispensed · 3 in queue · 1 on hold</div>
+            <div style={{ color: '#34D399', fontSize: 10, fontFamily: 'DM Mono, monospace' }}>AED 1,847 today</div>
           </div>
-          <div className="text-white/60 mb-1.5" style={{ fontSize: 10 }}>
-            8 dispensed · 3 in queue · 1 on hold
-          </div>
-          <div className="text-emerald-400 font-bold mb-1.5" style={{ fontFamily: 'DM Mono, monospace', fontSize: 11 }}>
-            AED 1,847 today
-          </div>
-          <div className="flex items-center gap-1.5">
-            <AlertTriangle className="w-3 h-3 text-amber-400 animate-pulse" />
-            <span className="text-amber-400" style={{ fontSize: 10 }}>4 stock alerts</span>
+          <div
+            className="flex items-center gap-1.5 mt-2 rounded-lg px-2 py-1"
+            style={{ background: 'rgba(245,158,11,0.2)' }}
+          >
+            <AlertTriangle className="w-3 h-3 flex-shrink-0" style={{ color: '#FCD34D' }} />
+            <span style={{ color: '#FCD34D', fontSize: 10, fontFamily: 'DM Mono, monospace' }}>
+              4 stock alerts
+            </span>
           </div>
         </div>
       )}
 
-      {/* Sign Out */}
-      <div className="border-t border-emerald-800/50 p-2">
-        <button
-          onClick={handleSignOut}
-          disabled={signingOut}
-          className={`w-full flex items-center gap-2 text-emerald-300/60 hover:text-red-400 transition-colors rounded-lg p-2.5 hover:bg-white/5 disabled:opacity-50 ${isCollapsed ? 'justify-center' : 'px-3'}`}
-          title={isCollapsed ? 'Sign Out' : undefined}
+      {!collapsed && (
+        <div
+          className="mx-3 mb-3 flex items-center gap-2 rounded-lg px-3 py-2 flex-shrink-0"
+          style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(52,211,153,0.15)' }}
         >
-          <LogOut className="w-4 h-4 flex-shrink-0" />
-          {!isCollapsed && (
-            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 13 }}>
-              {signingOut ? 'Signing Out...' : 'Sign Out'}
-            </span>
-          )}
-        </button>
-      </div>
-
-      {/* Collapsed expand button */}
-      {isCollapsed && (
-        <button
-          onClick={onToggleCollapse}
-          className="p-4 border-t border-emerald-800/50 hover:bg-emerald-800/30 transition-colors"
-        >
-          <ChevronRight className="w-4 h-4 text-emerald-400 mx-auto" />
-        </button>
+          <ShieldCheck className="w-4 h-4 flex-shrink-0" style={{ color: '#34D399' }} />
+          <div>
+            <div style={{ color: '#34D399', fontSize: 10, fontFamily: 'DM Mono, monospace' }}>DHA COMPLIANT ✅</div>
+            <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 9 }}>DHA-PHARM-2019-003481</div>
+          </div>
+        </div>
       )}
+
+      <button
+        onClick={handleSignOut}
+        className="flex items-center w-full transition-colors flex-shrink-0"
+        style={{
+          height: 48,
+          padding: collapsed ? '0 14px' : '0 16px',
+          justifyContent: collapsed ? 'center' : 'flex-start',
+          borderTop: '1px solid rgba(52,211,153,0.15)',
+          color: 'rgba(255,255,255,0.4)',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.color = '#FCA5A5'; }}
+        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.4)'; }}
+      >
+        <LogOut className="w-4 h-4 flex-shrink-0" />
+        {!collapsed && (
+          <span className="ml-3" style={{ fontSize: 13, fontFamily: 'Inter, sans-serif' }}>
+            {signingOut ? 'Signing out...' : 'Sign Out'}
+          </span>
+        )}
+      </button>
     </div>
   );
 };

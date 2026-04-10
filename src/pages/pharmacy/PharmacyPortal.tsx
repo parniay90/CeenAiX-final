@@ -24,7 +24,6 @@ const pageTitles: Record<string, string> = {
 const PharmacyPortal: React.FC = () => {
   const [activePage, setActivePage] = useState('dashboard');
   const [activeRxId, setActiveRxId] = useState<string | undefined>(undefined);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const handleNavigate = (page: string, rxId?: string) => {
     setActivePage(page);
@@ -47,9 +46,9 @@ const PharmacyPortal: React.FC = () => {
       case 'reports':
       case 'revenue':
         return <PharmacyReports />;
-      case 'profile':
+      case 'pharmacy-profile':
         return <PharmacyProfilePage />;
-      case 'settings':
+      case 'pharmacy-settings':
         return <PharmacySettingsPage />;
       case 'new-rx':
         return <NewManualRxPage onNavigate={handleNavigate} />;
@@ -61,8 +60,6 @@ const PharmacyPortal: React.FC = () => {
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
       <PharmacySidebar
-        isCollapsed={sidebarCollapsed}
-        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
         activePage={activePage}
         onNavigate={handleNavigate}
       />

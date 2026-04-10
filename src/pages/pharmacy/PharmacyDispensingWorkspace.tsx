@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
   ChevronLeft, Pill, ShieldCheck, AlertTriangle, Printer,
-  MessageSquare, Copy, Check, Lock, X, CheckCircle2
+  MessageSquare, Copy, Check, Lock, X, CheckCircle2, CreditCard
 } from 'lucide-react';
-import { prescriptions, Prescription, DrugItem } from '../../data/pharmacyData';
+import { prescriptions, DrugItem } from '../../data/pharmacyData';
 
 interface Props {
   rxId?: string;
@@ -28,17 +28,32 @@ const CHECKLIST_ITEMS = [
 const PROCESSING_STEPS = [
   'Recording dispensing log...',
   'Submitting to DHA...',
-  'Syncing to Nabidh HIE...',
+  'Syncing to NABIDH HIE...',
   'Sending to patient app...',
   'Submitting insurance claim...',
 ];
 
+const batchOptions: Record<string, Array<{ batch: string; qty: number; expiry: string; note?: string }>> = {
+  d3: [
+    { batch: 'BT-2025-FUR60-019', qty: 124, expiry: 'Sep 2027' },
+    { batch: 'BT-2025-FUR60-012', qty: 23, expiry: 'Jun 2026', note: 'Older — use first (FEFO)' },
+  ],
+  d4: [
+    { batch: 'BT-2025-SPI25-031', qty: 83, expiry: 'Dec 2026' },
+  ],
+};
+
+const drugCounselingTemplates: Record<string, string> = {
+  Furosemide: 'Take in the morning to avoid nighttime urination. Weigh yourself daily at the same time. Report to Dr. Ahmed if weight increases by more than 2kg. Avoid potassium supplements unless prescribed.',
+  Spironolactone: 'Take with food. May cause dizziness on standing — rise slowly. Avoid high-potassium foods (bananas, oranges, potatoes). Report muscle weakness or irregular heartbeat immediately.',
+  Tramadol: 'Take as directed. Do not exceed prescribed dose. May cause drowsiness — do not drive or operate machinery. Do not take with alcohol.',
+  Zopiclone: 'Take at bedtime only. Do not drive after taking. Avoid alcohol. This is a controlled medication — do not share with others.',
+};
+
 const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
   const rx = prescriptions.find(p => p.id === (rxId || defaultRxId)) || prescriptions[1];
 
-  const [checklist, setChecklist] = useState<boolean[]>(
-    CHECKLIST_ITEMS.map((_, i) => i < 4)
-  );
+  const [checklist, setChecklist] = useState<boolean[]>(CHECKLIST_ITEMS.map((_, i) => i < 4));
   const [pin, setPin] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'cash' | 'insurance' | 'wallet'>('card');
   const [paymentDone, setPaymentDone] = useState(false);
@@ -54,8 +69,11 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
   const [selectedBatches, setSelectedBatches] = useState<Record<string, string>>({});
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [counselingNotes, setCounselingNotes] = useState<Record<string, string>>({});
-  const [showNotesForDoc, setShowNotesForDoc] = useState(false);
   const [showLabelFor, setShowLabelFor] = useState<string | null>(null);
+  const [csIdScanned, setCsIdScanned] = useState(false);
+  const [csRegSubmitted, setCsRegSubmitted] = useState(false);
+
+  const hasControlled = rx.drugs.some(d => d.isControlled);
 
   useEffect(() => {
     if (rx) {
@@ -75,7 +93,8 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
 
   const allChecked = checklist.every(Boolean);
   const pinValid = pin.length === 4;
-  const canDispense = allChecked && pinValid;
+  const csReady = !hasControlled || (csIdScanned && csRegSubmitted);
+  const canDispense = allChecked && pinValid && csReady;
 
   const handleDispense = async () => {
     setIsDispensing(true);
@@ -104,19 +123,18 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
   };
 
   const totalCost = rx.drugs.reduce((sum, d) => {
-    const price = d.genericName === 'Furosemide' ? 65 : d.genericName === 'Spironolactone' ? 54 : 45;
+    const price = d.genericName === 'Furosemide' ? 65 : d.genericName === 'Spironolactone' ? 54 : d.genericName === 'Tramadol' ? 38 : 45;
     return sum + price;
   }, 0);
   const insurancePays = Math.round(totalCost * rx.insuranceCoverage / 100);
-  const patientPays = totalCost - insurancePays;
 
   if (dispensingDone) {
     return (
-      <div className="fixed inset-0 bg-emerald-50 z-50 flex items-center justify-center p-8">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-8" style={{ background: '#F0FDF4' }}>
         <div className="max-w-lg w-full text-center">
           <div className="flex justify-center mb-6">
             <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center">
-              <CheckCircle2 className="w-12 h-12 text-emerald-500" style={{ animation: 'scale-in 0.3s ease-out' }} />
+              <CheckCircle2 className="w-12 h-12" style={{ color: '#059669' }} />
             </div>
           </div>
           <h2 className="font-bold text-emerald-800 mb-2" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 24 }}>
@@ -126,7 +144,7 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
             className="flex items-center justify-center gap-2 mb-6 cursor-pointer hover:opacity-80 transition-opacity"
             onClick={handleCopyRef}
           >
-            <span className="text-teal-600 font-bold" style={{ fontFamily: 'DM Mono, monospace', fontSize: 20 }}>
+            <span className="font-bold" style={{ fontFamily: 'DM Mono, monospace', fontSize: 20, color: '#0F766E' }}>
               {dhaRecord}
             </span>
             {copied ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-4 h-4 text-slate-400" />}
@@ -139,7 +157,7 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
                 ['Co-pay', `AED ${rx.copay} collected ✅`],
                 ['Insurance', `AED ${insurancePays} → ${rx.insurance} (claim submitted ✅)`],
                 ['DHA Record', 'Submitted ✅'],
-                ['Nabidh HIE', 'Synced ✅'],
+                ['NABIDH HIE', 'Synced ✅'],
               ].map(([k, v]) => (
                 <div key={k} className="flex justify-between text-sm">
                   <span className="text-slate-500">{k}</span>
@@ -148,11 +166,16 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
               ))}
             </div>
           </div>
-          <div className="bg-teal-50 rounded-xl p-3 mb-5 text-sm text-teal-700">
+          <div className="rounded-xl p-3 mb-5 text-sm" style={{ background: '#F0FDFA', color: '#0F766E' }}>
             ✅ {rx.patientName.split(' ')[0]}'s patient app updated: "Your medication is ready — collect from Al Shifa Pharmacy, Al Barsha"
           </div>
           <div className="flex gap-3 flex-wrap justify-center">
-            <button className="bg-emerald-600 text-white rounded-xl px-5 py-2.5 font-semibold flex items-center gap-2 hover:bg-emerald-700 transition-colors">
+            <button
+              className="text-white rounded-xl px-5 py-2.5 font-semibold flex items-center gap-2 transition-colors"
+              style={{ background: '#059669' }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#047857'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#059669'; }}
+            >
               <Printer className="w-4 h-4" /> Print All Labels ({rx.drugs.length})
             </button>
             <button className="bg-slate-100 text-slate-700 rounded-xl px-5 py-2.5 font-medium flex items-center gap-2 hover:bg-slate-200 transition-colors">
@@ -160,14 +183,18 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
             </button>
             <button
               onClick={() => onNavigate('prescriptions')}
-              className="bg-emerald-600 text-white rounded-xl px-5 py-2.5 font-semibold hover:bg-emerald-700 transition-colors"
+              className="text-white rounded-xl px-5 py-2.5 font-semibold transition-colors"
+              style={{ background: '#059669' }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#047857'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#059669'; }}
             >
               + Next Prescription
             </button>
           </div>
           <button
             onClick={() => onNavigate('prescriptions')}
-            className="mt-4 text-teal-600 hover:text-teal-700 font-medium text-sm"
+            className="mt-4 font-medium text-sm transition-colors"
+            style={{ color: '#0F766E' }}
           >
             ← Back to Queue
           </button>
@@ -182,7 +209,7 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
         <div className="max-w-sm w-full text-center">
           <div className="flex justify-center mb-6">
             <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
-              <ShieldCheck className="w-8 h-8 text-emerald-500 animate-pulse" />
+              <ShieldCheck className="w-8 h-8 animate-pulse" style={{ color: '#059669' }} />
             </div>
           </div>
           <h3 className="font-bold text-slate-800 mb-6" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 18 }}>
@@ -190,7 +217,10 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
           </h3>
           <div className="space-y-3">
             {PROCESSING_STEPS.map((step, i) => (
-              <div key={step} className={`flex items-center gap-3 text-sm transition-all duration-300 ${i < dispensingStep ? 'text-emerald-600' : i === dispensingStep ? 'text-slate-800 font-medium' : 'text-slate-300'}`}>
+              <div
+                key={step}
+                className={`flex items-center gap-3 text-sm transition-all duration-300 ${i < dispensingStep ? 'text-emerald-600' : i === dispensingStep ? 'text-slate-800 font-medium' : 'text-slate-300'}`}
+              >
                 {i < dispensingStep ? (
                   <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                 ) : i === dispensingStep ? (
@@ -208,9 +238,9 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-slate-50">
+    <div className="flex flex-col h-full" style={{ background: '#F8FAFC' }}>
       {/* Breadcrumb */}
-      <div className="bg-white border-b border-slate-200 px-6 py-3 flex items-center gap-2">
+      <div className="bg-white border-b border-slate-200 px-6 py-3 flex items-center gap-2 flex-shrink-0">
         <button
           onClick={() => onNavigate('prescriptions')}
           className="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 transition-colors text-sm"
@@ -223,17 +253,17 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
         </span>
         <div className="ml-auto flex items-center gap-2">
           {rx.status === 'new' && (
-            <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2.5 py-1 rounded-full animate-pulse">
+            <span className="bg-blue-100 text-blue-700 font-bold px-2.5 py-1 rounded-full animate-pulse" style={{ fontSize: 10 }}>
               NEW PRESCRIPTION
             </span>
           )}
           {rx.status === 'on_hold' && (
-            <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-2.5 py-1 rounded-full">
+            <span className="bg-amber-100 text-amber-700 font-bold px-2.5 py-1 rounded-full" style={{ fontSize: 10 }}>
               ON HOLD
             </span>
           )}
           {rx.status === 'dispensed' && (
-            <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-full">
+            <span className="bg-emerald-100 text-emerald-700 font-bold px-2.5 py-1 rounded-full" style={{ fontSize: 10 }}>
               DISPENSED
             </span>
           )}
@@ -246,7 +276,6 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
         {/* LEFT PANEL */}
         <div className="w-72 flex-shrink-0 border-r border-slate-200 bg-white overflow-y-auto">
           <div className="p-4 space-y-4">
-
             {/* Patient Card */}
             <div className="rounded-xl p-4 border border-emerald-200" style={{ background: '#F0FDF4' }}>
               <div className="flex items-center gap-3 mb-3">
@@ -261,12 +290,10 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
                 </div>
               </div>
               {rx.arrivingETA && (
-                <div className="text-emerald-700 text-xs mb-2">
-                  Arriving: {rx.arrivingETA}
-                </div>
+                <div className="text-emerald-700 text-xs mb-2">Arriving: {rx.arrivingETA}</div>
               )}
               <div className="border-t border-emerald-200 pt-2 mt-2">
-                <div className="text-teal-700 text-xs font-semibold mb-1">🔵 Nabidh HIE: Synced</div>
+                <div className="text-xs font-semibold mb-1" style={{ color: '#0F766E' }}>NABIDH HIE: Synced ✅</div>
                 {rx.conditions.map(c => (
                   <div key={c} className="text-slate-600 text-xs">• {c}</div>
                 ))}
@@ -292,14 +319,14 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
             <div className="rounded-xl p-4 bg-slate-50 border border-slate-200">
               <div className="font-bold text-slate-800 text-sm mb-0.5">{rx.doctorName}</div>
               <div className="text-slate-500 text-xs mb-1">{rx.doctorSpecialty}</div>
-              <div className="text-emerald-700 font-mono text-xs mb-2">{rx.doctorDHA} ✅</div>
+              <div className="text-xs mb-2 font-mono" style={{ color: '#059669' }}>{rx.doctorDHA} ✅</div>
               <div className="border-t border-slate-200 pt-2 mb-2">
                 <div className="flex items-center justify-between">
                   <span className="text-slate-500 text-xs">Rx Ref</span>
-                  <span className="text-teal-600 font-mono text-xs font-semibold">{rx.rxRef}</span>
+                  <span className="font-mono text-xs font-semibold" style={{ color: '#0F766E' }}>{rx.rxRef}</span>
                 </div>
                 <div className="flex items-center justify-between mt-1">
-                  <span className="text-slate-500 text-xs">Prescribed</span>
+                  <span className="text-slate-500 text-xs">Received</span>
                   <span className="text-slate-700 text-xs">{rx.receivedTime} · 7 Apr 2026</span>
                 </div>
                 <div className="flex items-center justify-between mt-1">
@@ -330,23 +357,22 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
                 <div className="text-slate-600">Coverage: <span className="font-bold text-emerald-700">{rx.insuranceCoverage}%</span></div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Patient co-pay</span>
-                  <span className="font-bold text-emerald-700" style={{ fontFamily: 'DM Mono, monospace', fontSize: 14 }}>AED {rx.copay}</span>
+                  <span className="font-bold" style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: '#059669' }}>AED {rx.copay}</span>
                 </div>
-                <div className="text-emerald-600 text-xs">Pre-auth: Not required ✅</div>
+                <div className="text-xs" style={{ color: '#059669' }}>Pre-auth: Not required ✅</div>
               </div>
             </div>
           </div>
         </div>
 
         {/* CENTER PANEL */}
-        <div className="flex-1 overflow-y-auto bg-slate-50 p-5">
+        <div className="flex-1 overflow-y-auto p-5" style={{ background: '#F8FAFC' }}>
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-slate-900" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 16 }}>
               Prescription Items ({rx.drugs.length})
             </h2>
           </div>
 
-          {/* Drug interaction alert */}
           {rx.drugs.some(d => d.interactions && d.interactions.length > 0) && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
               <div className="flex items-center gap-2 mb-1">
@@ -356,11 +382,10 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
               <div className="text-amber-700 text-xs mb-1">
                 {rx.drugs.flatMap(d => d.interactions || []).filter((v, i, a) => a.indexOf(v) === i).join(' · ')}
               </div>
-              <div className="text-emerald-600 text-xs font-medium">✅ Doctor acknowledged — proceed with dispensing</div>
+              <div className="text-xs font-medium" style={{ color: '#059669' }}>✅ Doctor acknowledged — proceed with dispensing</div>
             </div>
           )}
 
-          {/* Drug cards */}
           {rx.drugs.map(drug => (
             <DrugCard
               key={drug.id}
@@ -371,15 +396,15 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
               qty={quantities[drug.id] || drug.quantity}
               onQtyChange={q => setQuantities(prev => ({ ...prev, [drug.id]: q }))}
               selectedBatch={selectedBatches[drug.id] || ''}
-              onBatchChange={b => setSelectedBatches(prev => ({ ...prev, [drug.id]: b }))}
+              onBatchChange={b => {
+                setSelectedBatches(prev => ({ ...prev, [drug.id]: b }));
+                setChecklist(prev => { const n = [...prev]; n[4] = true; return n; });
+              }}
               counselingNote={counselingNotes[drug.id] || ''}
               onNoteChange={n => setCounselingNotes(prev => ({ ...prev, [drug.id]: n }))}
               showLabel={showLabelFor === drug.id}
               onToggleLabel={() => setShowLabelFor(showLabelFor === drug.id ? null : drug.id)}
-              onChecklistItem={(idx) => {
-                if (idx === 4) setChecklist(prev => { const n = [...prev]; n[4] = true; return n; });
-                if (idx === 5) setChecklist(prev => { const n = [...prev]; n[5] = true; n[6] = true; n[7] = true; return n; });
-              }}
+              onQtyConfirmed={() => setChecklist(prev => { const n = [...prev]; n[5] = true; n[6] = true; n[7] = true; return n; })}
             />
           ))}
         </div>
@@ -387,6 +412,55 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
         {/* RIGHT PANEL */}
         <div className="w-72 flex-shrink-0 border-l border-slate-200 bg-white overflow-y-auto">
           <div className="p-4 space-y-4">
+
+            {/* Controlled Substance Extra Steps */}
+            {hasControlled && (
+              <div className="rounded-xl border-2 border-purple-300 overflow-hidden">
+                <div className="px-4 py-2 flex items-center gap-2" style={{ background: '#7C3AED' }}>
+                  <Lock className="w-4 h-4 text-white animate-pulse" />
+                  <span className="text-white font-bold" style={{ fontSize: 11 }}>CONTROLLED SUBSTANCE PROTOCOL</span>
+                </div>
+                <div className="p-3 space-y-3 bg-purple-50">
+                  <div>
+                    <div className="text-purple-800 text-xs font-semibold mb-1.5">Step 1 — Patient ID Verification</div>
+                    {!csIdScanned ? (
+                      <button
+                        onClick={() => setCsIdScanned(true)}
+                        className="w-full flex items-center justify-center gap-2 text-white rounded-lg py-2 font-semibold transition-colors"
+                        style={{ background: '#7C3AED', fontSize: 12 }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#6D28D9'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = '#7C3AED'; }}
+                      >
+                        <CreditCard className="w-4 h-4" /> Scan Emirates ID
+                      </button>
+                    ) : (
+                      <div className="bg-purple-100 text-purple-800 text-xs font-semibold rounded-lg p-2 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4 text-purple-600" />
+                        Identity verified ✅
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <div className="text-purple-800 text-xs font-semibold mb-1.5">Step 2 — DHA Controlled Drug Register</div>
+                    {!csRegSubmitted ? (
+                      <button
+                        onClick={() => setCsRegSubmitted(true)}
+                        className="w-full text-white rounded-lg py-2 font-semibold transition-colors"
+                        style={{ background: csIdScanned ? '#7C3AED' : '#C4B5FD', fontSize: 12 }}
+                        disabled={!csIdScanned}
+                      >
+                        Submit to DHA CS Unit
+                      </button>
+                    ) : (
+                      <div className="bg-purple-100 text-purple-800 text-xs font-semibold rounded-lg p-2 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4 text-purple-600" />
+                        CS Register submitted ✅
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Payment Summary */}
             <div className="rounded-xl border border-emerald-200 overflow-hidden" style={{ background: '#F0FDF4' }}>
@@ -397,11 +471,11 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
               </div>
               <div className="p-4 space-y-2 text-xs">
                 {rx.drugs.map(d => {
-                  const price = d.genericName === 'Furosemide' ? 65 : d.genericName === 'Spironolactone' ? 54 : 45;
+                  const price = d.genericName === 'Furosemide' ? 65 : d.genericName === 'Spironolactone' ? 54 : d.genericName === 'Tramadol' ? 38 : 45;
                   return (
                     <div key={d.id} className="flex justify-between text-slate-600">
-                      <span>{d.genericName} {d.strength} × {d.quantity}</span>
-                      <span className="font-mono">AED {price}.00</span>
+                      <span className="truncate pr-2">{d.genericName} {d.strength} × {d.quantity}</span>
+                      <span className="font-mono flex-shrink-0">AED {price}.00</span>
                     </div>
                   );
                 })}
@@ -417,7 +491,7 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
                 </div>
                 <div className="flex justify-between items-center pt-1 border-t border-emerald-300">
                   <span className="font-bold text-slate-700">Patient pays</span>
-                  <span className="font-bold text-emerald-700" style={{ fontFamily: 'DM Mono, monospace', fontSize: 18 }}>
+                  <span className="font-bold" style={{ fontFamily: 'DM Mono, monospace', fontSize: 18, color: '#059669' }}>
                     AED {rx.copay}
                   </span>
                 </div>
@@ -431,16 +505,20 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
                       onChange={() => setPaymentMethod(m)}
                       className="accent-emerald-600"
                     />
-                    <span className="text-slate-700 capitalize text-xs">{m === 'card' ? 'Card (tap/insert)' : m === 'insurance' ? 'Insurance Direct' : m === 'wallet' ? 'CeenAiX Wallet' : 'Cash'}</span>
+                    <span className="text-slate-700 capitalize text-xs">
+                      {m === 'card' ? 'Card (tap/insert)' : m === 'insurance' ? 'Insurance Direct' : m === 'wallet' ? 'CeenAiX Wallet' : 'Cash'}
+                    </span>
                   </label>
                 ))}
                 {!paymentDone ? (
                   <button
                     onClick={handlePayment}
-                    className="w-full bg-emerald-600 text-white text-sm font-bold py-2.5 rounded-lg hover:bg-emerald-700 transition-colors mt-2"
-                    style={{ height: 44 }}
+                    className="w-full text-white text-sm font-bold py-2.5 rounded-lg transition-colors mt-2"
+                    style={{ background: '#059669', height: 44 }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#047857'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = '#059669'; }}
                   >
-                    💳 Process AED {rx.copay} Payment
+                    Process AED {rx.copay} Payment
                   </button>
                 ) : (
                   <div className="bg-emerald-100 text-emerald-700 text-xs font-bold py-2 rounded-lg text-center">
@@ -450,7 +528,7 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
               </div>
             </div>
 
-            {/* Dispensing Checklist */}
+            {/* Checklist */}
             <div className="rounded-xl border border-slate-200 overflow-hidden">
               <div className="px-4 py-2 bg-slate-50 border-b border-slate-200">
                 <div className="text-slate-500 uppercase tracking-widest" style={{ fontSize: 9, fontFamily: 'DM Mono, monospace' }}>
@@ -485,7 +563,12 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
                 {[0, 1, 2, 3].map(i => (
                   <div
                     key={i}
-                    className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center text-lg font-bold transition-all ${i < pin.length ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-slate-50 text-slate-300'}`}
+                    className="w-10 h-10 rounded-xl border-2 flex items-center justify-center text-lg font-bold transition-all"
+                    style={{
+                      borderColor: i < pin.length ? '#059669' : '#E2E8F0',
+                      background: i < pin.length ? '#F0FDF4' : '#F8FAFC',
+                      color: i < pin.length ? '#059669' : '#CBD5E1',
+                    }}
                   >
                     {i < pin.length ? '●' : '·'}
                   </div>
@@ -506,7 +589,7 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
                   </button>
                 ))}
               </div>
-              <div className="text-slate-400 text-[10px] mt-2 text-center">Required by DHA for dispensing confirmation</div>
+              <div className="text-slate-400 text-xs mt-2 text-center">Required by DHA for dispensing confirmation</div>
             </div>
 
             {/* Dispense button */}
@@ -514,10 +597,23 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
               <button
                 onClick={handleDispense}
                 disabled={!canDispense}
-                className={`w-full py-3.5 rounded-xl font-bold text-white transition-all ${canDispense ? 'bg-emerald-600 hover:bg-emerald-700 shadow-lg hover:shadow-emerald-200' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
-                style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 15, height: 52 }}
+                className="w-full py-3.5 rounded-xl font-bold text-white transition-all"
+                style={{
+                  fontFamily: 'Plus Jakarta Sans, sans-serif',
+                  fontSize: 15,
+                  height: 52,
+                  background: canDispense
+                    ? hasControlled ? '#7C3AED' : '#059669'
+                    : '#E2E8F0',
+                  color: canDispense ? '#fff' : '#94A3B8',
+                  cursor: canDispense ? 'pointer' : 'not-allowed',
+                  boxShadow: canDispense ? `0 4px 14px ${hasControlled ? 'rgba(124,58,237,0.3)' : 'rgba(5,150,105,0.3)'}` : 'none',
+                }}
               >
-                {canDispense ? '✅ Dispense & Complete' : `Complete checklist (${checklist.filter(Boolean).length}/${CHECKLIST_ITEMS.length})`}
+                {canDispense
+                  ? hasControlled ? '🟣 Dispense Controlled Substance' : '✅ Dispense & Complete'
+                  : `Complete checklist (${checklist.filter(Boolean).length}/${CHECKLIST_ITEMS.length})`
+                }
               </button>
             )}
 
@@ -529,21 +625,21 @@ const PharmacyDispensingWorkspace: React.FC<Props> = ({ rxId, onNavigate }) => {
                   className="w-full bg-amber-100 text-amber-700 text-sm font-semibold py-2.5 rounded-xl hover:bg-amber-200 transition-colors"
                   style={{ height: 40 }}
                 >
-                  ⏸ Put on Hold
+                  Put on Hold
                 </button>
                 <button
                   onClick={() => onNavigate('messages')}
                   className="w-full bg-slate-100 text-slate-600 text-sm font-medium py-2.5 rounded-xl hover:bg-slate-200 transition-colors"
                   style={{ height: 40 }}
                 >
-                  ↩ Refer Back to Doctor
+                  Refer Back to Doctor
                 </button>
                 <button
                   onClick={() => setShowRejectModal(true)}
                   className="w-full border border-red-200 text-red-500 text-sm font-medium py-2 rounded-xl hover:bg-red-50 transition-colors"
                   style={{ height: 36 }}
                 >
-                  ❌ Reject Prescription
+                  Reject Prescription
                 </button>
               </div>
             )}
@@ -635,45 +731,33 @@ interface DrugCardProps {
   onNoteChange: (n: string) => void;
   showLabel: boolean;
   onToggleLabel: () => void;
-  onChecklistItem: (idx: number) => void;
+  onQtyConfirmed: () => void;
 }
-
-const drugCounselingTemplates: Record<string, string> = {
-  Furosemide: 'Take in the morning to avoid nighttime urination. Weigh yourself daily at the same time. Report to Dr. Ahmed if weight increases by more than 2kg. Avoid potassium supplements unless prescribed.',
-  Spironolactone: 'Take with food. May cause dizziness on standing — rise slowly. Avoid high-potassium foods (bananas, oranges, potatoes). Report muscle weakness or irregular heartbeat immediately.',
-};
-
-const batchOptions: Record<string, Array<{ batch: string; qty: number; expiry: string; note?: string }>> = {
-  'd3': [
-    { batch: 'BT-2025-FUR60-019', qty: 124, expiry: 'Sep 2027' },
-    { batch: 'BT-2025-FUR60-012', qty: 23, expiry: 'Jun 2026', note: 'Older — use first (FEFO)' },
-  ],
-  'd4': [
-    { batch: 'BT-2025-SPI25-031', qty: 83, expiry: 'Dec 2026' },
-  ],
-};
 
 const DrugCard: React.FC<DrugCardProps> = ({
   drug, rxRef, patientName, doctorName,
   qty, onQtyChange, selectedBatch, onBatchChange,
-  counselingNote, onNoteChange, showLabel, onToggleLabel, onChecklistItem
+  counselingNote, onNoteChange, showLabel, onToggleLabel, onQtyConfirmed
 }) => {
   const batches = batchOptions[drug.id] || [];
+  const accentColor = drug.isControlled ? '#7C3AED' : '#059669';
 
   return (
-    <div className={`bg-white rounded-xl border-l-4 shadow-sm mb-4 overflow-hidden ${drug.isControlled ? 'border-l-purple-600' : 'border-l-emerald-500'}`}>
+    <div
+      className="bg-white rounded-xl shadow-sm mb-4 overflow-hidden"
+      style={{ borderLeft: `4px solid ${accentColor}` }}
+    >
       {drug.isControlled && (
-        <div className="bg-purple-600 px-4 py-2 flex items-center gap-2">
+        <div className="px-4 py-2 flex items-center gap-2" style={{ background: '#7C3AED' }}>
           <Lock className="w-4 h-4 text-white animate-pulse" />
           <span className="text-white font-bold text-xs">CONTROLLED SUBSTANCE — Schedule III</span>
           <span className="text-purple-200 text-xs ml-auto">DHA Controlled Drug Regulations apply</span>
         </div>
       )}
       <div className="p-5">
-        {/* Header */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-3">
-            <Pill className={`w-5 h-5 flex-shrink-0 ${drug.isControlled ? 'text-purple-600' : 'text-emerald-600'}`} />
+            <Pill className="w-5 h-5 flex-shrink-0" style={{ color: accentColor }} />
             <div>
               <div className="font-bold text-slate-900" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 16 }}>
                 {drug.genericName} {drug.strength}
@@ -683,22 +767,21 @@ const DrugCard: React.FC<DrugCardProps> = ({
                   ({drug.brandName})
                 </div>
               )}
-              <div className="text-slate-300 mt-0.5" style={{ fontFamily: 'DM Mono, monospace', fontSize: 10 }}>
-                {drug.atcCode && `ATC: ${drug.atcCode}`}
-              </div>
+              {drug.atcCode && (
+                <div className="text-slate-300 mt-0.5" style={{ fontFamily: 'DM Mono, monospace', fontSize: 10 }}>
+                  ATC: {drug.atcCode}
+                </div>
+              )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9px] font-bold px-2 py-0.5 rounded-full">
-              DHA Formulary ✅
-            </span>
-          </div>
+          <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold px-2 py-0.5 rounded-full" style={{ fontSize: 9 }}>
+            DHA Formulary ✅
+          </span>
         </div>
 
-        {/* Prescribed details */}
         <div className="grid grid-cols-2 gap-3 mb-3 text-xs bg-slate-50 rounded-lg p-3">
           {[
-            ['Dose', `${drug.strength}`],
+            ['Dose', drug.strength],
             ['Frequency', drug.frequency],
             ['Duration', drug.duration],
             ['Qty Prescribed', `${drug.quantity} ${drug.form}`],
@@ -711,12 +794,11 @@ const DrugCard: React.FC<DrugCardProps> = ({
           {drug.indication && (
             <div className="col-span-2">
               <div className="text-slate-400 mb-0.5">Indication</div>
-              <div className="text-teal-600 font-mono text-xs">{drug.indication}</div>
+              <div className="font-mono text-xs" style={{ color: '#0F766E' }}>{drug.indication}</div>
             </div>
           )}
         </div>
 
-        {/* Dose change notice */}
         {drug.doseChanged && (
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 mb-3 flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
@@ -726,14 +808,20 @@ const DrugCard: React.FC<DrugCardProps> = ({
           </div>
         )}
 
-        {/* Stock */}
         <div className="flex items-center gap-2 mb-3">
-          <div className={`text-xs font-semibold px-2.5 py-1 rounded-full ${drug.stockStatus === 'out_of_stock' ? 'bg-red-100 text-red-700' : drug.stockStatus === 'low' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
-            {drug.stockStatus === 'in_stock' ? `✅ In Stock — ${drug.stockQty} ${drug.form}` : drug.stockStatus === 'out_of_stock' ? '🔴 Out of Stock' : `⚠️ Low: ${drug.stockQty} remaining`}
+          <div
+            className="text-xs font-semibold px-2.5 py-1 rounded-full"
+            style={{
+              background: drug.stockStatus === 'out_of_stock' ? '#FEE2E2' : drug.stockStatus === 'low' ? '#FEF3C7' : '#D1FAE5',
+              color: drug.stockStatus === 'out_of_stock' ? '#DC2626' : drug.stockStatus === 'low' ? '#B45309' : '#15803D',
+            }}
+          >
+            {drug.stockStatus === 'in_stock' ? `✅ In Stock — ${drug.stockQty} ${drug.form}` :
+              drug.stockStatus === 'out_of_stock' ? 'OUT OF STOCK' :
+              `⚠️ Low: ${drug.stockQty} remaining`}
           </div>
         </div>
 
-        {/* Batch selection */}
         {batches.length > 0 && (
           <div className="mb-3">
             <div className="text-slate-500 text-xs mb-1.5 uppercase tracking-wide">Select batch (FEFO):</div>
@@ -741,8 +829,12 @@ const DrugCard: React.FC<DrugCardProps> = ({
               {batches.map(b => (
                 <label
                   key={b.batch}
-                  onClick={() => { onBatchChange(b.batch); onChecklistItem(4); }}
-                  className={`flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all ${selectedBatch === b.batch ? 'border-emerald-400 bg-emerald-50' : 'border-slate-200 hover:border-slate-300'} ${b.note ? 'bg-amber-50 border-amber-200' : ''}`}
+                  onClick={() => onBatchChange(b.batch)}
+                  className="flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all"
+                  style={{
+                    borderColor: selectedBatch === b.batch ? '#059669' : '#E2E8F0',
+                    background: selectedBatch === b.batch ? '#F0FDF4' : b.note ? '#FFFBEB' : 'transparent',
+                  }}
                 >
                   <input type="radio" checked={selectedBatch === b.batch} onChange={() => {}} className="accent-emerald-600" />
                   <div className="flex-1">
@@ -753,11 +845,10 @@ const DrugCard: React.FC<DrugCardProps> = ({
                 </label>
               ))}
             </div>
-            <div className="text-emerald-600 text-xs mt-1">Use oldest batch first (FEFO principle) ✅</div>
+            <div className="text-xs mt-1" style={{ color: '#059669' }}>Use oldest batch first (FEFO principle) ✅</div>
           </div>
         )}
 
-        {/* Quantity */}
         <div className="flex items-center gap-4 mb-3">
           <div>
             <div className="text-slate-500 text-xs mb-1">Qty to dispense:</div>
@@ -769,12 +860,12 @@ const DrugCard: React.FC<DrugCardProps> = ({
               <input
                 type="number"
                 value={qty}
-                onChange={e => { onQtyChange(parseInt(e.target.value) || 1); onChecklistItem(5); }}
+                onChange={e => { onQtyChange(parseInt(e.target.value) || 1); onQtyConfirmed(); }}
                 className="w-16 text-center font-bold border border-slate-200 rounded-lg py-1.5 focus:outline-none focus:border-emerald-400"
                 style={{ fontFamily: 'DM Mono, monospace', fontSize: 16 }}
               />
               <button
-                onClick={() => onQtyChange(qty + 1)}
+                onClick={() => { onQtyChange(qty + 1); onQtyConfirmed(); }}
                 className="w-8 h-8 bg-slate-100 rounded-lg font-bold text-slate-600 hover:bg-slate-200 transition-colors"
               >+</button>
               <span className="text-slate-400 text-xs">{drug.form}</span>
@@ -783,18 +874,18 @@ const DrugCard: React.FC<DrugCardProps> = ({
           </div>
         </div>
 
-        {/* Counseling notes */}
         <div className="mb-3">
           <div className="flex items-center justify-between mb-1.5">
-            <div className="text-slate-500 uppercase tracking-wide text-xs">Counseling notes for patient</div>
+            <div className="text-slate-500 uppercase tracking-wide text-xs">Counseling notes</div>
             <button
               onClick={() => {
                 const template = drugCounselingTemplates[drug.genericName] || '';
                 if (template) onNoteChange(template);
               }}
-              className="text-teal-600 hover:text-teal-700 text-xs font-medium"
+              className="hover:opacity-75 text-xs font-medium transition-opacity"
+              style={{ color: '#0F766E' }}
             >
-              🤖 Auto-suggest
+              Auto-suggest
             </button>
           </div>
           <textarea
@@ -806,7 +897,6 @@ const DrugCard: React.FC<DrugCardProps> = ({
           />
         </div>
 
-        {/* Label */}
         <div>
           <button
             onClick={onToggleLabel}
@@ -826,9 +916,7 @@ const DrugCard: React.FC<DrugCardProps> = ({
               <div>Date: 7 April 2026 | Exp: 7 May 2026</div>
             </div>
           )}
-          <button
-            className="flex items-center gap-1.5 bg-slate-100 text-slate-600 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-slate-200 transition-colors"
-          >
+          <button className="flex items-center gap-1.5 bg-slate-100 text-slate-600 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-slate-200 transition-colors">
             <Printer className="w-3 h-3" /> Print Label
           </button>
         </div>

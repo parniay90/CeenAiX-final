@@ -1,152 +1,158 @@
 import React, { useState } from 'react';
 import {
   Pill, Clock, AlertTriangle, CircleDollarSign, ShieldCheck,
-  ChevronDown, ChevronRight, Package, MessageSquare, X
+  ChevronDown, ChevronUp, Package, MessageSquare, AlertCircle
 } from 'lucide-react';
-import { prescriptions, inventoryItems, messages, Prescription } from '../../data/pharmacyData';
+import { prescriptions } from '../../data/pharmacyData';
 
 interface Props {
   onNavigate: (page: string, rxId?: string) => void;
 }
 
-const statusColors: Record<string, string> = {
-  new: 'bg-blue-100 text-blue-700',
-  on_hold: 'bg-amber-100 text-amber-700',
-  in_progress: 'bg-teal-100 text-teal-700',
-  dispensed: 'bg-emerald-100 text-emerald-700',
-  upcoming: 'bg-slate-100 text-slate-500',
-  cancelled: 'bg-slate-100 text-slate-400',
-};
+const stockAlerts = [
+  {
+    id: 'sa1', type: 'out_of_stock', drug: 'Atorvastatin 20mg — Lipitor Brand',
+    detail: 'Generic available: ✅', impact: '1 prescription on hold: Parnia Yazdkhasti',
+  },
+  {
+    id: 'sa2', type: 'low', drug: 'Metformin 850mg',
+    detail: '12 boxes remaining', impact: '~6 days supply at current rate',
+  },
+  {
+    id: 'sa3', type: 'low', drug: 'Bisoprolol 5mg',
+    detail: '8 boxes remaining', impact: '~4 days supply at current rate',
+  },
+  {
+    id: 'sa4', type: 'expiring', drug: 'Warfarin 5mg — Batch BT-2025-WAR5-002',
+    detail: 'Expires: 30 April 2026 (23 days)', impact: 'Qty: 240 tabs — use before expiry',
+  },
+];
 
-const statusLabels: Record<string, string> = {
-  new: 'NEW',
-  on_hold: 'ON HOLD',
-  in_progress: 'IN PROGRESS',
-  dispensed: 'DONE',
-  upcoming: 'UPCOMING',
-  cancelled: 'CANCELLED',
-};
+const recentMessages = [
+  {
+    id: 'rm1',
+    type: 'awaiting',
+    title: 'Al Shifa Pharmacy → Dr. Ahmed Al Rashidi',
+    body: 'Query: Atorvastatin generic substitution for Parnia Yazdkhasti. Sent 1:15 PM.',
+    note: 'Awaiting response...',
+    action: 'Follow Up',
+  },
+  {
+    id: 'rm2',
+    type: 'sent',
+    title: 'Patient notified: Parnia Yazdkhasti',
+    body: 'Prescription on hold — pharmacist query sent to Dr. Ahmed.',
+    note: 'Sent via app: 1:16 PM',
+    action: null,
+  },
+];
 
-const statusBorderColors: Record<string, string> = {
-  new: 'border-l-blue-500',
-  on_hold: 'border-l-amber-500',
-  in_progress: 'border-l-teal-500',
-  dispensed: 'border-l-emerald-500',
-  upcoming: 'border-l-slate-300',
-};
-
-const stockColors: Record<string, string> = {
-  out_of_stock: 'bg-red-50 border-l-red-500',
-  low: 'bg-amber-50 border-l-amber-500',
-  critical: 'bg-orange-50 border-l-orange-500',
-  expiring_soon: 'bg-orange-50 border-l-orange-400',
-  in_stock: 'bg-white',
+const statusConfig: Record<string, { label: string; bg: string; text: string; border: string }> = {
+  new: { label: 'NEW', bg: '#EFF6FF', text: '#1D4ED8', border: '#3B82F6' },
+  in_progress: { label: 'IN PROGRESS', bg: '#F0FDFA', text: '#0F766E', border: '#14B8A6' },
+  on_hold: { label: 'ON HOLD', bg: '#FFFBEB', text: '#B45309', border: '#F59E0B' },
+  dispensed: { label: 'DONE', bg: '#F0FDF4', text: '#15803D', border: '#22C55E' },
+  upcoming: { label: 'UPCOMING', bg: '#F8FAFC', text: '#475569', border: '#94A3B8' },
+  cancelled: { label: 'CANCELLED', bg: '#F8FAFC', text: '#94A3B8', border: '#CBD5E1' },
 };
 
 const PharmacyDashboardNew: React.FC<Props> = ({ onNavigate }) => {
-  const [dispensedOpen, setDispensedOpen] = useState(false);
-  const [holdModalRx, setHoldModalRx] = useState<Prescription | null>(null);
+  const [showDispensed, setShowDispensed] = useState(false);
 
-  const queue = prescriptions.filter(p => p.status === 'new' || p.status === 'on_hold' || p.status === 'upcoming');
-  const dispensed = prescriptions.filter(p => p.status === 'dispensed');
-  const stockAlerts = inventoryItems.filter(i =>
-    i.stockStatus === 'out_of_stock' || i.stockStatus === 'low' || i.stockStatus === 'expiring_soon'
-  );
-  const recentMessages = messages.slice(0, 3);
+  const queueRxs = prescriptions.filter(p => p.status === 'new' || p.status === 'in_progress' || p.status === 'on_hold');
+  const upcomingRxs = prescriptions.filter(p => p.status === 'upcoming');
+  const dispensedRxs = prescriptions.filter(p => p.status === 'dispensed');
 
   return (
-    <div className="p-6 space-y-5 bg-slate-50 min-h-full">
+    <div className="flex flex-col h-full overflow-y-auto" style={{ background: '#F8FAFC' }}>
       {/* Stock Alert Banner */}
-      {stockAlerts.length > 0 && (
-        <div className="flex items-center gap-3 bg-amber-50 border border-amber-300 rounded-xl px-4 py-3">
-          <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 animate-pulse" />
-          <div className="flex-1">
-            <span className="font-semibold text-amber-800" style={{ fontSize: 13 }}>
-              {stockAlerts.length} stock alerts require attention: &nbsp;
-            </span>
-            <span className="text-amber-700" style={{ fontSize: 13 }}>
-              Atorvastatin 20mg OUT OF STOCK · Metformin LOW · Bisoprolol LOW · Warfarin EXPIRING 30 Apr
-            </span>
-          </div>
-          <button
-            onClick={() => onNavigate('inventory')}
-            className="flex-shrink-0 bg-amber-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-amber-600 transition-colors"
-          >
-            View Inventory
-          </button>
+      <div className="mx-6 mt-5 rounded-xl border px-4 py-3 flex items-center gap-3 flex-shrink-0"
+        style={{ background: '#FFFBEB', borderColor: '#FCD34D' }}>
+        <AlertTriangle className="w-5 h-5 flex-shrink-0" style={{ color: '#D97706' }} />
+        <div className="flex-1 min-w-0">
+          <span className="font-semibold text-amber-800" style={{ fontSize: 13 }}>
+            4 stock alerts require attention: &nbsp;
+          </span>
+          <span className="text-amber-700" style={{ fontSize: 12 }}>
+            Atorvastatin 20mg OUT OF STOCK · Metformin LOW · Bisoprolol LOW · Warfarin EXPIRING 30 Apr
+          </span>
         </div>
-      )}
+        <button
+          onClick={() => onNavigate('inventory')}
+          className="text-white rounded-lg px-3 py-1.5 font-semibold flex-shrink-0 transition-colors"
+          style={{ background: '#D97706', fontSize: 12 }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#B45309'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = '#D97706'; }}
+        >
+          View Inventory
+        </button>
+      </div>
 
       {/* KPI Strip */}
-      <div className="grid grid-cols-5 gap-4">
-        {/* Card 1 */}
+      <div className="grid grid-cols-5 gap-4 mx-6 mt-4 flex-shrink-0">
         <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-              <Pill className="w-5 h-5 text-emerald-600" />
-            </div>
-            <div>
-              <div className="font-bold text-slate-900" style={{ fontFamily: 'DM Mono, monospace', fontSize: 28 }}>12</div>
+          <div className="flex items-start justify-between mb-2">
+            <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
+              <Pill className="w-5 h-5" style={{ color: '#059669' }} />
             </div>
           </div>
-          <div className="text-slate-500 uppercase tracking-wider mb-1" style={{ fontSize: 10 }}>Prescriptions Today</div>
-          <div className="text-slate-400" style={{ fontSize: 11 }}>8 dispensed · 3 in queue · 1 on hold</div>
-          <div className="mt-2 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-            <div className="h-full bg-emerald-500 rounded-full" style={{ width: '67%' }} />
+          <div className="font-bold text-slate-900" style={{ fontFamily: 'DM Mono, monospace', fontSize: 30 }}>12</div>
+          <div className="uppercase tracking-widest text-slate-400 mb-1" style={{ fontSize: 10, fontFamily: 'DM Mono, monospace' }}>Prescriptions Today</div>
+          <div className="text-slate-400 mb-2" style={{ fontSize: 11 }}>8 dispensed · 3 in queue · 1 on hold</div>
+          <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+            <div className="h-full rounded-full" style={{ width: '67%', background: '#059669' }} />
           </div>
         </div>
 
-        {/* Card 2 */}
-        <div className="bg-white rounded-xl p-4 border-2 border-blue-200 shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+        <div className="bg-white rounded-xl p-4 border shadow-sm" style={{ borderColor: '#93C5FD' }}>
+          <div className="flex items-start justify-between mb-2">
+            <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
               <Clock className="w-5 h-5 text-blue-600" />
             </div>
-            <div className="font-bold text-blue-600" style={{ fontFamily: 'DM Mono, monospace', fontSize: 28 }}>3</div>
+            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse mt-1" />
           </div>
-          <div className="text-slate-500 uppercase tracking-wider mb-1" style={{ fontSize: 10 }}>In Queue</div>
+          <div className="font-bold text-blue-600" style={{ fontFamily: 'DM Mono, monospace', fontSize: 30 }}>3</div>
+          <div className="uppercase tracking-widest text-slate-400 mb-1" style={{ fontSize: 10, fontFamily: 'DM Mono, monospace' }}>In Queue</div>
           <div className="text-slate-400" style={{ fontSize: 11 }}>Oldest: 5 min wait (Parnia Yazdkhasti)</div>
         </div>
 
-        {/* Card 3 */}
         <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-              <AlertTriangle className="w-5 h-5 text-amber-600 animate-pulse" />
+          <div className="flex items-start justify-between mb-2">
+            <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
+              <AlertTriangle className="w-5 h-5 text-amber-600" />
             </div>
-            <div className="font-bold text-amber-600" style={{ fontFamily: 'DM Mono, monospace', fontSize: 28 }}>4</div>
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse mt-1" />
           </div>
-          <div className="text-slate-500 uppercase tracking-wider mb-1" style={{ fontSize: 10 }}>Stock Alerts</div>
+          <div className="font-bold text-amber-600" style={{ fontFamily: 'DM Mono, monospace', fontSize: 30 }}>4</div>
+          <div className="uppercase tracking-widest text-slate-400 mb-1" style={{ fontSize: 10, fontFamily: 'DM Mono, monospace' }}>Stock Alerts</div>
           <div className="text-slate-400" style={{ fontSize: 11 }}>1 out of stock · 2 low · 1 expiring</div>
         </div>
 
-        {/* Card 4 */}
         <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-              <CircleDollarSign className="w-5 h-5 text-emerald-600" />
+          <div className="flex items-start justify-between mb-2">
+            <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
+              <CircleDollarSign className="w-5 h-5" style={{ color: '#059669' }} />
             </div>
-            <div className="font-bold text-emerald-600" style={{ fontFamily: 'DM Mono, monospace', fontSize: 22 }}>AED 1,847</div>
           </div>
-          <div className="text-slate-500 uppercase tracking-wider mb-1" style={{ fontSize: 10 }}>Revenue Today</div>
+          <div className="font-bold" style={{ fontFamily: 'DM Mono, monospace', fontSize: 22, color: '#059669' }}>AED 1,847</div>
+          <div className="uppercase tracking-widest text-slate-400 mb-1" style={{ fontSize: 10, fontFamily: 'DM Mono, monospace' }}>Revenue Today</div>
           <div className="text-slate-400" style={{ fontSize: 11 }}>AED 527 collected · AED 1,320 insurance</div>
         </div>
 
-        {/* Card 5 */}
         <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-              <ShieldCheck className="w-5 h-5 text-emerald-600" />
+          <div className="flex items-start justify-between mb-2">
+            <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5" style={{ color: '#059669' }} />
             </div>
-            <div className="font-bold text-emerald-600" style={{ fontSize: 16 }}>Compliant ✅</div>
           </div>
-          <div className="text-slate-500 uppercase tracking-wider mb-1" style={{ fontSize: 10 }}>DHA Dispensing Status</div>
+          <div className="font-bold" style={{ fontFamily: 'Inter, sans-serif', fontSize: 16, color: '#059669' }}>Compliant ✅</div>
+          <div className="uppercase tracking-widest text-slate-400 mb-1" style={{ fontSize: 10, fontFamily: 'DM Mono, monospace' }}>DHA Status</div>
           <div className="text-slate-400" style={{ fontSize: 11 }}>8/8 records submitted today</div>
         </div>
       </div>
 
       {/* Prescription Queue */}
-      <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+      <div className="mx-6 mt-4 bg-white rounded-xl border border-slate-100 shadow-sm flex-shrink-0">
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <div>
             <h2 className="font-bold text-slate-900" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 16 }}>
@@ -156,262 +162,285 @@ const PharmacyDashboardNew: React.FC<Props> = ({ onNavigate }) => {
           </div>
           <button
             onClick={() => onNavigate('prescriptions')}
-            className="flex items-center gap-1.5 text-emerald-600 font-medium hover:text-emerald-700 transition-colors"
-            style={{ fontSize: 13 }}
+            className="font-medium transition-colors"
+            style={{ fontSize: 13, color: '#059669' }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#047857'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = '#059669'; }}
           >
-            View All <ChevronRight className="w-4 h-4" />
+            View All →
           </button>
         </div>
 
-        {/* Queue rows */}
-        {queue.map((rx) => (
+        {[...queueRxs, ...upcomingRxs].map(rx => {
+          const cfg = statusConfig[rx.status] || statusConfig.upcoming;
+          const drugNames = rx.drugs.map(d => `${d.genericName} ${d.strength}`).join(' + ') || '—';
+          return (
+            <div
+              key={rx.id}
+              className="flex items-center gap-4 px-5 transition-colors cursor-pointer"
+              style={{ height: 80, borderBottom: '1px solid #F8FAFC', borderLeft: `4px solid ${cfg.border}` }}
+              onClick={() => rx.status !== 'upcoming' && onNavigate('dispense', rx.id)}
+              onMouseEnter={e => { e.currentTarget.style.background = '#F0FDF4'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+            >
+              <div style={{ width: 90, flexShrink: 0 }}>
+                <span
+                  className="font-bold rounded-full px-2 py-0.5"
+                  style={{
+                    fontSize: 10, background: cfg.bg, color: cfg.text,
+                  }}
+                >
+                  {cfg.label}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3" style={{ width: 200, flexShrink: 0 }}>
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 ${rx.patientAvatarColor}`}
+                  style={{ fontSize: 13 }}
+                >
+                  {rx.patientInitials}
+                </div>
+                <div className="min-w-0">
+                  <div className="font-semibold text-slate-800 truncate" style={{ fontSize: 13 }}>
+                    {rx.patientName}
+                    {rx.allergies.length > 0 && (
+                      <span className="ml-1" style={{ color: '#EF4444', fontSize: 10 }}>⚠️</span>
+                    )}
+                  </div>
+                  <div className="text-slate-400 truncate" style={{ fontFamily: 'DM Mono, monospace', fontSize: 10 }}>
+                    {rx.patientId} · {rx.patientAge}{rx.patientGender} · {rx.insurance}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="text-slate-600 truncate" style={{ fontSize: 12 }}>{rx.doctorName}</div>
+                <div className="text-slate-500 truncate" style={{ fontSize: 12 }}>{drugNames}</div>
+                <div className="text-slate-300 font-mono" style={{ fontSize: 10 }}>
+                  {rx.rxRef !== '—' ? rx.rxRef : rx.arrivingETA}
+                </div>
+              </div>
+
+              <div style={{ width: 150, flexShrink: 0 }}>
+                <div className="text-slate-600" style={{ fontSize: 11 }}>
+                  {rx.insurance} · {rx.copay > 0 ? `AED ${rx.copay}` : 'AED 0'}
+                </div>
+                {rx.arrivingETA && (
+                  <div style={{ fontSize: 10, color: '#059669' }}>{rx.arrivingETA}</div>
+                )}
+                {rx.holdReason && (
+                  <div className="text-amber-600 truncate" style={{ fontSize: 10, maxWidth: 150 }}>{rx.holdReason.slice(0, 38)}...</div>
+                )}
+                <div className="text-slate-400" style={{ fontFamily: 'DM Mono, monospace', fontSize: 10 }}>
+                  {rx.receivedTime} · {rx.receivedTimeAgo}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 flex-shrink-0" onClick={e => e.stopPropagation()}>
+                {rx.status === 'new' && (
+                  <button
+                    onClick={() => onNavigate('dispense', rx.id)}
+                    className="text-white rounded-lg px-3 py-1.5 font-semibold transition-colors"
+                    style={{ background: '#059669', fontSize: 11 }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#047857'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = '#059669'; }}
+                  >
+                    Dispense
+                  </button>
+                )}
+                {rx.status === 'on_hold' && (
+                  <button
+                    onClick={() => onNavigate('messages')}
+                    className="text-amber-700 rounded-lg px-3 py-1.5 font-semibold transition-colors"
+                    style={{ background: '#FEF3C7', fontSize: 11 }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#FDE68A'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = '#FEF3C7'; }}
+                  >
+                    Follow Up
+                  </button>
+                )}
+                {rx.status === 'upcoming' && (
+                  <button
+                    className="text-slate-600 rounded-lg px-3 py-1.5 font-medium transition-colors hover:bg-slate-200"
+                    style={{ background: '#F1F5F9', fontSize: 11 }}
+                  >
+                    Pre-Alert
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        <button
+          onClick={() => setShowDispensed(!showDispensed)}
+          className="w-full flex items-center justify-between px-5 py-3 hover:bg-slate-50 transition-colors text-left"
+          style={{ borderTop: '1px solid #F1F5F9' }}
+        >
+          <span className="text-slate-500 font-medium" style={{ fontSize: 13 }}>
+            {dispensedRxs.length} dispensed prescriptions today
+          </span>
+          {showDispensed ? (
+            <ChevronUp className="w-4 h-4 text-slate-400" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-slate-400" />
+          )}
+        </button>
+
+        {showDispensed && dispensedRxs.map(rx => (
           <div
             key={rx.id}
-            className={`flex items-center px-5 py-4 border-b border-slate-50 border-l-4 hover:bg-emerald-50/40 cursor-pointer transition-colors ${statusBorderColors[rx.status] || 'border-l-slate-200'}`}
-            onClick={() => rx.status !== 'upcoming' && onNavigate('dispense', rx.id)}
+            className="flex items-center gap-4 px-5"
+            style={{ height: 64, borderBottom: '1px solid #F8FAFC', borderLeft: '4px solid #22C55E', background: '#FAFFFE' }}
           >
-            {/* Status */}
-            <div className="w-24 flex-shrink-0">
-              <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${statusColors[rx.status]} ${rx.status === 'new' ? 'animate-pulse' : ''}`}>
-                {statusLabels[rx.status]}
-              </span>
+            <div style={{ width: 90, flexShrink: 0 }}>
+              <span className="font-bold rounded-full px-2 py-0.5 bg-emerald-50 text-emerald-700" style={{ fontSize: 10 }}>DONE ✅</span>
             </div>
-
-            {/* Patient */}
-            <div className="flex items-center gap-3 w-52 flex-shrink-0">
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 ${rx.patientAvatarColor}`}>
+            <div className="flex items-center gap-3" style={{ width: 200, flexShrink: 0 }}>
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 ${rx.patientAvatarColor}`} style={{ fontSize: 12 }}>
                 {rx.patientInitials}
               </div>
               <div>
-                <div className="font-semibold text-slate-800" style={{ fontSize: 13 }}>{rx.patientName}</div>
-                <div className="flex items-center gap-1">
-                  <span className="text-slate-400" style={{ fontFamily: 'DM Mono, monospace', fontSize: 10 }}>
-                    {rx.patientId} · {rx.patientAge}{rx.patientGender} · {rx.insurance}
-                  </span>
-                  {rx.allergies.length > 0 && (
-                    <span className="text-red-500 font-bold" style={{ fontSize: 9 }}>⚠️</span>
-                  )}
-                </div>
+                <div className="font-medium text-slate-600" style={{ fontSize: 12 }}>{rx.patientName}</div>
+                <div className="text-slate-400" style={{ fontFamily: 'DM Mono, monospace', fontSize: 10 }}>{rx.dispensedTime} · {rx.dhaRecord}</div>
               </div>
             </div>
-
-            {/* Prescription info */}
-            <div className="flex-1 min-w-0 px-4">
-              <div className="text-slate-600" style={{ fontSize: 12 }}>{rx.doctorName}</div>
-              <div className="text-slate-500 truncate" style={{ fontSize: 12 }}>
-                {rx.drugs.map(d => `${d.genericName} ${d.strength}`).join(' + ') || rx.notes}
-              </div>
-              <div className="text-slate-300" style={{ fontFamily: 'DM Mono, monospace', fontSize: 10 }}>
-                {rx.rxRef} · {rx.receivedTime !== '—' ? rx.receivedTime : ''} {rx.receivedTimeAgo}
-              </div>
+            <div className="flex-1 text-slate-400" style={{ fontSize: 11 }}>
+              {rx.drugs.map(d => `${d.genericName} ${d.strength}`).join(' · ')}
             </div>
-
-            {/* Insurance */}
-            <div className="w-36 flex-shrink-0 text-right px-2">
-              <div className="text-slate-600" style={{ fontSize: 11 }}>{rx.insurance}</div>
-              {rx.copay > 0 && (
-                <div className="text-emerald-700 font-bold" style={{ fontFamily: 'DM Mono, monospace', fontSize: 11 }}>
-                  Co-pay AED {rx.copay}
-                </div>
-              )}
-              {rx.holdReason && (
-                <div className="text-amber-600 truncate" style={{ fontSize: 10, maxWidth: 130 }}>
-                  {rx.holdReason.substring(0, 40)}...
-                </div>
-              )}
-              {rx.arrivingETA && !rx.holdReason && (
-                <div className="text-emerald-600" style={{ fontSize: 10 }}>{rx.arrivingETA}</div>
-              )}
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-2 ml-3 flex-shrink-0" onClick={e => e.stopPropagation()}>
-              {rx.status === 'new' && (
-                <button
-                  onClick={() => onNavigate('dispense', rx.id)}
-                  className="bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition-colors"
-                  style={{ fontFamily: 'Inter, sans-serif' }}
-                >
-                  ▶ Dispense
-                </button>
-              )}
-              {rx.status === 'on_hold' && (
-                <button
-                  onClick={() => onNavigate('messages')}
-                  className="bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-amber-200 transition-colors"
-                >
-                  Follow Up
-                </button>
-              )}
-              {rx.status === 'upcoming' && (
-                <button className="bg-slate-100 text-slate-600 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-slate-200 transition-colors">
-                  Pre-Alert
-                </button>
-              )}
-              <button
-                onClick={() => onNavigate('messages')}
-                className="bg-slate-100 text-slate-600 p-1.5 rounded-lg hover:bg-slate-200 transition-colors"
-              >
-                <MessageSquare className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        ))}
-
-        {/* Dispensed collapsed section */}
-        <button
-          onClick={() => setDispensedOpen(!dispensedOpen)}
-          className="w-full flex items-center justify-between px-5 py-3 text-slate-500 hover:bg-slate-50 transition-colors border-t border-slate-100"
-          style={{ fontSize: 13 }}
-        >
-          <span className="flex items-center gap-2">
-            {dispensedOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-            <span className="text-emerald-600 font-semibold">✅ {dispensed.length} dispensed prescriptions today</span>
-          </span>
-        </button>
-        {dispensedOpen && dispensed.map(rx => (
-          <div key={rx.id} className="flex items-center px-5 py-3 bg-slate-50 border-b border-slate-100">
-            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 ${rx.patientAvatarColor} mr-3`}>
-              {rx.patientInitials}
-            </div>
-            <div className="flex-1">
-              <span className="font-medium text-slate-700" style={{ fontSize: 13 }}>{rx.patientName}</span>
-              <span className="text-slate-400 ml-2" style={{ fontSize: 11 }}>· {rx.dispensedTime}</span>
-            </div>
-            <span className="text-emerald-600 font-bold" style={{ fontFamily: 'DM Mono, monospace', fontSize: 10 }}>
-              {rx.dhaRecord}
-            </span>
+            <div className="font-medium" style={{ fontSize: 11, color: '#059669' }}>AED {rx.copay} collected ✅</div>
           </div>
         ))}
       </div>
 
-      {/* Bottom two-column */}
-      <div className="grid grid-cols-2 gap-5">
-        {/* Stock Alerts */}
-        <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-            <h2 className="font-bold text-slate-900 flex items-center gap-2" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 15 }}>
-              <AlertTriangle className="w-4 h-4 text-amber-500" />
+      {/* Two-column section */}
+      <div className="grid grid-cols-2 gap-4 mx-6 mt-4 mb-6">
+        <div className="bg-white rounded-xl border border-slate-100 shadow-sm">
+          <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100">
+            <AlertCircle className="w-4 h-4 text-amber-600" />
+            <h3 className="font-bold text-slate-800" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14 }}>
               Stock Alerts
-            </h2>
-            <button
-              onClick={() => onNavigate('inventory')}
-              className="text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
-              style={{ fontSize: 12 }}
-            >
-              View All <ChevronRight className="w-3 h-3" />
-            </button>
+            </h3>
           </div>
-
-          {/* Out of stock */}
-          <div className="border-l-4 border-l-red-500 bg-red-50 p-4 border-b border-red-100">
-            <div className="flex items-start justify-between mb-2">
-              <div>
-                <div className="font-semibold text-slate-800" style={{ fontSize: 13 }}>Atorvastatin 20mg — Lipitor Brand</div>
-                <span className="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full">OUT OF STOCK</span>
-              </div>
-            </div>
-            <div className="text-slate-600 mb-2" style={{ fontSize: 11 }}>
-              Generic available ✅ · 1 prescription affected: <span className="font-semibold">Parnia Yazdkhasti</span>
-            </div>
-            <div className="flex gap-2">
-              <button className="bg-red-100 text-red-700 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-red-200 transition-colors">
-                📦 Order Urgently
-              </button>
-              <button
-                onClick={() => onNavigate('messages')}
-                className="bg-emerald-100 text-emerald-700 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-emerald-200 transition-colors"
+          <div className="divide-y divide-slate-50">
+            {stockAlerts.map(alert => (
+              <div
+                key={alert.id}
+                className="px-5 py-3.5"
+                style={{
+                  background: alert.type === 'out_of_stock' ? '#FEF2F2' : alert.type === 'expiring' ? '#FFF7ED' : '#FFFBEB',
+                  borderLeft: `3px solid ${alert.type === 'out_of_stock' ? '#EF4444' : alert.type === 'expiring' ? '#F97316' : '#F59E0B'}`,
+                }}
               >
-                ✅ Use Generic
-              </button>
-            </div>
-          </div>
-
-          {/* Low stock items */}
-          {[
-            { name: 'Metformin 850mg', qty: '12 boxes remaining', days: '~6 days supply at current rate' },
-            { name: 'Bisoprolol 5mg', qty: '8 boxes remaining', days: '~4 days supply at current rate' },
-          ].map(alert => (
-            <div key={alert.name} className="border-l-4 border-l-amber-500 bg-amber-50 p-4 border-b border-amber-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-semibold text-slate-800" style={{ fontSize: 13 }}>{alert.name}</div>
-                  <div className="text-amber-700 font-mono text-xs">{alert.qty}</div>
-                  <div className="text-slate-500" style={{ fontSize: 11 }}>{alert.days}</div>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-slate-800" style={{ fontSize: 13 }}>{alert.drug}</div>
+                    <div className="text-slate-500 mt-0.5" style={{ fontSize: 11 }}>{alert.detail}</div>
+                    <div
+                      className="mt-0.5"
+                      style={{
+                        fontSize: 11,
+                        color: alert.type === 'out_of_stock' ? '#DC2626' : '#92400E',
+                      }}
+                    >
+                      {alert.impact}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1 flex-shrink-0">
+                    {alert.type === 'out_of_stock' ? (
+                      <>
+                        <button
+                          onClick={() => onNavigate('inventory')}
+                          className="text-red-700 rounded-md px-2.5 py-1 font-semibold whitespace-nowrap transition-colors hover:bg-red-100"
+                          style={{ background: '#FEE2E2', fontSize: 10 }}
+                        >
+                          Order Urgently
+                        </button>
+                        <button
+                          className="text-emerald-700 rounded-md px-2.5 py-1 font-medium whitespace-nowrap transition-colors hover:bg-emerald-100"
+                          style={{ background: '#D1FAE5', fontSize: 10 }}
+                        >
+                          Use Generic
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        onClick={() => onNavigate('inventory')}
+                        className="text-amber-700 rounded-md px-2.5 py-1 font-semibold whitespace-nowrap transition-colors hover:bg-amber-100"
+                        style={{ background: '#FEF3C7', fontSize: 10 }}
+                      >
+                        {alert.type === 'expiring' ? 'View Batch' : 'Order Now'}
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <button className="bg-amber-100 text-amber-700 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-amber-200 transition-colors">
-                  📦 Order Now
-                </button>
               </div>
-            </div>
-          ))}
-
-          {/* Expiring */}
-          <div className="border-l-4 border-l-orange-500 bg-orange-50 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-semibold text-slate-800" style={{ fontSize: 13 }}>Warfarin 5mg — Batch BT-2025-WAR5-002</div>
-                <div className="text-orange-700 font-mono text-xs">Expires: 30 April 2026 (23 days)</div>
-                <div className="text-slate-500" style={{ fontSize: 11 }}>Qty: 240 tabs — use before expiry</div>
-              </div>
-              <button className="bg-amber-100 text-amber-700 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-amber-200 transition-colors">
-                View Batch
-              </button>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Recent Messages */}
-        <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-100 shadow-sm">
           <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-            <h2 className="font-bold text-slate-900 flex items-center gap-2" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 15 }}>
+            <div className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-slate-500" />
-              Messages
-            </h2>
-            <button
-              onClick={() => onNavigate('messages')}
-              className="text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
-              style={{ fontSize: 12 }}
-            >
-              View All <ChevronRight className="w-3 h-3" />
-            </button>
-          </div>
-
-          {/* Awaiting Dr. response */}
-          <div className="bg-amber-50 border-b border-amber-100 p-4">
-            <div className="flex items-start justify-between mb-2">
-              <div>
-                <div className="font-semibold text-slate-700" style={{ fontSize: 12 }}>
-                  Al Shifa Pharmacy → Dr. Ahmed Al Rashidi
-                </div>
-                <div className="text-slate-600 mt-1" style={{ fontSize: 12 }}>
-                  Query: Atorvastatin generic substitution for Parnia Yazdkhasti. Sent 1:15 PM.
-                </div>
-                <div className="text-amber-600 italic mt-1" style={{ fontSize: 11 }}>
-                  Awaiting response...
-                </div>
-              </div>
+              <h3 className="font-bold text-slate-800" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14 }}>
+                Messages
+              </h3>
             </div>
             <button
               onClick={() => onNavigate('messages')}
-              className="bg-amber-100 text-amber-700 text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-amber-200 transition-colors"
+              className="font-medium transition-colors"
+              style={{ fontSize: 12, color: '#059669' }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#047857'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = '#059669'; }}
             >
-              💬 Follow Up
+              View All →
             </button>
           </div>
+          <div className="divide-y divide-slate-50">
+            {recentMessages.map(msg => (
+              <div
+                key={msg.id}
+                className="px-5 py-4"
+                style={{ background: msg.type === 'awaiting' ? '#FFFBEB' : '#FFFFFF' }}
+              >
+                <div className="font-semibold text-slate-700 mb-0.5" style={{ fontSize: 12 }}>{msg.title}</div>
+                <div className="text-slate-500 mb-1" style={{ fontSize: 12 }}>{msg.body}</div>
+                <div
+                  className="italic mb-2"
+                  style={{
+                    fontSize: 11,
+                    color: msg.type === 'awaiting' ? '#D97706' : '#22C55E',
+                  }}
+                >
+                  {msg.note}
+                </div>
+                {msg.action && (
+                  <button
+                    onClick={() => onNavigate('messages')}
+                    className="text-amber-700 rounded-md px-2.5 py-1 font-semibold transition-colors hover:bg-amber-100"
+                    style={{ background: '#FEF3C7', fontSize: 11 }}
+                  >
+                    {msg.action}
+                  </button>
+                )}
+              </div>
+            ))}
 
-          {/* Patient notification */}
-          <div className="p-4 border-b border-slate-100">
-            <div className="font-semibold text-slate-700 mb-1" style={{ fontSize: 12 }}>✅ Patient notified: Parnia Yazdkhasti</div>
-            <div className="text-slate-500" style={{ fontSize: 12 }}>Prescription on hold — pharmacist query</div>
-            <div className="text-slate-400 mt-1" style={{ fontFamily: 'DM Mono, monospace', fontSize: 10 }}>Sent via app: 1:16 PM</div>
-          </div>
-
-          {/* DHA confirmation */}
-          <div className="p-4">
-            <div className="font-semibold text-slate-700 mb-1" style={{ fontSize: 12 }}>DHA System · Dispensing Confirmation</div>
-            <div className="text-slate-500" style={{ fontSize: 12 }}>8/8 records submitted. All dispensing logs current.</div>
-            <div className="text-emerald-600 font-mono mt-1" style={{ fontSize: 10 }}>DIS-20260407-01228 ✅</div>
+            <div className="px-5 py-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Package className="w-4 h-4" style={{ color: '#059669' }} />
+                <span className="font-semibold text-slate-700" style={{ fontSize: 12 }}>CeenAiX ePrescription</span>
+                <span className="font-medium" style={{ fontSize: 11, color: '#059669' }}>Connected ✅</span>
+              </div>
+              <div className="text-slate-400" style={{ fontSize: 11 }}>
+                Connected to Dr. Ahmed Al Rashidi + 6 other CeenAiX doctors
+              </div>
+              <div className="text-slate-400 mt-0.5" style={{ fontSize: 11 }}>
+                NABIDH HIE: Synced ✅ · Last sync: 2:05 PM
+              </div>
+            </div>
           </div>
         </div>
       </div>
