@@ -46,7 +46,8 @@ export default function UserMenu({
       onSignOut();
     } else {
       await supabase.auth.signOut();
-      window.location.href = '/';
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new PopStateEvent('popstate'));
     }
   };
 
@@ -126,7 +127,7 @@ export default function UserMenu({
 
           <div className="p-3 bg-slate-900 border-t border-slate-700">
             <button
-              onClick={() => window.location.href = window.location.origin}
+              onClick={() => { window.history.pushState({}, '', '/'); window.dispatchEvent(new PopStateEvent('popstate')); }}
               className="text-xs text-teal-400 hover:text-teal-300 font-bold"
             >
               Back to CeenAiX Home

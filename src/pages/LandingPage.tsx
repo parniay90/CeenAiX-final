@@ -12,6 +12,11 @@ import {
   X
 } from 'lucide-react';
 
+function navigate(path: string) {
+  window.history.pushState({}, '', path);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+}
+
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -115,7 +120,7 @@ export default function LandingPage() {
               <a href="#pricing" className="text-slate-600 hover:text-cyan-600 transition-all duration-300 font-medium">Pricing</a>
               <a href="#contact" className="text-slate-600 hover:text-cyan-600 transition-all duration-300 font-medium">Contact</a>
               <button
-                onClick={() => window.location.href = '/login'}
+                onClick={() => navigate('/login')}
                 className="px-6 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 hover:scale-105"
               >
                 Sign In
@@ -141,7 +146,7 @@ export default function LandingPage() {
               <a href="#pricing" className="block text-gray-600 hover:text-gray-900">Pricing</a>
               <a href="#contact" className="block text-gray-600 hover:text-gray-900">Contact</a>
               <button
-                onClick={() => window.location.href = '/login'}
+                onClick={() => navigate('/login')}
                 className="w-full px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
               >
                 Sign In
@@ -169,37 +174,37 @@ export default function LandingPage() {
               <h3 className="text-lg font-semibold text-gray-700 mb-4">Access Portal Demos</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl mx-auto">
                 <button
-                  onClick={() => window.location.href = '/patient/home'}
+                  onClick={() => navigate('/patient/home')}
                   className="px-4 py-3 bg-white text-gray-900 border-2 border-teal-600 rounded-lg hover:bg-teal-50 transition-colors font-medium"
                 >
                   Patient Portal
                 </button>
                 <button
-                  onClick={() => window.location.href = '/doctor/dashboard'}
+                  onClick={() => navigate('/doctor/dashboard')}
                   className="px-4 py-3 bg-white text-gray-900 border-2 border-teal-600 rounded-lg hover:bg-teal-50 transition-colors font-medium"
                 >
                   Doctor Portal
                 </button>
                 <button
-                  onClick={() => window.location.href = '/pharmacy/dashboard'}
+                  onClick={() => navigate('/pharmacy/dashboard')}
                   className="px-4 py-3 bg-white text-gray-900 border-2 border-teal-600 rounded-lg hover:bg-teal-50 transition-colors font-medium"
                 >
                   Pharmacy Portal
                 </button>
                 <button
-                  onClick={() => window.location.href = '/lab/dashboard'}
+                  onClick={() => navigate('/lab/dashboard')}
                   className="px-4 py-3 bg-white text-gray-900 border-2 border-teal-600 rounded-lg hover:bg-teal-50 transition-colors font-medium"
                 >
                   Lab & Radiology Portal
                 </button>
                 <button
-                  onClick={() => window.location.href = '/insurance/dashboard'}
+                  onClick={() => navigate('/insurance/dashboard')}
                   className="px-4 py-3 bg-white text-gray-900 border-2 border-teal-600 rounded-lg hover:bg-teal-50 transition-colors font-medium"
                 >
                   Insurance Portal
                 </button>
                 <button
-                  onClick={() => window.location.href = '/admin/dashboard'}
+                  onClick={() => navigate('/admin/dashboard')}
                   className="px-4 py-3 bg-white text-gray-900 border-2 border-amber-600 rounded-lg hover:bg-amber-50 transition-colors font-medium"
                 >
                   Admin Portal
@@ -331,7 +336,7 @@ export default function LandingPage() {
                 <div className="text-4xl font-bold text-gray-900 mb-2">{plan.price}</div>
                 <p className="text-gray-600 mb-6">{plan.description}</p>
                 <button
-                  onClick={() => window.location.href = '/signup'}
+                  onClick={() => navigate('/login')}
                   className={`w-full py-3 rounded-lg font-medium transition-colors mb-6 ${
                     plan.highlighted
                       ? 'bg-teal-600 text-white hover:bg-teal-700'
@@ -364,7 +369,7 @@ export default function LandingPage() {
             Join thousands of patients and healthcare providers using CeenAiX
           </p>
           <button
-            onClick={() => window.location.href = '/signup'}
+            onClick={() => navigate('/login')}
             className="px-8 py-4 bg-white text-teal-600 rounded-lg hover:bg-gray-100 transition-colors text-lg font-medium inline-flex items-center gap-2"
           >
             Get Started Today

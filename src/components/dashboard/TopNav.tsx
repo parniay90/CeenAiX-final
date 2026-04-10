@@ -37,7 +37,7 @@ export default function TopNav({ patientName, patientAvatar }: TopNavProps) {
             <ArrowLeft className="w-5 h-5 text-slate-600 group-hover:text-cyan-600 transition-colors duration-300" />
           </button>
           <button
-            onClick={() => window.location.href = '/'}
+            onClick={() => { window.history.pushState({}, '', '/'); window.dispatchEvent(new PopStateEvent('popstate')); }}
             className="p-2 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 rounded-lg transition-all duration-300 group"
             title="Home"
           >
@@ -76,7 +76,8 @@ export default function TopNav({ patientName, patientAvatar }: TopNavProps) {
                     <button
                       key={portal.path}
                       onClick={() => {
-                        window.location.href = portal.path;
+                        window.history.pushState({}, '', portal.path);
+                        window.dispatchEvent(new PopStateEvent('popstate'));
                         setShowPortalMenu(false);
                       }}
                       className="w-full text-left px-4 py-2 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 text-sm text-slate-700 font-medium transition-all duration-300"

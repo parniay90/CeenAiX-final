@@ -42,7 +42,10 @@ const PharmacySidebar: React.FC<PharmacySidebarProps> = ({ activePage, onNavigat
 
   const handleSignOut = () => {
     setSigningOut(true);
-    setTimeout(() => { window.location.href = '/'; }, 800);
+    setTimeout(() => {
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }, 800);
   };
 
   return (

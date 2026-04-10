@@ -16,7 +16,8 @@ const DoctorSidebarNew: React.FC<DoctorSidebarProps> = ({
 
   const handleSignOut = async () => {
     setSigningOut(true);
-    window.location.href = '/';
+    window.history.pushState({}, '', '/');
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
   const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', badge: 3, badgeColor: 'bg-red-500', section: 'CLINIC', href: '/doctor/dashboard' },

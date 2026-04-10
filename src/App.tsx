@@ -43,6 +43,7 @@ import DoctorImaging from './pages/DoctorImaging';
 import DoctorEarnings from './pages/DoctorEarnings';
 import DoctorSettings from './pages/DoctorSettings';
 import DoctorProfile from './pages/DoctorProfile';
+import RoleLogin from './pages/RoleLogin';
 
 function App() {
   const [view, setView] = useState<string>('landing');
@@ -53,6 +54,8 @@ function App() {
 
       if (path === '/') {
         setView('landing');
+      } else if (path === '/login') {
+        setView('login');
       } else if (path === '/dashboard') {
         setView('patient-dashboard');
       } else if (path === '/patient/home') {
@@ -123,7 +126,7 @@ function App() {
         setView('ai-assistant');
       } else if (path === '/analytics') {
         setView('analytics');
-      } else if (path === '/insurance/dashboard' || path.startsWith('/insurance/')) {
+      } else if (path.startsWith('/insurance/')) {
         setView('insurance-dashboard');
       } else if (path === '/insurance') {
         setView('insurance');
@@ -149,6 +152,7 @@ function App() {
   }, []);
 
   if (view === 'landing') return <LandingPage />;
+  if (view === 'login') return <RoleLogin />;
   if (view === 'patient-dashboard') return <Dashboard />;
   if (view === 'patient-home') return <PatientDashboard />;
   if (view === 'doctor-dashboard') return <DoctorPortal />;

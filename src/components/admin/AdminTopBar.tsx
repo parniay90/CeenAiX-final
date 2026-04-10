@@ -183,7 +183,7 @@ const AdminTopBar: React.FC = () => {
                 <button className="w-full flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:bg-slate-700/50 transition-colors text-sm">
                   <User className="w-4 h-4" /> Profile
                 </button>
-                <button className="w-full flex items-center gap-3 px-4 py-2.5 text-red-400 hover:bg-red-900/20 transition-colors text-sm">
+                <button onClick={() => { setShowUserMenu(false); window.history.pushState({}, '', '/'); window.dispatchEvent(new PopStateEvent('popstate')); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-red-400 hover:bg-red-900/20 transition-colors text-sm">
                   <LogOut className="w-4 h-4" /> Sign Out
                 </button>
               </div>

@@ -224,6 +224,7 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
 
       {/* Sign out */}
       <button
+        onClick={() => { window.history.pushState({}, '', '/'); window.dispatchEvent(new PopStateEvent('popstate')); }}
         className="flex-shrink-0 flex items-center gap-3 transition-colors"
         style={{
           padding: collapsed ? '12px 0' : '12px 16px',

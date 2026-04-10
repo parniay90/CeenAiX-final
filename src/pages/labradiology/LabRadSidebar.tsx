@@ -3,9 +3,14 @@ import {
   FlaskConical, Scan, LayoutDashboard, ClipboardList,
   CheckSquare, Microscope, Activity, FileText, Cpu,
   Upload, BarChart3, User, Settings, ChevronRight,
-  AlertCircle, Cloud, Beaker
+  AlertCircle, Cloud, Beaker, LogOut
 } from 'lucide-react';
 import type { LabPage } from './types';
+
+function navigate(path: string) {
+  window.history.pushState({}, '', path);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+}
 
 interface Props {
   activePage: LabPage;
@@ -245,6 +250,17 @@ export default function LabRadSidebar({ activePage, onNavigate }: Props) {
           </button>
         </div>
       </nav>
+
+      <div className="border-t border-white/10 px-2 py-2">
+        <button
+          onClick={() => navigate('/')}
+          className="w-full flex items-center gap-2.5 rounded-lg px-2 py-2 text-red-300 hover:bg-red-900/30 hover:text-red-200 transition-all text-left"
+          title={collapsed ? 'Sign Out' : undefined}
+        >
+          <LogOut size={16} className="shrink-0" />
+          {!collapsed && <span className="text-xs font-medium">Sign Out</span>}
+        </button>
+      </div>
 
       {!collapsed && (
         <div className="border-t border-white/10 px-3 py-3 space-y-0.5" style={{ fontSize: 10 }}>
