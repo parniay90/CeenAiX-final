@@ -38,6 +38,11 @@ const bottomItems = [
   { id: 'settings', label: 'Settings', icon: Settings, href: '/settings' },
 ];
 
+function navigate(path: string) {
+  window.history.pushState({}, '', path);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+}
+
 export default function PatientSidebar({ currentPage = 'dashboard' }: PatientSidebarProps) {
   return (
     <div className="fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-slate-50 to-white border-r border-cyan-100 flex flex-col z-50 shadow-lg shadow-cyan-500/5">
@@ -62,13 +67,13 @@ export default function PatientSidebar({ currentPage = 'dashboard' }: PatientSid
             const isActive = currentPage === item.id;
 
             return (
-              <a
+              <button
                 key={item.id}
-                href={item.href}
+                onClick={() => navigate(item.href)}
                 style={{ animationDelay: `${index * 50}ms` }}
                 className={`
-                  flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300
-                  animate-slideUp hover:translate-x-1 group
+                  w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300
+                  animate-slideUp hover:translate-x-1 group text-left
                   ${isActive
                     ? 'bg-gradient-to-r from-cyan-50 to-blue-50 text-cyan-700 font-medium shadow-sm shadow-cyan-500/20'
                     : 'text-slate-700 hover:bg-gradient-to-r hover:from-cyan-50/50 hover:to-transparent'
@@ -82,7 +87,7 @@ export default function PatientSidebar({ currentPage = 'dashboard' }: PatientSid
                     {item.badge}
                   </span>
                 )}
-              </a>
+              </button>
             );
           })}
         </nav>
@@ -94,12 +99,12 @@ export default function PatientSidebar({ currentPage = 'dashboard' }: PatientSid
           const isActive = currentPage === item.id;
 
           return (
-            <a
+            <button
               key={item.id}
-              href={item.href}
+              onClick={() => navigate(item.href)}
               className={`
-                flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300
-                hover:translate-x-1 group
+                w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-300
+                hover:translate-x-1 group text-left
                 ${isActive
                   ? 'bg-gradient-to-r from-cyan-50 to-blue-50 text-cyan-700 font-medium shadow-sm shadow-cyan-500/20'
                   : 'text-slate-700 hover:bg-gradient-to-r hover:from-cyan-50/50 hover:to-transparent'
@@ -108,11 +113,12 @@ export default function PatientSidebar({ currentPage = 'dashboard' }: PatientSid
             >
               <Icon className={`w-5 h-5 transition-all duration-300 ${isActive ? 'text-cyan-600' : 'text-slate-400 group-hover:text-cyan-500'}`} />
               <span className="text-sm">{item.label}</span>
-            </a>
+            </button>
           );
         })}
 
         <button
+          onClick={() => navigate('/')}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 hover:text-red-600 transition-all duration-300 hover:translate-x-1 group"
         >
           <LogOut className="w-5 h-5 text-slate-400 group-hover:text-red-500 transition-all duration-300" />

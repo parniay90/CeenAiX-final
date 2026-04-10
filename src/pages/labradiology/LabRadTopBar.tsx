@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { FlaskConical, Scan, Search, AlertCircle, Bell, ChevronDown, User, Settings, LogOut, Check, X } from 'lucide-react';
 import SignOutModal from '../../components/common/SignOutModal';
 import { ToastContainer, useToast } from '../../components/common/Toast';
