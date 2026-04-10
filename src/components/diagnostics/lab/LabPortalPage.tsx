@@ -533,7 +533,7 @@ const LabPortalPage: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   );
 
   return (
-    <div className="flex flex-1 overflow-hidden" style={{ background: T.bg, height: '100%' }}>
+    <div className="flex w-full h-full overflow-hidden" style={{ background: T.bg, minHeight: 0, flex: '1 1 0' }}>
       {/* Left nav */}
       <LabNav active={activeNav} onChange={setActiveNav} onBack={onBack} />
 

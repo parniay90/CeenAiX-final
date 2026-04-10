@@ -6,10 +6,14 @@ import MRIPage from '../components/diagnostics/mri/MRIPage';
 import CTScanPage from '../components/diagnostics/ct/CTScanPage';
 import LabPortalPage from '../components/diagnostics/lab/LabPortalPage';
 
+const FULL_SCREEN_PAGES = ['lab', 'mri', 'ct'];
+
 const DiagnosticsPortal: React.FC = () => {
   const [activePage, setActivePage] = useState('dashboard');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [deptFilter, setDeptFilter] = useState<DeptFilter>('all');
+
+  const isFullScreen = FULL_SCREEN_PAGES.includes(activePage);
 
   const renderPage = () => {
     switch (activePage) {
@@ -19,6 +23,14 @@ const DiagnosticsPortal: React.FC = () => {
       default:    return <DiagnosticsDashboard deptFilter={deptFilter} onNavigate={setActivePage} />;
     }
   };
+
+  if (isFullScreen) {
+    return (
+      <div className="flex h-screen overflow-hidden">
+        {renderPage()}
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: '#F8FAFC' }}>
