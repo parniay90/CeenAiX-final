@@ -43,7 +43,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
       <TopNav patientName={MOCK_PATIENT.name} patientAvatar={MOCK_PATIENT.avatar} />
 
       <div className="flex flex-1 overflow-hidden">

@@ -193,7 +193,7 @@ export default function PatientInsurance() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#F8FAFC' }}>
+    <div className="h-screen flex flex-col overflow-hidden" style={{ background: '#F8FAFC' }}>
       <PatientTopNav patientName="Parnia Yazdkhasti" />
       <div className="flex flex-1 overflow-hidden">
         <PatientSidebar currentPage="insurance" />

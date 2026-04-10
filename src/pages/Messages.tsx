@@ -467,7 +467,7 @@ export default function Messages() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
       <PatientTopNav patientName="Ahmed Al Maktoum" />
 
       <div className="flex flex-1 overflow-hidden">

@@ -114,7 +114,7 @@ export default function PatientProfile() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
       <PatientTopNav patientName="Parnia Yazdkhasti" />
 
       <div className="flex flex-1 overflow-hidden">
