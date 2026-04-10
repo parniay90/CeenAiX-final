@@ -1,116 +1,124 @@
-import { Activity, CheckCircle, Clock, Users } from 'lucide-react';
-import { SystemService } from '../../types/admin';
+import React from 'react';
+import { Activity, ExternalLink } from 'lucide-react';
+import { systemServices, integrations } from '../../data/superAdminData';
 
-interface SystemHealthPanelProps {
-  services: SystemService[];
-  apiResponseTime: { time: string; value: number }[];
-  errorRate: number;
-  activeSessions: number;
-}
+const statusDot: Record<'healthy' | 'warning' | 'error', string> = {
+  healthy: '#34D399',
+  warning: '#FCD34D',
+  error: '#F87171',
+};
 
-export default function SystemHealthPanel({
-  services,
-  apiResponseTime,
-  errorRate,
-  activeSessions,
-}: SystemHealthPanelProps) {
-  const getStatusColor = (status: 'operational' | 'degraded' | 'down') => {
-    switch (status) {
-      case 'operational':
-        return 'text-green-400 bg-green-500 bg-opacity-10 border-green-600';
-      case 'degraded':
-        return 'text-amber-400 bg-amber-500 bg-opacity-10 border-amber-600';
-      case 'down':
-        return 'text-rose-400 bg-rose-500 bg-opacity-10 border-rose-600';
-    }
-  };
+const integrationStatus: Record<'active' | 'warning' | 'inactive', { dot: string; label: string; bg: string }> = {
+  active: { dot: '#34D399', label: 'Active', bg: 'rgba(5,150,105,0.12)' },
+  warning: { dot: '#FCD34D', label: 'Degraded', bg: 'rgba(245,158,11,0.12)' },
+  inactive: { dot: '#F87171', label: 'Down', bg: 'rgba(239,68,68,0.12)' },
+};
 
-  const maxResponseTime = Math.max(...apiResponseTime.map((r) => r.value));
+const SystemHealthPanel: React.FC = () => {
+  const allHealthy = systemServices.every(s => s.status === 'healthy' || s.status === 'warning');
+  const hasWarning = systemServices.some(s => s.status === 'warning');
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
-      <div className="flex items-center gap-2 mb-4">
-        <Activity className="w-5 h-5 text-teal-400" />
-        <h3 className="text-sm font-bold text-white uppercase">System Health</h3>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        <div className="bg-slate-900 border border-slate-700 rounded-lg p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <CheckCircle className="w-4 h-4 text-green-400" />
-            <span className="text-xs font-bold text-slate-400">Error Rate</span>
-          </div>
-          <div className="text-xl font-bold text-green-400">{errorRate}%</div>
-          <div className="px-2 py-0.5 bg-green-500 bg-opacity-20 border border-green-600 rounded text-xs font-bold text-green-400 inline-block mt-1">
-            Excellent
-          </div>
+    <div
+      className="rounded-2xl overflow-hidden flex flex-col"
+      style={{ background: '#1E293B', border: '1px solid rgba(51,65,85,0.5)' }}
+    >
+      <div
+        className="flex items-center justify-between px-5 py-4 flex-shrink-0"
+        style={{ borderBottom: '1px solid rgba(51,65,85,0.5)' }}
+      >
+        <div className="flex items-center gap-2">
+          <Activity style={{ width: 16, height: 16, color: '#34D399' }} />
+          <span className="font-bold text-white" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14 }}>
+            System Health
+          </span>
         </div>
-        <div className="bg-slate-900 border border-slate-700 rounded-lg p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <Users className="w-4 h-4 text-teal-400" />
-            <span className="text-xs font-bold text-slate-400">Active Sessions</span>
-          </div>
-          <div className="text-xl font-bold text-white">{activeSessions.toLocaleString()}</div>
-          <div className="text-xs text-slate-500 mt-1">Concurrent users</div>
-        </div>
-      </div>
-
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-3">
-          <Clock className="w-4 h-4 text-teal-400" />
-          <span className="text-xs font-bold text-slate-400 uppercase">API Response Time (24h)</span>
-        </div>
-        <div className="h-24 flex items-end gap-1">
-          {apiResponseTime.map((point, idx) => (
-            <div key={idx} className="flex-1 flex flex-col items-center gap-1">
-              <div
-                className="w-full bg-gradient-to-t from-teal-600 to-teal-500 rounded-t"
-                style={{ height: `${(point.value / maxResponseTime) * 100}%` }}
-              ></div>
-              <div className="text-xs text-slate-500 font-mono">{point.time}</div>
-            </div>
-          ))}
-        </div>
-        <div className="text-center text-xs text-slate-500 mt-2">Average: 56ms</div>
-      </div>
-
-      <div>
-        <div className="text-xs font-bold text-slate-400 uppercase mb-3">Service Status</div>
-        <div className="space-y-2">
-          {services.map((service) => (
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
             <div
-              key={service.name}
-              className="flex items-center justify-between p-2 bg-slate-900 border border-slate-700 rounded"
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ background: hasWarning ? '#FCD34D' : '#34D399' }}
+            />
+            <span style={{ fontSize: 11, color: hasWarning ? '#FCD34D' : '#34D399' }}>
+              {hasWarning ? 'Degraded Service' : 'All Systems Operational'}
+            </span>
+          </div>
+          <button className="flex items-center gap-1" style={{ fontSize: 11, color: '#2DD4BF' }}>
+            View Details <ExternalLink style={{ width: 10, height: 10 }} />
+          </button>
+        </div>
+      </div>
+
+      <div className="p-5 flex-1">
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          {systemServices.map(svc => (
+            <div
+              key={svc.name}
+              className="flex items-center justify-between rounded-xl px-3 py-2.5"
+              style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(51,65,85,0.4)' }}
             >
-              <div className="flex items-center gap-3 flex-1">
+              <div className="flex items-center gap-2 min-w-0">
                 <div
-                  className={`w-2 h-2 rounded-full ${
-                    service.status === 'operational'
-                      ? 'bg-green-500'
-                      : service.status === 'degraded'
-                      ? 'bg-amber-500'
-                      : 'bg-rose-500'
-                  }`}
-                ></div>
-                <div className="flex-1">
-                  <div className="text-sm font-semibold text-white">{service.name}</div>
-                  <div className="text-xs text-slate-500">Uptime: {service.uptime}%</div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-xs font-bold text-slate-400">{service.latency}ms</div>
-                <div
-                  className={`px-2 py-0.5 rounded text-xs font-bold border ${getStatusColor(
-                    service.status
-                  )}`}
+                  className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                  style={{
+                    background: statusDot[svc.status],
+                    boxShadow: svc.status === 'warning' ? `0 0 6px ${statusDot[svc.status]}` : undefined,
+                  }}
+                />
+                <span
+                  className="truncate"
+                  style={{ fontSize: 11, color: '#CBD5E1' }}
                 >
-                  {service.status === 'operational' ? 'Connected' : service.status}
+                  {svc.name}
+                </span>
+              </div>
+              <div className="text-right flex-shrink-0 ml-2">
+                <div
+                  style={{
+                    fontFamily: 'DM Mono, monospace',
+                    fontSize: 10,
+                    color: svc.status === 'warning' ? '#FCD34D' : '#64748B',
+                  }}
+                >
+                  {svc.metric}
                 </div>
               </div>
             </div>
           ))}
+        </div>
+
+        <div>
+          <div
+            style={{
+              fontSize: 9,
+              color: '#64748B',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              fontFamily: 'DM Mono, monospace',
+              marginBottom: 8,
+            }}
+          >
+            INTEGRATION STATUS
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {integrations.map(intg => {
+              const cfg = integrationStatus[intg.status];
+              return (
+                <div
+                  key={intg.name}
+                  className="flex items-center gap-1.5 rounded-lg px-2.5 py-1"
+                  style={{ background: cfg.bg, border: `1px solid ${cfg.dot}22` }}
+                >
+                  <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cfg.dot }} />
+                  <span style={{ fontSize: 10, color: '#CBD5E1' }}>{intg.name}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default SystemHealthPanel;

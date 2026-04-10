@@ -1,127 +1,164 @@
-import { Shield, Calendar, AlertCircle, Database } from 'lucide-react';
-import { ComplianceMetrics } from '../../types/admin';
-import { formatDistanceToNow } from 'date-fns';
+import React from 'react';
+import { Shield, CheckCircle, AlertTriangle, Clock } from 'lucide-react';
+import { docLicenseExpiries } from '../../data/superAdminData';
 
-interface CompliancePanelProps {
-  metrics: ComplianceMetrics;
-}
+const checklist = [
+  { label: 'DHA Platform License', status: 'ok' as const, detail: 'Valid until Dec 2026' },
+  { label: 'NABIDH HIE Approved', status: 'ok' as const, detail: 'Approved · Active' },
+  { label: 'Patient Data Encryption', status: 'ok' as const, detail: 'AES-256 · At rest + transit' },
+  { label: 'ePrescription Module', status: 'ok' as const, detail: 'DHA-certified · v3.2' },
+  { label: 'Audit Logging', status: 'ok' as const, detail: 'All events logged · 7yr retention' },
+  { label: 'ISO 27001', status: 'warn' as const, detail: 'Renewal due Aug 2026' },
+];
 
-export default function CompliancePanel({ metrics }: CompliancePanelProps) {
-  const daysUntilAudit = Math.ceil(
-    (metrics.nextAuditDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-  );
+const CompliancePanel: React.FC = () => {
+  const score = 97.4;
+  const radius = 36;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference * (1 - score / 100);
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <Shield className="w-6 h-6 text-teal-400" />
-        <h3 className="text-base font-bold text-white uppercase">Compliance Summary</h3>
+    <div
+      className="rounded-2xl overflow-hidden flex flex-col"
+      style={{ background: '#1E293B', border: '1px solid rgba(51,65,85,0.5)' }}
+    >
+      <div
+        className="flex items-center justify-between px-5 py-4 flex-shrink-0"
+        style={{ borderBottom: '1px solid rgba(51,65,85,0.5)' }}
+      >
+        <div className="flex items-center gap-2">
+          <Shield style={{ width: 16, height: 16, color: '#34D399' }} />
+          <span className="font-bold text-white" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14 }}>
+            DHA Compliance
+          </span>
+        </div>
+        <div
+          className="rounded-lg px-2 py-1"
+          style={{ background: 'rgba(5,150,105,0.15)', border: '1px solid rgba(5,150,105,0.3)' }}
+        >
+          <span style={{ fontSize: 10, color: '#34D399', fontFamily: 'DM Mono, monospace' }}>NABIDH APPROVED</span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6 mb-6">
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-bold text-slate-400">DHA Audit Score</span>
-            <span className="text-2xl font-bold text-white">{metrics.dhaScore}/100</span>
-          </div>
-          <div className="relative h-4 bg-slate-900 rounded-full overflow-hidden">
+      <div className="p-5 flex-1 flex flex-col gap-4">
+        <div className="flex items-center gap-4">
+          <div className="relative flex-shrink-0" style={{ width: 88, height: 88 }}>
+            <svg width="88" height="88" style={{ transform: 'rotate(-90deg)' }}>
+              <circle cx="44" cy="44" r={radius} fill="none" stroke="rgba(51,65,85,0.5)" strokeWidth="6" />
+              <circle
+                cx="44"
+                cy="44"
+                r={radius}
+                fill="none"
+                stroke="#34D399"
+                strokeWidth="6"
+                strokeLinecap="round"
+                strokeDasharray={circumference}
+                strokeDashoffset={strokeDashoffset}
+                style={{ transition: 'stroke-dashoffset 1s ease' }}
+              />
+            </svg>
             <div
-              className="absolute inset-y-0 left-0 bg-gradient-to-r from-teal-500 to-green-500 rounded-full"
-              style={{ width: `${metrics.dhaScore}%` }}
-            ></div>
-          </div>
-          <div className="mt-2">
-            {metrics.dhaScore >= 95 ? (
-              <div className="px-3 py-1 bg-green-500 bg-opacity-20 border border-green-600 rounded text-xs font-bold text-green-400 inline-block">
-                Excellent Compliance
-              </div>
-            ) : metrics.dhaScore >= 80 ? (
-              <div className="px-3 py-1 bg-teal-500 bg-opacity-20 border border-teal-600 rounded text-xs font-bold text-teal-400 inline-block">
-                Good Compliance
-              </div>
-            ) : (
-              <div className="px-3 py-1 bg-amber-500 bg-opacity-20 border border-amber-600 rounded text-xs font-bold text-amber-400 inline-block">
-                Needs Attention
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Calendar className="w-4 h-4 text-teal-400" />
-            <span className="text-sm font-bold text-slate-400">Next DHA Audit</span>
-          </div>
-          <div className="text-2xl font-bold text-white mb-1">
-            {formatDistanceToNow(metrics.nextAuditDate)}
-          </div>
-          <div className="text-xs text-slate-500">
-            {metrics.nextAuditDate.toLocaleDateString('en-US', {
-              month: 'long',
-              day: 'numeric',
-              year: 'numeric',
-            })}
-          </div>
-          <div className="mt-2">
-            <div
-              className={`px-3 py-1 border rounded text-xs font-bold inline-block ${
-                daysUntilAudit > 60
-                  ? 'bg-slate-500 bg-opacity-20 border-slate-600 text-slate-400'
-                  : daysUntilAudit > 30
-                  ? 'bg-amber-500 bg-opacity-20 border-amber-600 text-amber-400'
-                  : 'bg-rose-500 bg-opacity-20 border-rose-600 text-rose-400'
-              }`}
+              className="absolute inset-0 flex flex-col items-center justify-center"
+              style={{ transform: 'none' }}
             >
-              {daysUntilAudit} days remaining
+              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 18, fontWeight: 700, color: '#34D399', lineHeight: 1 }}>
+                {score}
+              </div>
+              <div style={{ fontSize: 9, color: '#64748B' }}>DHA Score</div>
+            </div>
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 6 }}>DHA License</div>
+            <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: '#64748B', marginBottom: 2 }}>
+              DHA-PLAT-2025-001847
+            </div>
+            <div style={{ fontSize: 10, color: '#34D399', marginBottom: 8 }}>Valid · Expires Dec 2026</div>
+            <div style={{ fontSize: 11, color: '#94A3B8', marginBottom: 4 }}>23 Doctors Pending</div>
+            <div
+              className="rounded-lg px-2.5 py-1 inline-block"
+              style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)' }}
+            >
+              <span style={{ fontSize: 10, color: '#FCD34D', fontFamily: 'DM Mono, monospace' }}>23 pending DHA verification</span>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-2 gap-6 mb-6">
-        <div className="bg-slate-900 border border-slate-700 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Database className="w-4 h-4 text-violet-400" />
-            <span className="text-xs font-bold text-slate-400 uppercase">NABIDH Submission</span>
-          </div>
-          <div className="text-2xl font-bold text-white mb-1">{metrics.nabidhSubmissionRate}%</div>
-          <div className="text-xs text-slate-500">Data submission success rate</div>
-        </div>
-
-        <div className="bg-slate-900 border border-slate-700 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <AlertCircle className="w-4 h-4 text-amber-400" />
-            <span className="text-xs font-bold text-slate-400 uppercase">Outstanding Items</span>
-          </div>
-          <div className="text-2xl font-bold text-white mb-1">
-            {metrics.outstandingItems.length}
-          </div>
-          <div className="text-xs text-slate-500">Action items requiring attention</div>
-        </div>
-      </div>
-
-      {metrics.outstandingItems.length > 0 && (
         <div>
-          <div className="text-sm font-bold text-slate-400 uppercase mb-3">
-            Outstanding Action Items
+          <div
+            style={{
+              fontSize: 9,
+              color: '#64748B',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              fontFamily: 'DM Mono, monospace',
+              marginBottom: 6,
+            }}
+          >
+            COMPLIANCE CHECKLIST
           </div>
-          <div className="space-y-2">
-            {metrics.outstandingItems.map((item, idx) => (
-              <div
-                key={idx}
-                className="flex items-start gap-3 p-3 bg-slate-900 border border-amber-600 border-opacity-30 rounded-lg"
-              >
-                <div className="mt-0.5">
-                  <AlertCircle className="w-4 h-4 text-amber-400" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm text-white">{item}</div>
-                </div>
+          <div className="flex flex-col gap-1.5">
+            {checklist.map(item => (
+              <div key={item.label} className="flex items-center gap-2">
+                {item.status === 'ok' ? (
+                  <CheckCircle style={{ width: 12, height: 12, color: '#34D399', flexShrink: 0 }} />
+                ) : (
+                  <AlertTriangle style={{ width: 12, height: 12, color: '#FCD34D', flexShrink: 0 }} />
+                )}
+                <span style={{ fontSize: 11, color: item.status === 'ok' ? '#CBD5E1' : '#FCD34D', flex: 1 }}>
+                  {item.label}
+                </span>
+                <span style={{ fontSize: 10, color: '#475569', fontFamily: 'DM Mono, monospace', flexShrink: 0 }}>
+                  {item.detail}
+                </span>
               </div>
             ))}
           </div>
         </div>
-      )}
+
+        <div>
+          <div
+            style={{
+              fontSize: 9,
+              color: '#64748B',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              fontFamily: 'DM Mono, monospace',
+              marginBottom: 6,
+            }}
+          >
+            LICENSE EXPIRY ALERTS
+          </div>
+          <div className="flex flex-col gap-1.5">
+            {docLicenseExpiries.map(doc => (
+              <div
+                key={doc.name}
+                className="flex items-center gap-2 rounded-lg px-3 py-2"
+                style={{
+                  background: doc.days <= 20 ? 'rgba(239,68,68,0.07)' : 'rgba(245,158,11,0.07)',
+                  border: `1px solid ${doc.days <= 20 ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)'}`,
+                }}
+              >
+                <Clock style={{ width: 11, height: 11, color: doc.days <= 20 ? '#F87171' : '#FCD34D', flexShrink: 0 }} />
+                <span style={{ fontSize: 11, color: '#CBD5E1', flex: 1 }}>{doc.name}</span>
+                <span
+                  style={{
+                    fontFamily: 'DM Mono, monospace',
+                    fontSize: 10,
+                    color: doc.days <= 20 ? '#F87171' : '#FCD34D',
+                    flexShrink: 0,
+                  }}
+                >
+                  {doc.days}d
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default CompliancePanel;

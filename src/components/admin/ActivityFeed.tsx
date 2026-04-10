@@ -1,80 +1,122 @@
-import { Clock, FileText, Database, AlertTriangle, Brain, TestTube, Calendar } from 'lucide-react';
-import { ActivityEvent, ActivityType } from '../../types/admin';
-import { formatDistanceToNow } from 'date-fns';
+import React, { useState, useEffect, useRef } from 'react';
+import { Activity, Pause, Play } from 'lucide-react';
+import { initialFeedItems, newFeedTemplates, FeedItem } from '../../data/superAdminData';
 
-interface ActivityFeedProps {
-  events: ActivityEvent[];
-}
+const typeStyle: Record<FeedItem['type'], { dot: string; icon: string }> = {
+  success: { dot: '#34D399', icon: '#34D399' },
+  info: { dot: '#60A5FA', icon: '#60A5FA' },
+  warning: { dot: '#FCD34D', icon: '#FCD34D' },
+  error: { dot: '#F87171', icon: '#F87171' },
+  ai: { dot: '#C4B5FD', icon: '#C4B5FD' },
+  teal: { dot: '#2DD4BF', icon: '#2DD4BF' },
+};
 
-export default function ActivityFeed({ events }: ActivityFeedProps) {
-  const getEventIcon = (type: ActivityType) => {
-    switch (type) {
-      case 'prescription':
-        return FileText;
-      case 'nabidh_sync':
-        return Database;
-      case 'interaction_alert':
-        return AlertTriangle;
-      case 'ai_consultation':
-        return Brain;
-      case 'lab_result':
-        return TestTube;
-      case 'appointment':
-        return Calendar;
-    }
-  };
+const ActivityFeed: React.FC = () => {
+  const [items, setItems] = useState<FeedItem[]>(initialFeedItems);
+  const [paused, setPaused] = useState(false);
+  const [newIds, setNewIds] = useState<Set<string>>(new Set());
+  const counterRef = useRef(100);
 
-  const getEventColor = (severity: 'info' | 'warning' | 'critical') => {
-    switch (severity) {
-      case 'info':
-        return 'text-teal-400 bg-teal-500 bg-opacity-10 border-teal-600';
-      case 'warning':
-        return 'text-amber-400 bg-amber-500 bg-opacity-10 border-amber-600';
-      case 'critical':
-        return 'text-rose-400 bg-rose-500 bg-opacity-10 border-rose-600';
-    }
-  };
+  useEffect(() => {
+    if (paused) return;
+    const interval = setInterval(() => {
+      const template = newFeedTemplates[Math.floor(Math.random() * newFeedTemplates.length)];
+      const id = `live-${counterRef.current++}`;
+      const newItem: FeedItem = {
+        ...template,
+        id,
+        timeAgo: 'just now',
+        seconds: 0,
+      };
+      setNewIds(prev => new Set([...prev, id]));
+      setItems(prev => [newItem, ...prev.slice(0, 19)]);
+      setTimeout(() => setNewIds(prev => { const n = new Set(prev); n.delete(id); return n; }), 600);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [paused]);
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
-      <div className="flex items-center gap-2 mb-4">
-        <Clock className="w-5 h-5 text-teal-400" />
-        <h3 className="text-sm font-bold text-white uppercase">Organization Activity Feed</h3>
-        <div className="ml-auto w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+    <div
+      className="rounded-2xl flex flex-col overflow-hidden"
+      style={{ background: '#1E293B', border: '1px solid rgba(51,65,85,0.5)', height: 360 }}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 py-4 flex-shrink-0" style={{ borderBottom: '1px solid rgba(51,65,85,0.5)' }}>
+        <div className="flex items-center gap-2">
+          <Activity style={{ width: 16, height: 16, color: '#2DD4BF' }} />
+          <span className="font-bold text-white" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14 }}>
+            Live Activity
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span style={{ fontSize: 9, color: '#34D399', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'DM Mono, monospace' }}>
+              REAL-TIME
+            </span>
+          </div>
+          <button
+            onClick={() => setPaused(p => !p)}
+            className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+            style={{ background: 'rgba(51,65,85,0.5)', color: '#94A3B8' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(71,85,105,0.5)'; e.currentTarget.style.color = '#CBD5E1'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(51,65,85,0.5)'; e.currentTarget.style.color = '#94A3B8'; }}
+            title={paused ? 'Resume' : 'Pause'}
+          >
+            {paused ? <Play style={{ width: 12, height: 12 }} /> : <Pause style={{ width: 12, height: 12 }} />}
+          </button>
+        </div>
       </div>
 
-      <div className="space-y-3 max-h-96 overflow-y-auto">
-        {events.map((event) => {
-          const Icon = getEventIcon(event.type);
-          const colorClass = getEventColor(event.severity);
-
+      {/* Feed */}
+      <div className="flex-1 overflow-y-auto">
+        {items.map(item => {
+          const style = typeStyle[item.type];
+          const isNew = newIds.has(item.id);
           return (
             <div
-              key={event.id}
-              className="flex items-start gap-3 p-3 bg-slate-900 border border-slate-700 rounded-lg hover:border-slate-600 transition-colors"
+              key={item.id}
+              className="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200"
+              style={{
+                borderBottom: '1px solid rgba(51,65,85,0.4)',
+                background: isNew ? 'rgba(13,148,136,0.06)' : 'transparent',
+                transform: isNew ? 'translateX(0)' : undefined,
+                opacity: 1,
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(51,65,85,0.2)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = isNew ? 'rgba(13,148,136,0.06)' : 'transparent'; }}
             >
-              <div className={`p-2 rounded-lg border ${colorClass}`}>
-                <Icon className="w-4 h-4" />
-              </div>
+              <div
+                className="w-2 h-2 rounded-full flex-shrink-0"
+                style={{ background: style.dot, boxShadow: isNew ? `0 0 6px ${style.dot}` : undefined }}
+              />
               <div className="flex-1 min-w-0">
-                <div className="text-xs font-bold text-slate-400 mb-1">
-                  {event.organizationName}
+                <div style={{ fontSize: 12, color: '#CBD5E1', fontFamily: 'Inter, sans-serif' }}>
+                  {item.event}
                 </div>
-                <div className="text-sm font-semibold text-white mb-1">{event.description}</div>
-                <div className="text-xs text-slate-500">
-                  {formatDistanceToNow(event.timestamp, { addSuffix: true })}
+                <div style={{ fontSize: 10, color: '#64748B', fontFamily: 'DM Mono, monospace' }} className="truncate">
+                  {item.detail}
                 </div>
+              </div>
+              <div style={{ fontSize: 10, color: '#475569', fontFamily: 'DM Mono, monospace', flexShrink: 0 }}>
+                {item.timeAgo}
               </div>
             </div>
           );
         })}
       </div>
 
-      <div className="mt-4 pt-4 border-t border-slate-700">
-        <button className="w-full px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm font-bold rounded-lg transition-colors">
-          View All Activity
-        </button>
+      {/* Footer */}
+      <div
+        className="px-4 py-2.5 text-center flex-shrink-0"
+        style={{ borderTop: '1px solid rgba(51,65,85,0.5)', fontSize: 11, color: '#475569', fontFamily: 'Inter, sans-serif' }}
+      >
+        Showing live activity across all CeenAiX portals
+        <br />
+        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10 }}>Today: 127,450 AI sessions · 3,847 consultations</span>
       </div>
     </div>
   );
-}
+};
+
+export default ActivityFeed;
