@@ -190,7 +190,7 @@ export default function LandingPage() {
                   onClick={() => window.location.href = '/lab/dashboard'}
                   className="px-4 py-3 bg-white text-gray-900 border-2 border-teal-600 rounded-lg hover:bg-teal-50 transition-colors font-medium"
                 >
-                  Lab Portal
+                  Lab & Radiology Portal
                 </button>
                 <button
                   onClick={() => window.location.href = '/insurance/dashboard'}
