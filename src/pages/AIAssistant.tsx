@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Bot, Send, Mic, Settings, Trash2, Download, X, ThumbsUp, ThumbsDown, Copy, Share2, RotateCcw, ShieldCheck, Volume2 } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
+import PatientTopNav from '../components/patient/PatientTopNav';
 
 type Language = 'en' | 'fa';
 type MessageRole = 'patient' | 'ai' | 'system';
@@ -530,14 +531,13 @@ Is there anything from the list above I can help with? 😊`;
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-teal-950">
-      <PatientSidebar />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <PatientTopNav patientName="Ahmed Al Maktoum" />
 
-      <div className="flex-1 flex flex-col ml-64">
-        <div className="h-12 bg-gradient-to-r from-red-900/20 to-red-800/20 border-b border-red-800/30 flex items-center px-6">
-          <span className="text-red-300 text-sm font-medium">⚠️ Allergy Alert: Penicillin (SEVERE) · Sulfa drugs</span>
-        </div>
+      <div className="flex flex-1 overflow-hidden">
+        <PatientSidebar />
 
+        <main className="flex-1 overflow-y-auto">
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="px-8 py-6 flex items-center justify-between border-b border-white/5">
             <div className="flex items-center gap-6">
@@ -852,6 +852,7 @@ Is there anything from the list above I can help with? 😊`;
             </div>
           </div>
         </div>
+        </main>
       </div>
 
       {showSettings && (

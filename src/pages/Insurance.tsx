@@ -168,12 +168,13 @@ export default function Insurance() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <PatientSidebar currentPage="insurance" />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <PatientTopNav patientName="Ahmed Al Maktoum" />
 
-      <div className="flex-1 ml-64 flex flex-col">
-        <PatientTopNav patientName="Ahmed Al Maktoum" />
+      <div className="flex flex-1 overflow-hidden">
+        <PatientSidebar currentPage="insurance" />
 
+        <main className="flex-1 overflow-y-auto">
         <div className="flex-1 p-8 overflow-auto">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between mb-8">
@@ -1255,7 +1256,8 @@ export default function Insurance() {
               </div>
             </div>
           </div>
-        </div>
+          </div>
+        </main>
       </div>
 
       {showContactModal && (

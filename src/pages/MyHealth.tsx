@@ -28,12 +28,13 @@ export default function MyHealth() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <PatientSidebar currentPage="health" />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <PatientTopNav patientName="Ahmed Al Maktoum" />
 
-      <div className="flex-1 ml-64 flex flex-col">
-        <PatientTopNav patientName="Ahmed Al Maktoum" />
+      <div className="flex flex-1 overflow-hidden">
+        <PatientSidebar currentPage="health" />
 
+        <main className="flex-1 overflow-y-auto">
         <div className="flex-1">
           <HealthRecordHeader
             patientName={patientInfo.name}
@@ -91,6 +92,7 @@ export default function MyHealth() {
         {activeTab === 'vitals' && <VitalsLogTab vitalsLog={MOCK_VITALS_LOG} />}
           </div>
         </div>
+        </main>
       </div>
     </div>
   );

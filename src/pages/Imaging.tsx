@@ -291,11 +291,13 @@ export default function Imaging() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <PatientSidebar currentPage="imaging" />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <PatientTopNav patientName="Ahmed Al Maktoum" />
 
-      <div className="flex-1 ml-64 flex flex-col">
-        <PatientTopNav patientName="Ahmed Al Maktoum" />
+      <div className="flex flex-1 overflow-hidden">
+        <PatientSidebar currentPage="imaging" />
+
+        <main className="flex-1 overflow-y-auto">
         <div className="flex-1 p-8 overflow-auto">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-slate-900 mb-2">Medical Imaging & Scans</h1>
@@ -385,6 +387,7 @@ export default function Imaging() {
             </div>
           </div>
         </div>
+        </main>
       </div>
     </div>
   );

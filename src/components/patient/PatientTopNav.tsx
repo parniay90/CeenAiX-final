@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bell, User, Settings, LogOut } from 'lucide-react';
+import { Bell, Globe, Menu, ArrowLeft, Home, User, Settings, LogOut } from 'lucide-react';
 
 interface PatientTopNavProps {
   patientName?: string;
@@ -10,6 +10,15 @@ function navigate(path: string) {
   window.dispatchEvent(new PopStateEvent('popstate'));
 }
 
+const portals = [
+  { name: 'Patient Dashboard', path: '/dashboard' },
+  { name: 'Doctor Dashboard', path: '/doctor/dashboard' },
+  { name: 'Pharmacy Dashboard', path: '/pharmacy/dashboard' },
+  { name: 'Lab Dashboard', path: '/lab/dashboard' },
+  { name: 'Insurance Portal', path: '/insurance' },
+  { name: 'Admin Dashboard', path: '/admin/dashboard' },
+];
+
 const NOTIFS = [
   { id: 1, title: 'Medication Reminder', body: 'Time to take Metformin 500mg', time: '5 min ago', unread: true },
   { id: 2, title: 'Lab Results Available', body: 'Your blood test results are ready', time: '2 hrs ago', unread: true },
@@ -17,75 +26,128 @@ const NOTIFS = [
 ];
 
 export default function PatientTopNav({ patientName = 'Ahmed Al Maktoum' }: PatientTopNavProps) {
+  const [language, setLanguage] = useState<'EN' | 'AR'>('EN');
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showPortalMenu, setShowPortalMenu] = useState(false);
   const [showAvatar, setShowAvatar] = useState(false);
   const [notifs, setNotifs] = useState(NOTIFS);
-  const [currentTime, setCurrentTime] = useState(new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
-    return () => clearInterval(timer);
-  }, []);
 
   const unreadCount = notifs.filter(n => n.unread).length;
   const initials = patientName.split(' ').map(n => n[0]).join('').slice(0, 2);
 
+  useEffect(() => {
+    const close = () => { setShowPortalMenu(false); setShowNotifications(false); setShowAvatar(false); };
+    window.addEventListener('popstate', close);
+    return () => window.removeEventListener('popstate', close);
+  }, []);
+
   return (
-    <div className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
-      <div className="px-8 h-16 flex items-center justify-between">
-        <div className="hidden md:flex items-center gap-2 text-sm text-slate-400 font-sans">
-          <span>{currentTime.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
-          <span>·</span>
-          <span>{currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} GST</span>
+    <div className="bg-white border-b border-cyan-100 px-6 py-4 sticky top-0 z-50 shadow-sm shadow-cyan-500/5">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => window.history.back()}
+            className="p-2 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 rounded-lg transition-all duration-300 group"
+            title="Go back"
+          >
+            <ArrowLeft className="w-5 h-5 text-slate-600 group-hover:text-cyan-600 transition-colors duration-300" />
+          </button>
+          <button
+            onClick={() => navigate('/')}
+            className="p-2 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 rounded-lg transition-all duration-300 group"
+            title="Home"
+          >
+            <Home className="w-5 h-5 text-slate-600 group-hover:text-cyan-600 transition-colors duration-300" />
+          </button>
+          <img
+            src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM.png"
+            alt="CeenAiX Logo"
+            className="w-10 h-10 object-contain hover:scale-110 transition-transform duration-300"
+          />
+          <h1 className="text-xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">CeenAiX</h1>
         </div>
 
-        <div className="flex items-center gap-4 ml-auto">
+        <div className="flex items-center gap-4">
           <div className="relative">
             <button
-              onClick={() => { setShowNotifications(!showNotifications); setShowAvatar(false); }}
-              className="relative p-2 text-slate-500 hover:text-teal-600 hover:scale-110 transition-transform"
+              onClick={() => { setShowPortalMenu(!showPortalMenu); setShowNotifications(false); setShowAvatar(false); }}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 transition-all duration-300 group"
+              title="Switch Portal"
             >
-              <Bell className="w-5 h-5" />
+              <Menu className="w-5 h-5 text-slate-600 group-hover:text-cyan-600 transition-colors duration-300" />
+              <span className="text-sm font-medium text-slate-700 group-hover:text-cyan-700 transition-colors duration-300">Portals</span>
+            </button>
+
+            {showPortalMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowPortalMenu(false)} />
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl shadow-cyan-500/10 border border-cyan-100 py-2 z-50">
+                  <div className="px-4 py-2 border-b border-cyan-100">
+                    <h3 className="font-semibold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">Switch Portal</h3>
+                  </div>
+                  {portals.map((portal) => (
+                    <button
+                      key={portal.path}
+                      onClick={() => { navigate(portal.path); setShowPortalMenu(false); }}
+                      className="w-full text-left px-4 py-2 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 text-sm text-slate-700 font-medium transition-all duration-300"
+                    >
+                      {portal.name}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          <button
+            onClick={() => setLanguage(language === 'EN' ? 'AR' : 'EN')}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 transition-all duration-300 group"
+          >
+            <Globe className="w-5 h-5 text-slate-600 group-hover:text-cyan-600 transition-colors duration-300" />
+            <span className="text-sm font-medium text-slate-700 group-hover:text-cyan-700 transition-colors duration-300">{language}</span>
+          </button>
+
+          <div className="relative">
+            <button
+              onClick={() => { setShowNotifications(!showNotifications); setShowPortalMenu(false); setShowAvatar(false); }}
+              className="relative p-2 rounded-lg hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 transition-all duration-300 group"
+            >
+              <Bell className="w-5 h-5 text-slate-600 group-hover:text-cyan-600 transition-colors duration-300" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">{unreadCount}</span>
+                <span className="absolute top-1 right-1 w-2 h-2 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full animate-pulse shadow-lg shadow-rose-500/50"></span>
               )}
             </button>
 
             {showNotifications && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)} />
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-100 z-50">
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                    <span className="font-semibold text-slate-800 text-sm">Notifications</span>
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl shadow-cyan-500/10 border border-cyan-100 py-2 z-50">
+                  <div className="flex items-center justify-between px-4 py-2 border-b border-cyan-100">
+                    <h3 className="font-semibold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">Notifications</h3>
                     <button
                       onClick={() => setNotifs(prev => prev.map(n => ({ ...n, unread: false })))}
-                      className="text-xs text-teal-600 hover:text-teal-700 font-medium"
+                      className="text-xs text-cyan-600 hover:text-cyan-700 font-medium"
                     >
                       Mark all read
                     </button>
                   </div>
-                  <div className="max-h-72 overflow-y-auto divide-y divide-gray-50">
+                  <div className="max-h-80 overflow-y-auto">
                     {notifs.map(n => (
                       <div
                         key={n.id}
                         onClick={() => setNotifs(prev => prev.map(x => x.id === n.id ? { ...x, unread: false } : x))}
-                        className={`px-4 py-3 cursor-pointer hover:bg-teal-50/50 transition-colors ${n.unread ? 'bg-teal-50/30' : ''}`}
+                        className={`px-4 py-3 hover:bg-gradient-to-r hover:from-cyan-50/50 hover:to-blue-50/50 cursor-pointer border-b border-gray-100 transition-all duration-300 ${n.unread ? 'bg-cyan-50/30' : ''}`}
                       >
-                        <div className="flex items-start gap-2">
-                          <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${n.unread ? 'bg-teal-500' : 'bg-transparent'}`} />
-                          <div>
-                            <p className="text-sm font-medium text-slate-800">{n.title}</p>
-                            <p className="text-xs text-slate-500 mt-0.5">{n.body}</p>
-                            <p className="text-xs text-slate-400 mt-1">{n.time}</p>
-                          </div>
-                        </div>
+                        <p className="text-sm font-medium text-slate-900">{n.title}</p>
+                        <p className="text-xs text-slate-600 mt-1">{n.body}</p>
+                        <p className="text-xs text-slate-400 mt-1">{n.time}</p>
                       </div>
                     ))}
                   </div>
-                  <div className="px-4 py-2 border-t border-gray-100">
+                  <div className="px-4 py-2 border-t border-cyan-100">
                     <button
                       onClick={() => { navigate('/notifications'); setShowNotifications(false); }}
-                      className="text-xs text-teal-600 hover:text-teal-700 font-medium w-full text-center"
+                      className="text-xs text-cyan-600 hover:text-cyan-700 font-medium w-full text-center"
                     >
                       View all notifications
                     </button>
@@ -95,32 +157,37 @@ export default function PatientTopNav({ patientName = 'Ahmed Al Maktoum' }: Pati
             )}
           </div>
 
-          <div className="relative">
+          <div className="pl-4 border-l border-gray-200 relative">
             <button
-              onClick={() => { setShowAvatar(!showAvatar); setShowNotifications(false); }}
-              className="relative w-10 h-10 rounded-full bg-gradient-to-br from-teal-600 to-emerald-600 flex items-center justify-center text-white font-sans font-bold text-sm hover:scale-105 transition-transform"
+              onClick={() => { setShowAvatar(!showAvatar); setShowPortalMenu(false); setShowNotifications(false); }}
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
-              {initials}
-              <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-600 to-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                {initials}
+              </div>
+              <div className="text-left hidden md:block">
+                <p className="text-sm font-semibold text-slate-800 leading-none">{patientName}</p>
+                <p className="text-xs text-slate-500 mt-0.5">Patient</p>
+              </div>
             </button>
 
             {showAvatar && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowAvatar(false)} />
-                <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
-                  <div className="px-4 py-2 border-b border-gray-100">
+                <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-cyan-100 py-2 z-50">
+                  <div className="px-4 py-2 border-b border-cyan-100">
                     <p className="text-sm font-semibold text-slate-800">{patientName}</p>
                     <p className="text-xs text-slate-500">Patient Portal</p>
                   </div>
                   <button
                     onClick={() => { navigate('/profile'); setShowAvatar(false); }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition-colors flex items-center gap-2"
+                    className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 transition-colors flex items-center gap-2"
                   >
                     <User className="w-4 h-4" /> My Profile
                   </button>
                   <button
                     onClick={() => { navigate('/settings'); setShowAvatar(false); }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition-colors flex items-center gap-2"
+                    className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-cyan-50 hover:text-cyan-700 transition-colors flex items-center gap-2"
                   >
                     <Settings className="w-4 h-4" /> Settings
                   </button>

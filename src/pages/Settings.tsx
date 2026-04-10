@@ -109,11 +109,11 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      <PatientSidebar currentPage="settings" />
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      <PatientTopNav patientName="Parnia Yazdkhasti" />
 
-      <div className="flex-1 ml-64 flex flex-col overflow-hidden">
-        <PatientTopNav patientName="Parnia Yazdkhasti" />
+      <div className="flex flex-1 overflow-hidden">
+        <PatientSidebar currentPage="settings" />
 
         <main className="flex-1 flex overflow-hidden">
           <div className="flex-1 flex overflow-hidden">

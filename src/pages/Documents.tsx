@@ -486,11 +486,13 @@ export default function Documents() {
   })).filter(cat => cat.documents.length > 0);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <PatientSidebar currentPage="documents" />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <PatientTopNav patientName="Ahmed Al Maktoum" />
 
-      <div className="flex-1 ml-64 flex flex-col">
-        <PatientTopNav patientName="Ahmed Al Maktoum" />
+      <div className="flex flex-1 overflow-hidden">
+        <PatientSidebar currentPage="documents" />
+
+        <main className="flex-1 overflow-y-auto">
         <div className="flex-1 p-8 overflow-auto">
           <div className="mb-6 animate-fadeIn">
             <div className="flex items-center justify-between">
@@ -924,7 +926,8 @@ export default function Documents() {
             </div>
           )}
         </div>
-        </div>
+        </main>
+      </div>
 
       {previewDocument && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">

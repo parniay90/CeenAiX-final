@@ -310,12 +310,13 @@ export default function LabResults() {
   const totalUpcomingCost = upcomingOrder.tests.reduce((sum, t) => sum + t.patientCost, 0);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <PatientSidebar currentPage="lab-results" />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <PatientTopNav patientName="Parnia Yazdkhasti" />
 
-      <div className="flex-1 ml-64 flex flex-col">
-        <PatientTopNav patientName="Parnia Yazdkhasti" />
+      <div className="flex flex-1 overflow-hidden">
+        <PatientSidebar currentPage="lab-results" />
 
+        <main className="flex-1 overflow-y-auto">
         <div className="flex-1">
         <div className="p-8">
           <div className="animate-fadeIn">
@@ -482,6 +483,7 @@ export default function LabResults() {
           </div>
         </div>
         </div>
+        </main>
       </div>
     </div>
   );

@@ -114,11 +114,13 @@ export default function PatientProfile() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <PatientSidebar currentPage="profile" />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <PatientTopNav patientName="Ahmed Al Maktoum" />
 
-      <div className="flex-1 ml-64 flex flex-col min-h-screen">
-        <PatientTopNav patientName="Ahmed Al Maktoum" />
+      <div className="flex flex-1 overflow-hidden">
+        <PatientSidebar currentPage="profile" />
+
+        <main className="flex-1 overflow-y-auto">
         {/* Page Header */}
         <div className="bg-white border-b border-slate-200 px-8 py-4 flex items-center gap-4">
           <div className="flex items-center gap-3 flex-1">
@@ -259,6 +261,7 @@ export default function PatientProfile() {
             {tab === 'privacy' && <Tab3Privacy nabidh={nabidh} setNabidh={setNabidh} notifPrefs={notifPrefs} setNotifPrefs={setNotifPrefs} showAccountActions={showAccountActions} setShowAccountActions={setShowAccountActions} addToast={addToast} />}
           </div>
         </div>
+        </main>
       </div>
 
       {/* DOWNLOAD MODAL */}

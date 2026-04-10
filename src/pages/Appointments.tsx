@@ -39,12 +39,13 @@ export default function Appointments() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <PatientSidebar currentPage="appointments" />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <PatientTopNav patientName="Ahmed Al Maktoum" />
 
-      <div className="flex-1 ml-64 flex flex-col">
-        <PatientTopNav patientName="Ahmed Al Maktoum" />
+      <div className="flex flex-1 overflow-hidden">
+        <PatientSidebar currentPage="appointments" />
 
+        <main className="flex-1 overflow-y-auto">
         <div className="flex">
           <FilterPanel onFilterChange={() => {}} />
 
@@ -110,6 +111,7 @@ export default function Appointments() {
         <PastAppointmentsSection appointments={MOCK_PAST_APPOINTMENTS} />
           </div>
         </div>
+        </main>
       </div>
 
       <BookAppointmentDrawer

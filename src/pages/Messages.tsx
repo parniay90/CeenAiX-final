@@ -467,12 +467,13 @@ export default function Messages() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <PatientSidebar currentPage="messages" />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <PatientTopNav patientName="Ahmed Al Maktoum" />
 
-      <div className="flex-1 ml-64 flex flex-col h-screen">
-        <PatientTopNav patientName="Ahmed Al Maktoum" />
+      <div className="flex flex-1 overflow-hidden">
+        <PatientSidebar currentPage="messages" />
 
+        <main className="flex-1 overflow-y-auto">
         <div className="flex flex-1 overflow-hidden">
           <div className="w-80 bg-white border-r border-slate-200 flex flex-col">
             <div className="p-4 border-b border-slate-200">
@@ -899,6 +900,7 @@ export default function Messages() {
             </div>
           )}
         </div>
+        </main>
       </div>
 
       {callType && activeConversation && (

@@ -56,12 +56,13 @@ export default function NotificationCenter() {
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      <PatientSidebar currentPage="notifications" />
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      <PatientTopNav patientName="Ahmed Al Maktoum" />
 
-      <div className="flex-1 ml-64 flex flex-col">
-        <PatientTopNav patientName="Ahmed Al Maktoum" />
+      <div className="flex flex-1 overflow-hidden">
+        <PatientSidebar currentPage="notifications" />
 
+        <main className="flex-1 overflow-y-auto">
         <div className="flex flex-1 overflow-hidden">
           <CategorySidebar
             activeCategory={activeCategory}
@@ -142,6 +143,7 @@ export default function NotificationCenter() {
             onClose={() => setIsSettingsOpen(false)}
           />
         </div>
+        </main>
       </div>
     </div>
   );

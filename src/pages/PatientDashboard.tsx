@@ -75,12 +75,13 @@ export default function PatientDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <PatientSidebar currentPage="dashboard" />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <PatientTopNav patientName={MOCK_PATIENT.name} />
 
-      <div className="flex-1 ml-64 flex flex-col">
-        <PatientTopNav patientName={MOCK_PATIENT.name} />
+      <div className="flex flex-1 overflow-hidden">
+        <PatientSidebar currentPage="dashboard" />
 
+        <main className="flex-1 overflow-y-auto">
         {showAllergyBanner && (
           <div className="sticky top-16 z-40 bg-red-50 border-b border-red-200 px-8 py-2 flex items-center justify-between">
             <div className="flex items-center gap-2 text-red-700 text-sm font-sans">
@@ -130,6 +131,7 @@ export default function PatientDashboard() {
       </div>
 
       <BottomNavigation activeTab="home" />
+      </main>
       </div>
     </div>
   );
