@@ -15,18 +15,10 @@ const DiagnosticsPortal: React.FC = () => {
     switch (activePage) {
       case 'mri': return <MRIPage />;
       case 'ct':  return <CTScanPage />;
-      case 'lab': return <LabPortalPage />;
+      case 'lab': return <LabPortalPage onBack={() => setActivePage('dashboard')} />;
       default:    return <DiagnosticsDashboard deptFilter={deptFilter} onNavigate={setActivePage} />;
     }
   };
-
-  if (activePage === 'lab') {
-    return (
-      <div className="flex h-screen overflow-hidden" style={{ background: '#F8FAFC' }}>
-        <LabPortalPage onBack={() => setActivePage('dashboard')} />
-      </div>
-    );
-  }
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: '#F8FAFC' }}>
