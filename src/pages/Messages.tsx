@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, Search, CreditCard as Edit, MoreVertical, Send, Paperclip, Smile, Mic, Calendar, Info, X, FileText, Image as ImageIcon, Activity, Download, Check, Clock, Phone, MapPin, Award, ChevronLeft, Video, PhoneCall, PhoneOff, VideoOff, MicOff, Volume2, Maximize2, Settings } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
+import PatientTopNav from '../components/patient/PatientTopNav';
 
 type OnlineStatus = 'online' | 'offline' | 'away';
 type MessageSender = 'patient' | 'doctor' | 'system' | 'pharmacy' | 'support';
@@ -466,15 +467,11 @@ export default function Messages() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-gray-50 flex">
       <PatientSidebar currentPage="messages" />
 
       <div className="flex-1 ml-64 flex flex-col h-screen">
-        <div className="bg-red-50 border-b border-red-200 px-6 py-2 flex items-center justify-center">
-          <span className="text-xs text-red-700 font-medium">
-            ⚠️ <strong>ALLERGY:</strong> Penicillin (SEVERE) • Sulfa drugs
-          </span>
-        </div>
+        <PatientTopNav patientName="Ahmed Al Maktoum" />
 
         <div className="flex flex-1 overflow-hidden">
           <div className="w-80 bg-white border-r border-slate-200 flex flex-col">

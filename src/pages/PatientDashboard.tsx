@@ -75,10 +75,10 @@ export default function PatientDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F0FDFA]">
+    <div className="min-h-screen bg-gray-50 flex">
       <PatientSidebar currentPage="dashboard" />
 
-      <div className="ml-64">
+      <div className="flex-1 ml-64 flex flex-col">
         <PatientTopNav patientName={MOCK_PATIENT.name} />
 
         {showAllergyBanner && (

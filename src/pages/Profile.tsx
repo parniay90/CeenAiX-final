@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Mail, Phone, MapPin, Calendar, FileText, Heart, AlertTriangle, Users, Stethoscope, Shield, Bell, Globe, Sparkles, Lock, Monitor, Settings, ChevronRight, Camera, Download, Trash2, Eye, EyeOff, Check, X, Upload, ExternalLink } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
+import PatientTopNav from '../components/patient/PatientTopNav';
 
 type Language = 'en' | 'ar';
 
@@ -240,11 +241,12 @@ const Profile: React.FC = () => {
   const categories = ['Profile', 'Health', 'Settings', 'Security'];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50 flex">
       <PatientSidebar currentPage="profile" />
 
-      {/* Main Content with Sidebar Offset */}
-      <div className="ml-64">
+      <div className="flex-1 ml-64 flex flex-col">
+        <PatientTopNav patientName="Ahmed Al Maktoum" />
+        <div className="flex-1 overflow-auto">
         {/* Profile Header */}
         <div className="bg-white border-b border-slate-200">
           <div className="max-w-7xl mx-auto px-8 py-8">
@@ -1628,6 +1630,7 @@ const Profile: React.FC = () => {
               </div>
             )}
           </div>
+        </div>
         </div>
       </div>
 

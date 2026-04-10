@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { User, Phone, CreditCard, AlertTriangle, AlertOctagon, Calendar, Shield, Stethoscope, Download, Share2, CreditCard as Edit2, Save, X, Check, Heart, FlaskConical, Clock, Bell, ShieldCheck, Pill, PenLine, ChevronDown, ChevronRight, MessageSquare, Camera, Lock, Eye, Copy, ExternalLink, Activity, FileText, RefreshCw } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
+import PatientTopNav from '../components/patient/PatientTopNav';
 import { ToastContainer, useToast } from '../components/common/Toast';
 
 function navigate(path: string) {
@@ -113,10 +114,11 @@ export default function PatientProfile() {
   ];
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#F8FAFC' }}>
+    <div className="min-h-screen bg-gray-50 flex">
       <PatientSidebar currentPage="profile" />
 
       <div className="flex-1 ml-64 flex flex-col min-h-screen">
+        <PatientTopNav patientName="Ahmed Al Maktoum" />
         {/* Page Header */}
         <div className="bg-white border-b border-slate-200 px-8 py-4 flex items-center gap-4">
           <div className="flex items-center gap-3 flex-1">

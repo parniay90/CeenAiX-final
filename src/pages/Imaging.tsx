@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Activity, FileText, Calendar, CheckCircle, Clock } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
+import PatientTopNav from '../components/patient/PatientTopNav';
 import type { ImagingStudy, ScheduledScan, ImagingStats } from '../types/patientImaging';
 import RecentStudiesTab from '../components/imaging/RecentStudiesTab';
 import ScanViewerTab from '../components/imaging/ScanViewerTab';
@@ -290,11 +291,12 @@ export default function Imaging() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-teal-50 to-cyan-50 flex">
-      <PatientSidebar />
+    <div className="min-h-screen bg-gray-50 flex">
+      <PatientSidebar currentPage="imaging" />
 
-      <div className="flex-1 ml-64">
-        <div className="p-8">
+      <div className="flex-1 ml-64 flex flex-col">
+        <PatientTopNav patientName="Ahmed Al Maktoum" />
+        <div className="flex-1 p-8 overflow-auto">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-slate-900 mb-2">Medical Imaging & Scans</h1>
             <p className="text-slate-600">View your radiology studies, scans, and imaging reports</p>

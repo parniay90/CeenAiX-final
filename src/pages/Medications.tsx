@@ -288,7 +288,7 @@ export default function Medications() {
   const monthlyCost = activeMedications.reduce((sum, med) => sum + med.insurancePrice, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-50 flex">
+    <div className="min-h-screen bg-gray-50 flex">
       <PatientSidebar currentPage="medications" />
 
       <div className="flex-1 ml-64 flex flex-col">
