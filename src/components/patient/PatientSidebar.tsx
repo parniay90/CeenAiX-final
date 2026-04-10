@@ -17,28 +17,11 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface PatientSidebarProps {
   currentPage?: string;
 }
-
-const menuItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: Home, href: '/dashboard' },
-  { id: 'appointments', label: 'Appointments', icon: Calendar, href: '/appointments' },
-  { id: 'health', label: 'My Health', icon: Heart, href: '/my-health' },
-  { id: 'medications', label: 'Medications', icon: Pill, href: '/medications' },
-  { id: 'lab-results', label: 'Lab Results', icon: Activity, href: '/lab-results' },
-  { id: 'imaging', label: 'Imaging & Scans', icon: Scan, href: '/imaging' },
-  { id: 'documents', label: 'Documents', icon: FolderOpen, href: '/documents', badge: 3 },
-  { id: 'messages', label: 'Messages', icon: MessageSquare, href: '/messages', badge: 2 },
-  { id: 'ai-assistant', label: 'AI Assistant', icon: Bot, href: '/ai-assistant' },
-  { id: 'insurance', label: 'Insurance', icon: ShieldCheck, href: '/patient/insurance' },
-];
-
-const bottomItems = [
-  { id: 'profile', label: 'Profile', icon: User, href: '/profile' },
-  { id: 'settings', label: 'Settings', icon: Settings, href: '/settings' },
-];
 
 function navigate(path: string) {
   window.history.pushState({}, '', path);
@@ -47,6 +30,25 @@ function navigate(path: string) {
 
 export default function PatientSidebar({ currentPage = 'dashboard' }: PatientSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { t, isRTL } = useLanguage();
+
+  const menuItems = [
+    { id: 'dashboard', labelKey: 'sidebar.dashboard', icon: Home, href: '/dashboard' },
+    { id: 'appointments', labelKey: 'sidebar.appointments', icon: Calendar, href: '/appointments' },
+    { id: 'health', labelKey: 'sidebar.myHealth', icon: Heart, href: '/my-health' },
+    { id: 'medications', labelKey: 'sidebar.medications', icon: Pill, href: '/medications' },
+    { id: 'lab-results', labelKey: 'sidebar.labResults', icon: Activity, href: '/lab-results' },
+    { id: 'imaging', labelKey: 'sidebar.imaging', icon: Scan, href: '/imaging' },
+    { id: 'documents', labelKey: 'sidebar.documents', icon: FolderOpen, href: '/documents', badge: 3 },
+    { id: 'messages', labelKey: 'sidebar.messages', icon: MessageSquare, href: '/messages', badge: 2 },
+    { id: 'ai-assistant', labelKey: 'sidebar.aiAssistant', icon: Bot, href: '/ai-assistant' },
+    { id: 'insurance', labelKey: 'sidebar.insurance', icon: ShieldCheck, href: '/patient/insurance' },
+  ];
+
+  const bottomItems = [
+    { id: 'profile', labelKey: 'sidebar.profile', icon: User, href: '/profile' },
+    { id: 'settings', labelKey: 'nav.settings', icon: Settings, href: '/settings' },
+  ];
 
   return (
     <div
@@ -65,6 +67,8 @@ export default function PatientSidebar({ currentPage = 'dashboard' }: PatientSid
                 key={item.id}
                 onClick={() => navigate(item.href)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 ${
+                  isRTL ? 'flex-row-reverse' : ''
+                } ${
                   isActive
                     ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md shadow-cyan-500/20'
                     : 'text-gray-700 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-blue-50 hover:text-cyan-700'
@@ -72,7 +76,7 @@ export default function PatientSidebar({ currentPage = 'dashboard' }: PatientSid
               >
                 <Icon className="w-5 h-5 flex-shrink-0" />
                 {!isCollapsed && (
-                  <span className="font-medium text-sm flex-1 text-left">{item.label}</span>
+                  <span className={`font-medium text-sm flex-1 ${isRTL ? 'text-right' : 'text-left'}`}>{t(item.labelKey)}</span>
                 )}
                 {!isCollapsed && item.badge && (
                   <span className="bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
@@ -96,6 +100,8 @@ export default function PatientSidebar({ currentPage = 'dashboard' }: PatientSid
                 key={item.id}
                 onClick={() => navigate(item.href)}
                 className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg transition-all duration-300 ${
+                  isRTL ? 'flex-row-reverse' : ''
+                } ${
                   isActive
                     ? 'bg-slate-100 text-slate-700'
                     : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
@@ -103,7 +109,7 @@ export default function PatientSidebar({ currentPage = 'dashboard' }: PatientSid
               >
                 <Icon className="w-[18px] h-[18px] flex-shrink-0" />
                 {!isCollapsed && (
-                  <span className="font-medium text-[13px]">{item.label}</span>
+                  <span className={`font-medium text-[13px] ${isRTL ? 'text-right' : ''}`}>{t(item.labelKey)}</span>
                 )}
               </button>
             );
@@ -111,10 +117,10 @@ export default function PatientSidebar({ currentPage = 'dashboard' }: PatientSid
 
           <button
             onClick={() => navigate('/')}
-            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all duration-300"
+            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all duration-300 ${isRTL ? 'flex-row-reverse' : ''}`}
           >
             <LogOut className="w-[18px] h-[18px] flex-shrink-0" />
-            {!isCollapsed && <span className="font-medium text-[13px]">Sign Out</span>}
+            {!isCollapsed && <span className={`font-medium text-[13px] ${isRTL ? 'text-right' : ''}`}>{t('sidebar.signOut')}</span>}
           </button>
         </nav>
 
@@ -124,11 +130,11 @@ export default function PatientSidebar({ currentPage = 'dashboard' }: PatientSid
             className="w-full flex items-center justify-center px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
           >
             {isCollapsed ? (
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
             ) : (
               <>
-                <ChevronLeft className="w-5 h-5" />
-                <span className="ml-2 text-sm font-medium">Collapse</span>
+                <ChevronLeft className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
+                <span className="ml-2 text-sm font-medium">{t('nav.collapse')}</span>
               </>
             )}
           </button>

@@ -3,61 +3,61 @@ import {
   LayoutDashboard, Users, Stethoscope, Building2, Shield,
   Bot, Link2, TrendingUp, Activity, ShieldCheck, FileText,
   Lock, Server, Settings, LogOut, ChevronLeft, ChevronRight,
-  Zap,
 } from 'lucide-react';
 import { SUPER_ADMIN_USER, PLATFORM_INFO } from '../../data/superAdminData';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface NavItem {
   id: string;
-  label: string;
+  labelKey: string;
   icon: React.ElementType;
   badge?: string;
   badgeType?: 'amber' | 'red' | 'teal' | 'blue' | 'static-teal';
 }
 
 interface NavSection {
-  title: string;
+  titleKey: string;
   items: NavItem[];
 }
 
 const navSections: NavSection[] = [
   {
-    title: 'OVERVIEW',
+    titleKey: 'admin.sidebar.overview',
     items: [
-      { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: '3', badgeType: 'amber' },
+      { id: 'dashboard', labelKey: 'admin.sidebar.dashboard', icon: LayoutDashboard, badge: '3', badgeType: 'amber' },
     ],
   },
   {
-    title: 'USERS & ORGANIZATIONS',
+    titleKey: 'admin.sidebar.usersOrgs',
     items: [
-      { id: 'patients', label: 'Patients', icon: Users, badge: '48,231', badgeType: 'static-teal' },
-      { id: 'doctors', label: 'Doctors', icon: Stethoscope, badge: '23', badgeType: 'amber' },
-      { id: 'organizations', label: 'Organizations', icon: Building2, badge: '4', badgeType: 'blue' },
-      { id: 'insurance', label: 'Insurance', icon: Shield },
+      { id: 'patients', labelKey: 'admin.sidebar.patients', icon: Users, badge: '48,231', badgeType: 'static-teal' },
+      { id: 'doctors', labelKey: 'admin.sidebar.doctors', icon: Stethoscope, badge: '23', badgeType: 'amber' },
+      { id: 'organizations', labelKey: 'admin.sidebar.organizations', icon: Building2, badge: '4', badgeType: 'blue' },
+      { id: 'insurance', labelKey: 'admin.sidebar.insurance', icon: Shield },
     ],
   },
   {
-    title: 'PLATFORM',
+    titleKey: 'admin.sidebar.platform',
     items: [
-      { id: 'ai', label: 'AI Analytics', icon: Bot, badge: '8,921', badgeType: 'static-teal' },
-      { id: 'integrations', label: 'Integrations', icon: Link2, badge: '⚠️', badgeType: 'amber' },
-      { id: 'revenue', label: 'Revenue', icon: TrendingUp },
-      { id: 'nabidh', label: 'NABIDH', icon: Activity },
+      { id: 'ai', labelKey: 'admin.sidebar.aiAnalytics', icon: Bot, badge: '8,921', badgeType: 'static-teal' },
+      { id: 'integrations', labelKey: 'admin.sidebar.integrations', icon: Link2, badge: '⚠️', badgeType: 'amber' },
+      { id: 'revenue', labelKey: 'admin.sidebar.revenue', icon: TrendingUp },
+      { id: 'nabidh', labelKey: 'admin.sidebar.nabidh', icon: Activity },
     ],
   },
   {
-    title: 'COMPLIANCE & SECURITY',
+    titleKey: 'admin.sidebar.compliance',
     items: [
-      { id: 'compliance', label: 'DHA Compliance', icon: ShieldCheck, badge: '3', badgeType: 'red' },
-      { id: 'audit', label: 'Audit Logs', icon: FileText },
-      { id: 'security', label: 'Security', icon: Lock, badge: '1', badgeType: 'amber' },
+      { id: 'compliance', labelKey: 'admin.sidebar.dhaCompliance', icon: ShieldCheck, badge: '3', badgeType: 'red' },
+      { id: 'audit', labelKey: 'admin.sidebar.auditLogs', icon: FileText },
+      { id: 'security', labelKey: 'admin.sidebar.security', icon: Lock, badge: '1', badgeType: 'amber' },
     ],
   },
   {
-    title: 'SYSTEM',
+    titleKey: 'admin.sidebar.system',
     items: [
-      { id: 'system', label: 'System Health', icon: Server },
-      { id: 'platform-settings', label: 'Platform Settings', icon: Settings },
+      { id: 'system', labelKey: 'admin.sidebar.systemHealth', icon: Server },
+      { id: 'platform-settings', labelKey: 'admin.sidebar.platformSettings', icon: Settings },
     ],
   },
 ];
@@ -69,6 +69,7 @@ interface Props {
 
 const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const { t, isRTL } = useLanguage();
 
   return (
     <div
@@ -76,18 +77,18 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
       style={{
         width: collapsed ? 72 : 260,
         background: '#0A1628',
-        borderRight: '1px solid rgba(30,41,59,0.8)',
+        borderRight: isRTL ? 'none' : '1px solid rgba(30,41,59,0.8)',
+        borderLeft: isRTL ? '1px solid rgba(30,41,59,0.8)' : 'none',
       }}
     >
-      {/* Logo + toggle */}
-      <div className="flex items-center justify-between px-4 py-4 flex-shrink-0">
+      <div className={`flex items-center justify-between px-4 py-4 flex-shrink-0 ${isRTL ? 'flex-row-reverse' : ''}`}>
         {!collapsed && (
-          <div>
+          <div className={isRTL ? 'text-right' : ''}>
             <div className="font-bold text-white" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 18 }}>
               CeenAiX
             </div>
             <div className="uppercase tracking-widest font-bold mt-0.5" style={{ fontSize: 9, color: '#2DD4BF' }}>
-              Super Admin Portal
+              {t('admin.portal')}
             </div>
           </div>
         )}
@@ -95,11 +96,13 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
           onClick={() => setCollapsed(!collapsed)}
           className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition-colors flex-shrink-0"
         >
-          {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          {collapsed
+            ? <ChevronRight className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+            : <ChevronLeft className={`w-4 h-4 ${isRTL ? 'rotate-180' : ''}`} />
+          }
         </button>
       </div>
 
-      {/* Environment badge */}
       {!collapsed && (
         <div className="mx-3 mb-3 flex items-center gap-2 rounded-lg px-3 py-2" style={{ background: 'rgba(5,150,105,0.12)', border: '1px solid rgba(52,211,153,0.2)' }}>
           <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
@@ -112,17 +115,16 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
         </div>
       )}
 
-      {/* Identity card */}
       {!collapsed && (
         <div className="mx-3 mb-4 rounded-xl p-3" style={{ background: 'rgba(13,148,136,0.08)', border: '1px solid rgba(13,148,136,0.25)' }}>
-          <div className="flex items-center gap-2.5 mb-2">
+          <div className={`flex items-center gap-2.5 mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
               style={{ background: 'linear-gradient(135deg, #0D9488, #0891B2)' }}
             >
               {SUPER_ADMIN_USER.initials}
             </div>
-            <div className="min-w-0">
+            <div className={`min-w-0 ${isRTL ? 'text-right' : ''}`}>
               <div className="font-bold text-white truncate" style={{ fontSize: 12 }}>
                 {SUPER_ADMIN_USER.name}
               </div>
@@ -131,11 +133,11 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
               </div>
             </div>
           </div>
-          <div className="flex items-center justify-between">
+          <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
             <span className="font-bold px-2 py-0.5 rounded-full" style={{ fontSize: 9, background: 'rgba(5,150,105,0.2)', color: '#34D399' }}>
               Super Admin · Full Access
             </span>
-            <div className="flex items-center gap-1">
+            <div className={`flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               <span style={{ fontSize: 9, color: '#34D399' }}>Active</span>
             </div>
@@ -143,13 +145,12 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
         </div>
       )}
 
-      {/* Nav sections */}
       <div className="flex-1 overflow-y-auto pb-2">
         {navSections.map(section => (
-          <div key={section.title} className="mb-1">
+          <div key={section.titleKey} className="mb-1">
             {!collapsed && (
-              <div className="px-4 mb-1 mt-3" style={{ fontSize: 9, fontFamily: 'DM Mono, monospace', color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                {section.title}
+              <div className={`px-4 mb-1 mt-3 ${isRTL ? 'text-right' : ''}`} style={{ fontSize: 9, fontFamily: 'DM Mono, monospace', color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                {t(section.titleKey)}
               </div>
             )}
             {section.items.map(item => {
@@ -162,21 +163,23 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
                   className="w-full flex items-center transition-all"
                   style={{
                     padding: collapsed ? '10px 0' : '9px 12px 9px 16px',
-                    justifyContent: collapsed ? 'center' : 'flex-start',
+                    justifyContent: collapsed ? 'center' : (isRTL ? 'flex-end' : 'flex-start'),
+                    flexDirection: isRTL && !collapsed ? 'row-reverse' : 'row',
                     background: isActive ? 'rgba(13,148,136,0.15)' : 'transparent',
-                    borderLeft: isActive ? '3px solid #0D9488' : '3px solid transparent',
+                    borderLeft: !isRTL && isActive ? '3px solid #0D9488' : (!isRTL ? '3px solid transparent' : 'none'),
+                    borderRight: isRTL && isActive ? '3px solid #0D9488' : (isRTL ? '3px solid transparent' : 'none'),
                     color: isActive ? '#2DD4BF' : '#94A3B8',
                     gap: 10,
                   }}
                   onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = 'rgba(30,41,59,0.6)'; }}
                   onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
-                  title={collapsed ? item.label : undefined}
+                  title={collapsed ? t(item.labelKey) : undefined}
                 >
                   <Icon style={{ width: 16, height: 16, flexShrink: 0 }} />
                   {!collapsed && (
                     <>
-                      <span className="flex-1 text-left" style={{ fontSize: 13, fontFamily: 'Inter, sans-serif', fontWeight: isActive ? 600 : 400 }}>
-                        {item.label}
+                      <span className={`flex-1 ${isRTL ? 'text-right' : 'text-left'}`} style={{ fontSize: 13, fontFamily: 'Inter, sans-serif', fontWeight: isActive ? 600 : 400 }}>
+                        {t(item.labelKey)}
                       </span>
                       {item.badge && (
                         <span
@@ -209,12 +212,11 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
         ))}
       </div>
 
-      {/* System status */}
       {!collapsed && (
         <div className="flex-shrink-0 px-4 pb-2 pt-3" style={{ borderTop: '1px solid rgba(30,41,59,0.8)' }}>
-          <div className="flex items-center gap-2 mb-2">
+          <div className={`flex items-center gap-2 mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span style={{ fontSize: 11, color: '#34D399', fontFamily: 'Inter, sans-serif' }}>All Systems Operational</span>
+            <span style={{ fontSize: 11, color: '#34D399', fontFamily: 'Inter, sans-serif' }}>{t('admin.sidebar.allOperational')}</span>
           </div>
           <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: '#475569' }}>
             CeenAiX v{PLATFORM_INFO.version} · Production
@@ -222,22 +224,22 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
         </div>
       )}
 
-      {/* Sign out */}
       <button
         onClick={() => { window.history.pushState({}, '', '/'); window.dispatchEvent(new PopStateEvent('popstate')); }}
         className="flex-shrink-0 flex items-center gap-3 transition-colors"
         style={{
           padding: collapsed ? '12px 0' : '12px 16px',
-          justifyContent: collapsed ? 'center' : 'flex-start',
+          justifyContent: collapsed ? 'center' : (isRTL ? 'flex-end' : 'flex-start'),
+          flexDirection: isRTL && !collapsed ? 'row-reverse' : 'row',
           borderTop: '1px solid rgba(30,41,59,0.8)',
           color: '#475569',
         }}
         onMouseEnter={e => { e.currentTarget.style.color = '#EF4444'; e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}
         onMouseLeave={e => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.background = 'transparent'; }}
-        title={collapsed ? 'Sign Out' : undefined}
+        title={collapsed ? t('nav.signOut') : undefined}
       >
         <LogOut style={{ width: 15, height: 15, flexShrink: 0 }} />
-        {!collapsed && <span style={{ fontSize: 12 }}>Sign Out</span>}
+        {!collapsed && <span style={{ fontSize: 12 }}>{t('nav.signOut')}</span>}
       </button>
     </div>
   );

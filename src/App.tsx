@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { LanguageProvider } from './contexts/LanguageContext';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import PatientDashboard from './pages/PatientDashboard';
@@ -202,4 +203,12 @@ function App() {
   return <LandingPage />;
 }
 
-export default App;
+function AppWithLanguage() {
+  return (
+    <LanguageProvider>
+      <App />
+    </LanguageProvider>
+  );
+}
+
+export default AppWithLanguage;

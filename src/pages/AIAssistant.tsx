@@ -2,9 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { Bot, Send, Mic, Settings, Trash2, Download, X, ThumbsUp, ThumbsDown, Copy, Share2, RotateCcw, ShieldCheck, Volume2 } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
 import PatientTopNav from '../components/patient/PatientTopNav';
+import { useLanguage } from '../contexts/LanguageContext';
 
-type Language = 'en' | 'fa';
+type AILanguage = 'en' | 'ar';
 type MessageRole = 'patient' | 'ai' | 'system';
+type Language = AILanguage;
 
 interface Message {
   id: string;
@@ -45,18 +47,20 @@ const suggestionPills = {
       { icon: '🧠', text: 'What is HbA1c exactly?', keyword: 'hba1c_explain' }
     ]
   },
-  fa: {
+  ar: {
     row1: [
-      { icon: '💊', text: 'داروهایم را توضیح بده', keyword: 'medications_fa' },
-      { icon: '🩸', text: 'HbA1c من یعنی چی؟', keyword: 'hba1c' },
-      { icon: '🫀', text: 'نتیجه MRI قلبم چیه؟', keyword: 'mri' },
-      { icon: '🥗', text: 'چه غذاهایی نباید بخورم؟', keyword: 'diet' }
+      { icon: '💊', text: 'اشرح لي أدويتي', keyword: 'medications' },
+      { icon: '🩸', text: 'ماذا يعني HbA1c 6.8%؟', keyword: 'hba1c' },
+      { icon: '🫀', text: 'ماذا يُظهر تصوير MRI القلبي؟', keyword: 'mri' },
+      { icon: '🥗', text: 'الأطعمة التي يجب تجنبها مع السكري', keyword: 'diet' }
     ],
     row2: [
-      { icon: '💊', text: 'تداخل دارویی چک کن', keyword: 'interaction' },
-      { icon: '🩺', text: 'آماده شدن برای نوبت', keyword: 'appointment' },
-      { icon: '🔬', text: 'ویتامین D من', keyword: 'vitamind' },
-      { icon: '💓', text: 'فشار خونم نرماله؟', keyword: 'bp' }
+      { icon: '💊', text: 'تحقق من التفاعلات الدوائية', keyword: 'interaction' },
+      { icon: '🩺', text: 'الاستعداد لموعد 15 أبريل', keyword: 'appointment' },
+      { icon: '🔬', text: 'اشرح مستوى فيتامين D', keyword: 'vitamind' },
+      { icon: '💓', text: 'هل ضغط الدم لديّ طبيعي؟', keyword: 'bp' },
+      { icon: '🌙', text: 'لماذا تناول أتورفاستاتين ليلاً؟', keyword: 'statin' },
+      { icon: '🧠', text: 'ما هو HbA1c بالضبط؟', keyword: 'hba1c_explain' }
     ]
   }
 };
@@ -94,8 +98,14 @@ const morningTips = [
 ];
 
 export default function AIAssistant() {
-  const [language, setLanguage] = useState<Language>('en');
+  const { language: globalLang, setLanguage: setGlobalLanguage, t } = useLanguage();
+  const [language, setLanguageLocal] = useState<Language>(globalLang as Language);
   const [messages, setMessages] = useState<Message[]>([]);
+
+  const setLanguage = (lang: Language) => {
+    setLanguageLocal(lang);
+    setGlobalLanguage(lang);
+  };
   const [inputText, setInputText] = useState('');
   const [isThinking, setIsThinking] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -173,7 +183,42 @@ export default function AIAssistant() {
   };
 
   const getAIResponse = (input: string, lang: Language): string => {
-    if (lang === 'fa' && input.includes('دارو')) {
+    if (lang === 'ar' && (input.includes('دواء') || input.includes('أدوية') || input.includes('دواءي') || input.includes('اشرح'))) {
+      return `بالطبع! أنت حالياً تتناول **4 أدوية** — إليك ما يفعله كل منها:
+
+**1. ميتفورمين 850 مجم** — مرتين يومياً (مع الوجبات)
+هذا **دواء السكري** الخاص بك. يعمل عن طريق تقليل كمية السكر التي ينتجها كبدك. نتائجك تحسنت — انخفض HbA1c من 7.4% إلى 6.8%! 📉
+
+**2. أتورفاستاتين 20 مجم** — مرة واحدة عند النوم
+هذا **دواء الكوليسترول**. مستوى الكوليسترول لديك طبيعي الآن.
+تحذير: **تجنب الجريب فروت** 🍊 فهو يتداخل مع الدواء.
+
+**3. أملوديبين 5 مجم** — كل صباح (في نفس الوقت!)
+يتحكم في **ضغط الدم**. قراءاتك الأخيرة 128/82 ممتازة!
+
+**4. فيتامين د 2000 وحدة** — يومياً (مع وجبة دهنية)
+مستوى فيتامين د لديك 22 ng/mL — منخفض. هذا المكمل يُحسّنه.
+
+---
+✅ لا توجد تفاعلات خطرة بين أدويتك.
+⚠️ تذكر: لديك حساسية شديدة للبنسلين — أخبر أي طبيب أو طبيب أسنان قبل أي وصفة.`;
+    }
+
+    if (lang === 'ar') {
+      return `شكراً على سؤالك! يمكنني مساعدتك في المواضيع الصحية المتعلقة بملفك الشخصي.
+
+ما يمكنني مساعدتك فيه:
+- أسئلة حول أدويتك (ميتفورمين، أتورفاستاتين، أملوديبين، فيتامين د)
+- شرح نتائج الفحوصات (HbA1c، ضغط الدم، الكوليسترول، فيتامين د)
+- الاستعداد للمواعيد الطبية
+- نصائح غذائية لمرضى السكري وارتفاع ضغط الدم
+- التفاعلات الدوائية والسلامة
+- فهم نتائج الأشعة
+
+هل يمكنني مساعدتك في أي من هذه المواضيع؟`;
+    }
+
+    if (false && input.includes('دارو')) {
       return `البته پرنیا جان! الان ۴ دارو مصرف می‌کنی:
 
 **۱. متفورمین ۸۵۰ میلی‌گرم** — دو بار در روز (با غذا)
@@ -525,7 +570,7 @@ Is there anything from the list above I can help with? 😊`;
   };
 
   const clearChat = () => {
-    if (confirm('Clear your conversation with CeenAiX AI? This cannot be undone.')) {
+    if (confirm(t('ai.clearChat'))) {
       setMessages([]);
     }
   };
@@ -553,10 +598,10 @@ Is there anything from the list above I can help with? 😊`;
                 </div>
               </div>
               <div>
-                <h1 className="text-lg font-bold text-white" style={{ fontFamily: 'Playfair Display, serif' }}>CeenAiX AI</h1>
+                <h1 className="text-lg font-bold text-white" style={{ fontFamily: 'Playfair Display, serif' }}>{t('ai.title')}</h1>
                 <p className="text-xs text-teal-300 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-teal-400 rounded-full animate-pulse" />
-                  Your Personal Health Assistant
+                  {t('ai.subtitle')}
                 </p>
               </div>
             </div>
@@ -571,17 +616,17 @@ Is there anything from the list above I can help with? 😊`;
                       : 'text-white/60 hover:text-white/80'
                   }`}
                 >
-                  🇬🇧 English
+                  🇬🇧 {t('ai.english')}
                 </button>
                 <button
-                  onClick={() => setLanguage('fa')}
+                  onClick={() => setLanguage('ar')}
                   className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
-                    language === 'fa'
+                    language === 'ar'
                       ? 'bg-white text-teal-600'
                       : 'text-white/60 hover:text-white/80'
                   }`}
                 >
-                  🇮🇷 فارسی
+                  🇦🇪 {t('ai.arabic')}
                 </button>
               </div>
 
@@ -612,13 +657,13 @@ Is there anything from the list above I can help with? 😊`;
                   {isMorning && showMorningTip && (
                     <div className="mb-8">
                       <div className="max-w-xl mx-auto bg-teal-900/50 border border-teal-500/30 rounded-3xl p-6">
-                        <p className="text-sm text-teal-300 mb-2">☀️ Good morning, Parnia! Today's health tip:</p>
+                        <p className="text-sm text-teal-300 mb-2">☀️ {t('ai.morningGreeting')}</p>
                         <p className="text-white/90 text-sm leading-relaxed mb-4">{todayTip.text}</p>
                         <button
                           onClick={() => setShowMorningTip(false)}
                           className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
                         >
-                          Start Chatting ▸
+                          {t('ai.startChatting')}
                         </button>
                       </div>
                     </div>
@@ -626,9 +671,9 @@ Is there anything from the list above I can help with? 😊`;
 
                   <div className="text-center mb-8">
                     <h2 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
-                      سلام Parnia! 👋
+                      {language === 'ar' ? 'مرحباً Parnia! 👋' : 'سلام Parnia! 👋'}
                     </h2>
-                    <p className="text-lg text-white/70">How can I help you today?</p>
+                    <p className="text-lg text-white/70">{t('ai.howCanHelp')}</p>
                   </div>
 
                   <div className="max-w-xl mx-auto mb-8">
@@ -636,7 +681,7 @@ Is there anything from the list above I can help with? 😊`;
                       <div className="flex items-start gap-3">
                         <div className="text-amber-400 mt-0.5">⚠️</div>
                         <p className="text-sm text-amber-200 leading-relaxed">
-                          I provide general health information based on your health profile. I am NOT a substitute for your doctors. For emergencies, call 998 (UAE ambulance).
+                          {t('ai.warning')}
                         </p>
                       </div>
                     </div>
@@ -644,7 +689,7 @@ Is there anything from the list above I can help with? 😊`;
 
                   <div className="max-w-xl mx-auto mb-8">
                     <div className="bg-white/4 border border-white/8 rounded-3xl p-8">
-                      <p className="text-xs text-teal-400 uppercase tracking-wider mb-4 font-mono">Your Health Summary</p>
+                      <p className="text-xs text-teal-400 uppercase tracking-wider mb-4 font-mono">{t('ai.healthSummary')}</p>
                       <div className="grid grid-cols-2 gap-8 mb-6">
                         <div>
                           <p className="text-xs text-white/50 mb-1 font-mono">HbA1c</p>
@@ -677,14 +722,14 @@ Is there anything from the list above I can help with? 😊`;
                       </div>
                       <div className="pt-4 border-t border-white/6">
                         <p className="text-xs text-red-300 leading-relaxed">
-                          ⚠️ I know you are allergic to Penicillin (SEVERE) and Sulfa drugs — I'll flag these in all responses.
+                          ⚠️ {t('ai.allergyNote')}
                         </p>
                       </div>
                     </div>
                   </div>
 
                   <div className="max-w-2xl mx-auto">
-                    <p className="text-xs text-white/40 uppercase tracking-wider mb-4 font-mono text-center">Try asking me...</p>
+                    <p className="text-xs text-white/40 uppercase tracking-wider mb-4 font-mono text-center">{t('ai.tryAsking')}</p>
                     <div className="space-y-4">
                       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                         {suggestionPills[language].row1.map((pill, i) => (
@@ -736,7 +781,7 @@ Is there anything from the list above I can help with? 😊`;
                           </div>
                           <div className="mt-4 pt-4 border-t border-white/6">
                             <p className="text-xs text-white/30 italic">
-                              ℹ️ General health information only — not medical advice. Always follow your doctors' instructions.
+                              ℹ️ {t('ai.disclaimer')}
                             </p>
                           </div>
                         </div>
@@ -787,7 +832,7 @@ Is there anything from the list above I can help with? 😊`;
                       <div className="w-2 h-2 bg-teal-400 rounded-full animate-bounce" style={{ animationDelay: '200ms' }} />
                       <div className="w-2 h-2 bg-teal-400 rounded-full animate-bounce" style={{ animationDelay: '400ms' }} />
                     </div>
-                    <p className="text-xs text-teal-300/60 italic font-mono">Checking your health profile...</p>
+                    <p className="text-xs text-teal-300/60 italic font-mono">{t('ai.thinking')}</p>
                   </div>
                 </div>
               )}
@@ -822,13 +867,13 @@ Is there anything from the list above I can help with? 😊`;
                         sendMessage(inputText);
                       }
                     }}
-                    placeholder={language === 'en' ? 'Ask me anything about your health...' : '...بپرسید'}
+                    placeholder={t('ai.placeholder')}
                     className="w-full bg-white/6 border border-white/10 focus:border-teal-500/50 focus:ring-2 focus:ring-teal-500/10 rounded-3xl px-5 py-3 text-white placeholder-white/40 resize-none outline-none transition-all"
                     rows={1}
                     style={{ minHeight: '48px', maxHeight: '120px' }}
                   />
                   {isRecording && (
-                    <p className="text-xs text-teal-400 mt-1 ml-5">Listening... (tap to stop)</p>
+                    <p className="text-xs text-teal-400 mt-1 ml-5">{t('ai.listening')}</p>
                   )}
                 </div>
 
@@ -847,7 +892,7 @@ Is there anything from the list above I can help with? 😊`;
 
               <p className="text-center text-xs text-white/20 mt-3 flex items-center justify-center gap-1">
                 <ShieldCheck className="w-3 h-3" />
-                Your health data is private and encrypted
+                {t('ai.encrypted')}
               </p>
             </div>
           </div>
@@ -859,14 +904,14 @@ Is there anything from the list above I can help with? 😊`;
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-8" onClick={() => setShowSettings(false)}>
           <div className="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="p-8 border-b border-white/10 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-white" style={{ fontFamily: 'Playfair Display, serif' }}>AI Assistant Settings</h3>
+              <h3 className="text-lg font-bold text-white" style={{ fontFamily: 'Playfair Display, serif' }}>{t('ai.settings')}</h3>
               <button onClick={() => setShowSettings(false)} className="text-white/60 hover:text-white/80">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="p-8 space-y-8 max-h-[600px] overflow-y-auto">
               <div>
-                <p className="text-sm text-white/70 mb-3">Language</p>
+                <p className="text-sm text-white/70 mb-3">{t('ai.language')}</p>
                 <div className="bg-white/8 border border-white/12 rounded-full p-1 flex items-center gap-1">
                   <button
                     onClick={() => setLanguage('en')}
@@ -874,35 +919,35 @@ Is there anything from the list above I can help with? 😊`;
                       language === 'en' ? 'bg-white text-teal-600' : 'text-white/60'
                     }`}
                   >
-                    🇬🇧 English
+                    🇬🇧 {t('ai.english')}
                   </button>
                   <button
-                    onClick={() => setLanguage('fa')}
+                    onClick={() => setLanguage('ar')}
                     className={`flex-1 px-4 py-2 rounded-full text-sm font-bold transition-all ${
-                      language === 'fa' ? 'bg-white text-teal-600' : 'text-white/60'
+                      language === 'ar' ? 'bg-white text-teal-600' : 'text-white/60'
                     }`}
                   >
-                    🇮🇷 Persian
+                    🇦🇪 {t('ai.arabic')}
                   </button>
                 </div>
               </div>
 
               <div>
-                <p className="text-sm text-white/70 mb-3">Response Style</p>
+                <p className="text-sm text-white/70 mb-3">{t('ai.responseStyle')}</p>
                 <label className="flex items-center gap-3 p-3 bg-white/4 rounded-lg cursor-pointer hover:bg-white/6 transition-colors">
                   <input type="radio" name="style" defaultChecked className="text-teal-600" />
-                  <span className="text-sm text-white/90">Friendly & personal</span>
+                  <span className="text-sm text-white/90">{t('ai.friendly')}</span>
                 </label>
                 <label className="flex items-center gap-3 p-3 bg-white/4 rounded-lg cursor-pointer hover:bg-white/6 transition-colors mt-2">
                   <input type="radio" name="style" className="text-teal-600" />
-                  <span className="text-sm text-white/90">Clinical & formal</span>
+                  <span className="text-sm text-white/90">{t('ai.clinical')}</span>
                 </label>
               </div>
 
               <div>
-                <p className="text-sm text-white/70 mb-3">Health Data Access</p>
+                <p className="text-sm text-white/70 mb-3">{t('ai.healthAccess')}</p>
                 <div className="space-y-2">
-                  {['Access my medications', 'Access my lab results', 'Access my imaging results', 'Access my upcoming appointments', 'Reference my allergies in responses'].map((item, i) => (
+                  {[t('ai.accessMeds'), t('ai.accessLabs'), t('ai.accessImaging'), t('ai.accessAppts'), t('ai.accessAllergies')].map((item, i) => (
                     <label key={i} className="flex items-center gap-3 p-3 bg-white/4 rounded-lg cursor-pointer hover:bg-white/6 transition-colors">
                       <input type="checkbox" defaultChecked className="text-teal-600 rounded" />
                       <span className="text-sm text-white/90">{item}</span>
@@ -914,12 +959,12 @@ Is there anything from the list above I can help with? 😊`;
               <div>
                 <label className="flex items-center gap-3 p-3 bg-white/4 rounded-lg cursor-pointer hover:bg-white/6 transition-colors">
                   <input type="checkbox" defaultChecked className="text-teal-600 rounded" />
-                  <span className="text-sm text-white/90">Show disclaimers on responses</span>
+                  <span className="text-sm text-white/90">{t('ai.showDisclaimers')}</span>
                 </label>
               </div>
 
               <button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-lg transition-colors">
-                Save Settings
+                {t('ai.saveSettings')}
               </button>
             </div>
           </div>
