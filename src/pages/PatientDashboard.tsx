@@ -75,7 +75,7 @@ export default function PatientDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
       <PatientTopNav patientName={MOCK_PATIENT.name} />
 
       <div className="flex flex-1 overflow-hidden">
@@ -83,7 +83,7 @@ export default function PatientDashboard() {
 
         <main className="flex-1 overflow-y-auto">
         {showAllergyBanner && (
-          <div className="sticky top-16 z-40 bg-red-50 border-b border-red-200 px-8 py-2 flex items-center justify-between">
+          <div className="bg-red-50 border-b border-red-200 px-8 py-2 flex items-center justify-between">
             <div className="flex items-center gap-2 text-red-700 text-sm font-sans">
               <span className="text-lg">⚠️</span>
               <span>Allergy Alert: Penicillin (anaphylaxis) · Sulfa drugs (rash)</span>

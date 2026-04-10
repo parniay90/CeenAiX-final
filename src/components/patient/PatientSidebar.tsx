@@ -50,7 +50,7 @@ export default function PatientSidebar({ currentPage = 'dashboard' }: PatientSid
 
   return (
     <div
-      className={`bg-white border-r border-gray-200 flex flex-col transition-all duration-300 flex-shrink-0 ${
+      className={`bg-white border-r border-gray-200 flex flex-col transition-all duration-300 flex-shrink-0 overflow-hidden ${
         isCollapsed ? 'w-20' : 'w-60'
       }`}
     >
