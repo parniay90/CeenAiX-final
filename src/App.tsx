@@ -36,6 +36,7 @@ import Documents from './pages/Documents';
 import Messages from './pages/Messages';
 import Profile from './pages/Profile';
 import PatientProfile from './pages/PatientProfile';
+import PatientInsurance from './pages/PatientInsurance';
 import TodaysAppointments from './pages/TodaysAppointments';
 import PatientRecords from './pages/PatientRecords';
 import WritePrescription from './pages/WritePrescription';
@@ -133,6 +134,8 @@ function App() {
         setView('compliance');
       } else if (path === '/system-health') {
         setView('system-health');
+      } else if (path === '/patient/insurance') {
+        setView('patient-insurance');
       } else if (path === '/profile' || path === '/patient/profile') {
         setView('profile');
       } else {
@@ -193,6 +196,7 @@ function App() {
   if (view === 'insurance') return <InsurancePortal />;
   if (view === 'compliance') return <ComplianceAudit />;
   if (view === 'system-health') return <SystemHealthIntegrations />;
+  if (view === 'patient-insurance') return <PatientInsurance />;
   if (view === 'profile') return <PatientProfile />;
 
   return <LandingPage />;

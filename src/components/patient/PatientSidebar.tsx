@@ -32,7 +32,7 @@ const menuItems = [
   { id: 'documents', label: 'Documents', icon: FolderOpen, href: '/documents', badge: 3 },
   { id: 'messages', label: 'Messages', icon: MessageSquare, href: '/messages', badge: 2 },
   { id: 'ai-assistant', label: 'AI Assistant', icon: Bot, href: '/ai-assistant' },
-  { id: 'insurance', label: 'Insurance', icon: ShieldCheck, href: '/insurance' },
+  { id: 'insurance', label: 'Insurance', icon: ShieldCheck, href: '/patient/insurance' },
 ];
 
 const bottomItems = [
