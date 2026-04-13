@@ -164,6 +164,7 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
                     const navPaths: Record<string, string> = {
                       dashboard: '/admin/dashboard',
                       patients: '/admin/patients',
+                      doctors: '/admin/doctors',
                       users: '/admin/users',
                       organizations: '/admin/organizations',
                     };

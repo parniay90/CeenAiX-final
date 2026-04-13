@@ -8,6 +8,7 @@ import DoctorPortal from './pages/DoctorPortal';
 import DoctorAppointments from './pages/DoctorAppointments';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminPatients from './pages/AdminPatients';
+import AdminDoctors from './pages/AdminDoctors';
 import PharmacyDashboard from './pages/PharmacyDashboard';
 import PharmacyPortal from './pages/pharmacy/PharmacyPortal';
 import DiagnosticsPortal from './pages/DiagnosticsPortal';
@@ -86,6 +87,8 @@ function App() {
         setView('admin-dashboard');
       } else if (path === '/admin/patients') {
         setView('admin-patients');
+      } else if (path === '/admin/doctors') {
+        setView('admin-doctors');
       } else if (path === '/pharmacy/dashboard' || path.startsWith('/pharmacy/')) {
         setView('pharmacy-portal');
       } else if (path === '/diagnostics/dashboard' || path.startsWith('/diagnostics/')) {
@@ -173,6 +176,7 @@ function App() {
   if (view === 'doctor-profile') return <DoctorProfile />;
   if (view === 'admin-dashboard') return <AdminDashboard />;
   if (view === 'admin-patients') return <AdminPatients />;
+  if (view === 'admin-doctors') return <AdminDoctors />;
   if (view === 'pharmacy-dashboard') return <PharmacyDashboard />;
   if (view === 'pharmacy-portal') return <PharmacyPortal />;
   if (view === 'diagnostics-portal') return <DiagnosticsPortal />;
