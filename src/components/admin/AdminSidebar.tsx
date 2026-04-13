@@ -159,7 +159,19 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
               return (
                 <button
                   key={item.id}
-                  onClick={() => onSectionChange(item.id)}
+                  onClick={() => {
+                    onSectionChange(item.id);
+                    const navPaths: Record<string, string> = {
+                      dashboard: '/admin/dashboard',
+                      patients: '/admin/patients',
+                      users: '/admin/users',
+                      organizations: '/admin/organizations',
+                    };
+                    if (navPaths[item.id]) {
+                      window.history.pushState({}, '', navPaths[item.id]);
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                    }
+                  }}
                   className="w-full flex items-center transition-all"
                   style={{
                     padding: collapsed ? '10px 0' : '9px 12px 9px 16px',
