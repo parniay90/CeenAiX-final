@@ -150,7 +150,8 @@ const InsuranceTopBar: React.FC<Props> = ({ onReviewOverdue }) => {
                 <button key={item} className="flex w-full px-4 py-2.5 text-left transition-colors"
                   style={{ fontSize: 13, color: item === 'Sign Out' ? '#EF4444' : '#475569' }}
                   onMouseEnter={e => { e.currentTarget.style.background = '#F8FAFC'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}>
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                  onClick={() => { if (item === 'Sign Out') { window.history.pushState({}, '', '/'); window.dispatchEvent(new PopStateEvent('popstate')); } }}>
                   {item}
                 </button>
               ))}

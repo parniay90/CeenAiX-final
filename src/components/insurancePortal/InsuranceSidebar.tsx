@@ -189,6 +189,7 @@ const InsuranceSidebar: React.FC<Props> = ({ activePage, onNavigate }) => {
           style={{ padding: '9px 12px', gap: 10, justifyContent: collapsed ? 'center' : 'flex-start' }}
           onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; }}
           onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+          onClick={() => { window.history.pushState({}, '', '/'); window.dispatchEvent(new PopStateEvent('popstate')); }}
         >
           <LogOut style={{ width: 15, height: 15, color: '#F87171', flexShrink: 0 }} />
           {!collapsed && <span style={{ fontSize: 13, color: '#F87171' }}>Sign Out</span>}
