@@ -252,7 +252,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-18 py-4">
             <div className="flex items-center gap-3">
-              <img src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM.png" alt="CeenAiX" className="w-11 h-11 object-contain" />
+              <img src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM copy.png" alt="CeenAiX" className="w-11 h-11 object-contain" />
               <span className={`text-2xl font-black tracking-tight transition-all duration-300 ${scrolled ? 'bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent' : 'text-white'}`}>CeenAiX</span>
             </div>
             <div className="hidden md:flex items-center gap-8">
@@ -732,7 +732,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-5 gap-10 mb-12">
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-5">
-                <img src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM.png" alt="CeenAiX" className="w-10 h-10 object-contain" />
+                <img src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM copy.png" alt="CeenAiX" className="w-10 h-10 object-contain" />
                 <span className="text-2xl font-black bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">CeenAiX</span>
               </div>
               <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-xs">

@@ -95,7 +95,7 @@ export default function Login() {
               Back to home
             </button>
             <div className="flex items-center gap-3 mb-2">
-              <img src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM.png" alt="CeenAiX" className="w-12 h-12 object-contain" />
+              <img src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM copy.png" alt="CeenAiX" className="w-12 h-12 object-contain" />
               <span className="text-3xl font-black text-white tracking-tight">CeenAiX</span>
             </div>
             <p className="text-cyan-300 text-sm font-medium">Your Health, Intelligently Guided</p>
@@ -170,7 +170,7 @@ export default function Login() {
               <ArrowLeft className="w-4 h-4" /> Back to home
             </button>
             <div className="flex items-center justify-center gap-3 mb-2">
-              <img src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM.png" alt="CeenAiX" className="w-12 h-12 object-contain" />
+              <img src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM copy.png" alt="CeenAiX" className="w-12 h-12 object-contain" />
               <h1 className="text-2xl font-black bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">CeenAiX</h1>
             </div>
             <p className="text-slate-500 text-sm">Your Health, Intelligently Guided</p>

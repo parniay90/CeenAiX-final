@@ -42,7 +42,7 @@ export default function DoctorSidebar({ activeItem, onItemClick }: DoctorSidebar
       <div className={`p-8 border-b border-slate-800 ${isRTL ? 'text-right' : ''}`}>
         <div className={`flex items-center gap-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <img
-            src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM.png"
+            src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM copy.png"
             alt="CeenAiX Logo"
             className="w-12 h-12 object-contain animate-fadeIn hover:scale-110 transition-transform duration-300"
           />

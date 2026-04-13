@@ -55,7 +55,7 @@ export default function PatientTopNav({ patientName = 'Ahmed Al Maktoum' }: Pati
             <Home className="w-5 h-5 text-slate-600 group-hover:text-cyan-600 transition-colors duration-300" />
           </button>
           <img
-            src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM.png"
+            src="/ChatGPT_Image_Feb_27,_2026,_11_29_01_AM copy.png"
             alt="CeenAiX Logo"
             className="w-10 h-10 object-contain hover:scale-110 transition-transform duration-300"
           />
