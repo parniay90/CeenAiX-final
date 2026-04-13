@@ -166,6 +166,7 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
                       patients: '/admin/patients',
                       doctors: '/admin/doctors',
                       insurance: '/admin/insurance',
+                      ai: '/admin/ai',
                       users: '/admin/users',
                       organizations: '/admin/organizations',
                     };

@@ -10,6 +10,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminPatients from './pages/AdminPatients';
 import AdminDoctors from './pages/AdminDoctors';
 import AdminInsurance from './pages/AdminInsurance';
+import AdminAIAnalytics from './pages/AdminAIAnalytics';
 import PharmacyDashboard from './pages/PharmacyDashboard';
 import PharmacyPortal from './pages/pharmacy/PharmacyPortal';
 import DiagnosticsPortal from './pages/DiagnosticsPortal';
@@ -92,6 +93,8 @@ function App() {
         setView('admin-doctors');
       } else if (path === '/admin/insurance') {
         setView('admin-insurance');
+      } else if (path === '/admin/ai') {
+        setView('admin-ai');
       } else if (path === '/pharmacy/dashboard' || path.startsWith('/pharmacy/')) {
         setView('pharmacy-portal');
       } else if (path === '/diagnostics/dashboard' || path.startsWith('/diagnostics/')) {
@@ -181,6 +184,7 @@ function App() {
   if (view === 'admin-patients') return <AdminPatients />;
   if (view === 'admin-doctors') return <AdminDoctors />;
   if (view === 'admin-insurance') return <AdminInsurance />;
+  if (view === 'admin-ai') return <AdminAIAnalytics />;
   if (view === 'pharmacy-dashboard') return <PharmacyDashboard />;
   if (view === 'pharmacy-portal') return <PharmacyPortal />;
   if (view === 'diagnostics-portal') return <DiagnosticsPortal />;
