@@ -23,6 +23,7 @@ import {
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import PatientSidebar from '../components/patient/PatientSidebar';
 import PatientTopNav from '../components/patient/PatientTopNav';
+import DirectionsModal from '../components/patient/DirectionsModal';
 import {
   MOCK_PATIENT,
   MOCK_INSURANCE,
@@ -45,6 +46,7 @@ export default function PatientDashboard() {
   const [medications, setMedications] = useState<Medication[]>(MOCK_MEDICATIONS);
   const [tipIndex, setTipIndex] = useState(0);
   const [allergyDismissed, setAllergyDismissed] = useState(false);
+  const [directionsOpen, setDirectionsOpen] = useState(false);
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
@@ -389,9 +391,10 @@ export default function PatientDashboard() {
 
                   <div className="grid grid-cols-2 gap-2">
                     <button
-                      onClick={e => e.stopPropagation()}
-                      className="py-2 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-50 transition-colors"
+                      onClick={e => { e.stopPropagation(); setDirectionsOpen(true); }}
+                      className="py-2 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-50 transition-colors flex items-center justify-center gap-1"
                     >
+                      <MapPin className="w-3 h-3" />
                       Directions
                     </button>
                     <button
@@ -549,6 +552,15 @@ export default function PatientDashboard() {
           </div>
         </main>
       </div>
+
+      <DirectionsModal
+        isOpen={directionsOpen}
+        onClose={() => setDirectionsOpen(false)}
+        clinic={MOCK_APPOINTMENTS[0].doctor.clinic}
+        location={MOCK_APPOINTMENTS[0].doctor.location}
+        doctorName={MOCK_APPOINTMENTS[0].doctor.name}
+        coordinates={MOCK_APPOINTMENTS[0].doctor.coordinates ?? { lat: 25.2048, lng: 55.2708 }}
+      />
     </div>
   );
 }

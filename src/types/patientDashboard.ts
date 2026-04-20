@@ -46,6 +46,7 @@ export interface Doctor {
   isOnline: boolean;
   nextAppointment?: string;
   daysUntil?: number;
+  coordinates?: { lat: number; lng: number };
 }
 
 export interface Appointment {
@@ -190,6 +191,7 @@ export const MOCK_DOCTORS: Doctor[] = [
     isOnline: true,
     nextAppointment: 'Apr 15, 2026',
     daysUntil: 30,
+    coordinates: { lat: 25.2048, lng: 55.2708 },
   },
   {
     id: 'doc-2',
@@ -202,6 +204,7 @@ export const MOCK_DOCTORS: Doctor[] = [
     isOnline: false,
     nextAppointment: 'Jun 5, 2026',
     daysUntil: 81,
+    coordinates: { lat: 25.2333, lng: 55.3567 },
   },
   {
     id: 'doc-3',
@@ -212,6 +215,7 @@ export const MOCK_DOCTORS: Doctor[] = [
     avatar: '',
     initials: 'TH',
     isOnline: false,
+    coordinates: { lat: 25.0819, lng: 55.1367 },
   },
 ];
 
