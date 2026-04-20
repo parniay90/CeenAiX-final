@@ -4,6 +4,7 @@ import type { FraudAlert } from '../../types/insurancePortal';
 
 interface Props {
   alerts: FraudAlert[];
+  onNavigate: (page: string) => void;
 }
 
 const riskConfig = {
@@ -13,7 +14,7 @@ const riskConfig = {
   LOW: { bg: '#F0FDF4', border: '#BBF7D0', color: '#065F46', dot: '#059669', label: '🟢 LOW' },
 };
 
-const FraudAlertsPanel: React.FC<Props> = ({ alerts }) => {
+const FraudAlertsPanel: React.FC<Props> = ({ alerts, onNavigate }) => {
   const [showMedium, setShowMedium] = useState(false);
 
   const highAlerts = alerts.filter(a => a.risk === 'HIGH' || a.risk === 'CRITICAL');
@@ -32,7 +33,11 @@ const FraudAlertsPanel: React.FC<Props> = ({ alerts }) => {
           </h3>
           <span className="text-red-400" style={{ fontSize: 12 }}>5 active · AI-flagged</span>
         </div>
-        <button className="text-red-500 font-semibold hover:text-red-700 transition-colors" style={{ fontSize: 11 }}>
+        <button
+          onClick={() => onNavigate('fraud')}
+          className="text-red-500 font-semibold hover:text-red-700 transition-colors"
+          style={{ fontSize: 11 }}
+        >
           View All →
         </button>
       </div>
@@ -61,6 +66,7 @@ const FraudAlertsPanel: React.FC<Props> = ({ alerts }) => {
               </p>
               <div className="flex gap-2">
                 <button
+                  onClick={e => { e.stopPropagation(); onNavigate('fraud'); }}
                   className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white font-bold transition-colors hover:bg-red-700"
                   style={{ background: '#DC2626', fontSize: 11 }}
                 >
@@ -68,6 +74,7 @@ const FraudAlertsPanel: React.FC<Props> = ({ alerts }) => {
                   Investigate
                 </button>
                 <button
+                  onClick={e => { e.stopPropagation(); onNavigate('fraud'); }}
                   className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-bold transition-colors hover:bg-red-50"
                   style={{ border: '1px solid #FCA5A5', color: '#DC2626', fontSize: 11 }}
                 >
@@ -98,7 +105,8 @@ const FraudAlertsPanel: React.FC<Props> = ({ alerts }) => {
                 return (
                   <div
                     key={alert.id}
-                    className="rounded-xl p-3"
+                    onClick={() => onNavigate('fraud')}
+                    className="rounded-xl p-3 cursor-pointer hover:opacity-80 transition-opacity"
                     style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}
                   >
                     <div className="flex items-center gap-2 mb-1">

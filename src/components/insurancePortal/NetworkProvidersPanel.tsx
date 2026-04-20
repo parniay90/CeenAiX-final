@@ -4,6 +4,7 @@ import type { NetworkProvider } from '../../types/insurancePortal';
 
 interface Props {
   providers: NetworkProvider[];
+  onNavigate: (page: string) => void;
 }
 
 const FraudBadge: React.FC<{ risk: string; flagged?: boolean }> = ({ risk, flagged }) => {
@@ -24,7 +25,7 @@ const FraudBadge: React.FC<{ risk: string; flagged?: boolean }> = ({ risk, flagg
   );
 };
 
-const NetworkProvidersPanel: React.FC<Props> = ({ providers }) => {
+const NetworkProvidersPanel: React.FC<Props> = ({ providers, onNavigate }) => {
   return (
     <div className="bg-white rounded-2xl" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}>
       <div className="flex items-center justify-between px-5 pt-4 pb-3" style={{ borderBottom: '1px solid #F1F5F9' }}>
@@ -37,7 +38,11 @@ const NetworkProvidersPanel: React.FC<Props> = ({ providers }) => {
             <p className="text-slate-400" style={{ fontSize: 11 }}>By claims volume this month</p>
           </div>
         </div>
-        <button className="text-teal-600 font-semibold hover:text-teal-700 transition-colors" style={{ fontSize: 11 }}>
+        <button
+          onClick={() => onNavigate('network')}
+          className="text-teal-600 font-semibold hover:text-teal-700 transition-colors"
+          style={{ fontSize: 11 }}
+        >
           View All →
         </button>
       </div>
@@ -61,7 +66,8 @@ const NetworkProvidersPanel: React.FC<Props> = ({ providers }) => {
             {providers.map(p => (
               <tr
                 key={p.id}
-                className={`hover:bg-slate-50 transition-colors ${p.flagged ? 'bg-red-50/40' : ''}`}
+                onClick={() => onNavigate('network')}
+                className={`hover:bg-slate-50 transition-colors cursor-pointer ${p.flagged ? 'bg-red-50/40' : ''}`}
                 style={{ borderBottom: '1px solid #F8FAFC' }}
               >
                 <td className="px-4 py-2.5" style={{ minWidth: 160 }}>

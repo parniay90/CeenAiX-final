@@ -12,6 +12,7 @@ interface KpiCard {
   sub2?: string;
   sub2Color?: string;
   pulse?: boolean;
+  navTarget: string;
 }
 
 const cards: KpiCard[] = [
@@ -22,6 +23,7 @@ const cards: KpiCard[] = [
     label: 'PENDING PRE-AUTHORIZATIONS',
     sub1: '8 urgent (4h) · 8 standard',
     pulse: true,
+    navTarget: 'preauth',
   },
   {
     icon: FileText,
@@ -31,6 +33,7 @@ const cards: KpiCard[] = [
     sub1: 'AED 1,247,840',
     sub2: '78.2% auto-approved',
     sub2Color: '#059669',
+    navTarget: 'claims',
   },
   {
     icon: Zap,
@@ -40,6 +43,7 @@ const cards: KpiCard[] = [
     sub1: '244 of 312 claims today',
     sub2: '↑ +2.1% vs last week',
     sub2Color: '#059669',
+    navTarget: 'analytics',
   },
   {
     icon: AlertTriangle,
@@ -48,6 +52,7 @@ const cards: KpiCard[] = [
     label: 'ACTIVE FRAUD ALERTS',
     sub1: '2 HIGH risk · 3 medium',
     pulse: true,
+    navTarget: 'fraud',
   },
   {
     icon: Clock,
@@ -57,6 +62,7 @@ const cards: KpiCard[] = [
     sub1: 'DHA target: 8h standard ✅',
     sub2: '4h urgent ⚠️ (1 breach)',
     sub2Color: '#D97706',
+    navTarget: 'analytics',
   },
   {
     icon: Users,
@@ -64,10 +70,15 @@ const cards: KpiCard[] = [
     value: '8,247', valueColor: '#2563EB',
     label: 'ACTIVE MEMBERS ON CEENAIX',
     sub1: 'Gold 2,847 · Silver 3,104 · Basic 1,892',
+    navTarget: 'members',
   },
 ];
 
-const KpiCard: React.FC<{ card: KpiCard; idx: number }> = ({ card, idx }) => {
+interface Props {
+  onNavigate: (page: string) => void;
+}
+
+const KpiCard: React.FC<{ card: KpiCard; idx: number; onNavigate: (page: string) => void }> = ({ card, idx, onNavigate }) => {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 150 + idx * 60);
@@ -77,6 +88,7 @@ const KpiCard: React.FC<{ card: KpiCard; idx: number }> = ({ card, idx }) => {
   const Icon = card.icon;
   return (
     <div
+      onClick={() => onNavigate(card.navTarget)}
       className="flex flex-col rounded-2xl p-4 cursor-pointer transition-all duration-200"
       style={{
         background: '#fff',
@@ -86,7 +98,7 @@ const KpiCard: React.FC<{ card: KpiCard; idx: number }> = ({ card, idx }) => {
         transform: visible ? 'translateY(0)' : 'translateY(12px)',
         transition: 'opacity 400ms ease, transform 400ms ease, box-shadow 150ms, background 150ms',
       }}
-      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(30,58,95,0.12)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(30,58,95,0.12)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
       onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'translateY(0)'; }}
     >
       <div className="flex items-start justify-between mb-3">
@@ -110,14 +122,17 @@ const KpiCard: React.FC<{ card: KpiCard; idx: number }> = ({ card, idx }) => {
       {card.sub2 && (
         <div style={{ fontSize: 11, color: card.sub2Color ?? '#64748B', marginTop: 2 }}>{card.sub2}</div>
       )}
+      <div className="mt-auto pt-3 flex items-center gap-1" style={{ fontSize: 10, color: '#94A3B8' }}>
+        <span>View details →</span>
+      </div>
     </div>
   );
 };
 
-const KpiStrip: React.FC = () => (
+const KpiStrip: React.FC<Props> = ({ onNavigate }) => (
   <div className="grid grid-cols-6 gap-4 mb-5">
     {cards.map((card, idx) => (
-      <KpiCard key={card.label} card={card} idx={idx} />
+      <KpiCard key={card.label} card={card} idx={idx} onNavigate={onNavigate} />
     ))}
   </div>
 );
