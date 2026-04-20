@@ -1,17 +1,64 @@
-import { useState } from 'react';
-import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Calendar, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { MOCK_APPOINTMENTS, MOCK_PAST_APPOINTMENTS } from '../../types/appointments';
+
+export interface AppointmentFilters {
+  status: string;
+  type: string;
+  specialty: string;
+  provider: string;
+  dateFrom: string;
+  dateTo: string;
+}
 
 interface FilterPanelProps {
-  onFilterChange: (filters: any) => void;
+  onFilterChange: (filters: AppointmentFilters) => void;
 }
+
+const ALL_APPOINTMENTS = [...MOCK_APPOINTMENTS, ...MOCK_PAST_APPOINTMENTS];
+
+const SPECIALTIES = ['All', ...Array.from(new Set(ALL_APPOINTMENTS.map(a => a.specialty))).sort()];
+const PROVIDERS = ['All', ...Array.from(new Set(ALL_APPOINTMENTS.map(a => a.doctorName))).sort()];
 
 export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
   const [selectedStatus, setSelectedStatus] = useState('All');
   const [selectedType, setSelectedType] = useState('All');
+  const [selectedSpecialty, setSelectedSpecialty] = useState('All');
+  const [selectedProvider, setSelectedProvider] = useState('All');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  const statuses = ['All', 'Upcoming', 'Completed', 'Cancelled'];
+  const statuses = ['All', 'Confirmed', 'Awaiting Confirmation', 'Completed', 'Cancelled'];
   const types = ['All', 'In-Person', 'Teleconsult'];
+
+  useEffect(() => {
+    onFilterChange({
+      status: selectedStatus,
+      type: selectedType,
+      specialty: selectedSpecialty,
+      provider: selectedProvider,
+      dateFrom,
+      dateTo,
+    });
+  }, [selectedStatus, selectedType, selectedSpecialty, selectedProvider, dateFrom, dateTo]);
+
+  const hasActiveFilters =
+    selectedStatus !== 'All' ||
+    selectedType !== 'All' ||
+    selectedSpecialty !== 'All' ||
+    selectedProvider !== 'All' ||
+    dateFrom !== '' ||
+    dateTo !== '';
+
+  const clearAll = () => {
+    setSelectedStatus('All');
+    setSelectedType('All');
+    setSelectedSpecialty('All');
+    setSelectedProvider('All');
+    setDateFrom('');
+    setDateTo('');
+  };
 
   const daysInMonth = new Date(
     currentMonth.getFullYear(),
@@ -25,29 +72,37 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
     1
   ).getDay();
 
-  const appointmentDays = [10, 15, 20];
-
-  const previousMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
-  };
-
-  const nextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
-  };
+  const appointmentDays = ALL_APPOINTMENTS
+    .map(a => new Date(a.date))
+    .filter(d => d.getMonth() === currentMonth.getMonth() && d.getFullYear() === currentMonth.getFullYear())
+    .map(d => d.getDate());
 
   return (
-    <div className="w-[280px] bg-white border-r border-gray-200 p-6 space-y-6 overflow-y-auto">
+    <div className="w-[280px] bg-white border-r border-gray-200 p-6 space-y-6 overflow-y-auto flex-shrink-0">
+      <div className="flex items-center justify-between">
+        <h2 className="font-bold text-gray-900 text-sm uppercase tracking-wide">Filters</h2>
+        {hasActiveFilters && (
+          <button
+            onClick={clearAll}
+            className="flex items-center gap-1 text-xs text-teal-600 font-semibold hover:text-teal-700 transition-colors"
+          >
+            <X className="w-3 h-3" />
+            Clear all
+          </button>
+        )}
+      </div>
+
       <div>
-        <h3 className="font-semibold text-gray-900 mb-3">Status</h3>
-        <div className="space-y-2">
+        <h3 className="font-semibold text-gray-900 mb-3 text-sm">Status</h3>
+        <div className="space-y-1.5">
           {statuses.map((status) => (
             <button
               key={status}
               onClick={() => setSelectedStatus(status)}
               className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 selectedStatus === status
-                  ? 'bg-teal-100 text-teal-700'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-teal-50 text-teal-700 border border-teal-200'
+                  : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
               {status}
@@ -57,16 +112,16 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
       </div>
 
       <div>
-        <h3 className="font-semibold text-gray-900 mb-3">Type</h3>
-        <div className="space-y-2">
+        <h3 className="font-semibold text-gray-900 mb-3 text-sm">Type</h3>
+        <div className="space-y-1.5">
           {types.map((type) => (
             <button
               key={type}
               onClick={() => setSelectedType(type)}
               className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 selectedType === type
-                  ? 'bg-teal-100 text-teal-700'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-teal-50 text-teal-700 border border-teal-200'
+                  : 'text-gray-600 hover:bg-gray-50'
               }`}
             >
               {type}
@@ -76,71 +131,86 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
       </div>
 
       <div>
-        <h3 className="font-semibold text-gray-900 mb-3">Specialty</h3>
-        <input
-          type="text"
-          placeholder="Search specialties..."
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-        />
+        <h3 className="font-semibold text-gray-900 mb-3 text-sm">Specialty</h3>
+        <div className="space-y-1.5">
+          {SPECIALTIES.map((specialty) => (
+            <button
+              key={specialty}
+              onClick={() => setSelectedSpecialty(specialty)}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                selectedSpecialty === specialty
+                  ? 'bg-teal-50 text-teal-700 border border-teal-200'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              {specialty}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div>
-        <h3 className="font-semibold text-gray-900 mb-3">Provider</h3>
-        <input
-          type="text"
-          placeholder="Search providers..."
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-        />
+        <h3 className="font-semibold text-gray-900 mb-3 text-sm">Provider</h3>
+        <div className="space-y-1.5">
+          {PROVIDERS.map((provider) => (
+            <button
+              key={provider}
+              onClick={() => setSelectedProvider(provider)}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                selectedProvider === provider
+                  ? 'bg-teal-50 text-teal-700 border border-teal-200'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              {provider === 'All' ? 'All Providers' : provider}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div>
-        <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+        <h3 className="font-semibold text-gray-900 mb-3 text-sm flex items-center gap-2">
           <Calendar className="w-4 h-4" />
           Calendar
         </h3>
         <div className="bg-gray-50 rounded-lg p-3">
           <div className="flex items-center justify-between mb-3">
-            <button onClick={previousMonth} className="p-1 hover:bg-gray-200 rounded">
+            <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))} className="p-1 hover:bg-gray-200 rounded">
               <ChevronLeft className="w-4 h-4 text-gray-600" />
             </button>
             <span className="text-sm font-semibold text-gray-900">
               {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
             </span>
-            <button onClick={nextMonth} className="p-1 hover:bg-gray-200 rounded">
+            <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))} className="p-1 hover:bg-gray-200 rounded">
               <ChevronRight className="w-4 h-4 text-gray-600" />
             </button>
           </div>
 
           <div className="grid grid-cols-7 gap-1 text-center">
             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
-              <div key={i} className="text-xs font-medium text-gray-500 mb-1">
-                {day}
-              </div>
+              <div key={i} className="text-xs font-medium text-gray-500 mb-1">{day}</div>
             ))}
-
             {Array.from({ length: firstDayOfMonth }).map((_, i) => (
               <div key={`empty-${i}`} />
             ))}
-
             {Array.from({ length: daysInMonth }).map((_, i) => {
               const day = i + 1;
               const hasAppointment = appointmentDays.includes(day);
-              const isToday = day === new Date().getDate() &&
-                             currentMonth.getMonth() === new Date().getMonth() &&
-                             currentMonth.getFullYear() === new Date().getFullYear();
+              const isToday =
+                day === new Date().getDate() &&
+                currentMonth.getMonth() === new Date().getMonth() &&
+                currentMonth.getFullYear() === new Date().getFullYear();
 
               return (
                 <button
                   key={day}
                   className={`relative w-8 h-8 rounded-full text-xs font-medium transition-colors ${
-                    isToday
-                      ? 'bg-teal-600 text-white'
-                      : 'text-gray-700 hover:bg-gray-200'
+                    isToday ? 'bg-teal-600 text-white' : 'text-gray-700 hover:bg-gray-200'
                   }`}
                 >
                   {day}
-                  {hasAppointment && (
-                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-teal-600 rounded-full"></div>
+                  {hasAppointment && !isToday && (
+                    <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-teal-500 rounded-full" />
                   )}
                 </button>
               );
@@ -150,16 +220,26 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
       </div>
 
       <div>
-        <h3 className="font-semibold text-gray-900 mb-3">Date Range</h3>
+        <h3 className="font-semibold text-gray-900 mb-3 text-sm">Date Range</h3>
         <div className="space-y-2">
-          <input
-            type="date"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-          />
-          <input
-            type="date"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-          />
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">From</label>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={e => setDateFrom(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">To</label>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={e => setDateTo(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
+          </div>
         </div>
       </div>
     </div>
