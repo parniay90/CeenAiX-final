@@ -126,6 +126,7 @@ export default function PatientDashboard() {
                 badgeColor="bg-amber-50 text-amber-700"
                 trend="down"
                 trendLabel="−0.3% vs last"
+                onClick={() => navigate('/my-health')}
               />
               <StatCard
                 icon={<Heart className="w-5 h-5 text-rose-500" />}
@@ -136,6 +137,7 @@ export default function PatientDashboard() {
                 badgeColor="bg-emerald-50 text-emerald-700"
                 trend="stable"
                 trendLabel="Stable"
+                onClick={() => navigate('/my-health')}
               />
               <StatCard
                 icon={<FlaskConical className="w-5 h-5 text-blue-600" />}
@@ -146,6 +148,7 @@ export default function PatientDashboard() {
                 badgeColor="bg-blue-50 text-blue-700"
                 trend="stable"
                 trendLabel="Mar 5, 2026"
+                onClick={() => navigate('/lab-results')}
               />
               <StatCard
                 icon={<Pill className="w-5 h-5 text-teal-600" />}
@@ -156,6 +159,7 @@ export default function PatientDashboard() {
                 badgeColor="bg-teal-50 text-teal-700"
                 trend="up"
                 trendLabel="taken"
+                onClick={() => navigate('/medications')}
               />
             </div>
 
@@ -204,7 +208,10 @@ export default function PatientDashboard() {
                 </div>
 
                 {/* HbA1c Chart */}
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+                <div
+                  className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => navigate('/my-health')}
+                >
                   <div className="flex items-start justify-between mb-5">
                     <div>
                       <h2 className="font-semibold text-slate-900">HbA1c Trend</h2>
@@ -240,7 +247,10 @@ export default function PatientDashboard() {
                 </div>
 
                 {/* Blood Pressure Chart */}
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+                <div
+                  className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => navigate('/my-health')}
+                >
                   <div className="flex items-start justify-between mb-5">
                     <div>
                       <h2 className="font-semibold text-slate-900">Blood Pressure Log</h2>
@@ -308,10 +318,16 @@ export default function PatientDashboard() {
                           </p>
                         )}
                         <div className="grid grid-cols-2 gap-2">
-                          <button className="py-1.5 bg-teal-600 text-white rounded-lg text-xs font-semibold hover:bg-teal-700 transition-colors flex items-center justify-center gap-1">
+                          <button
+                            onClick={e => { e.stopPropagation(); navigate('/messages'); }}
+                            className="py-1.5 bg-teal-600 text-white rounded-lg text-xs font-semibold hover:bg-teal-700 transition-colors flex items-center justify-center gap-1"
+                          >
                             <MessageSquare className="w-3 h-3" />Message
                           </button>
-                          <button className="py-1.5 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-50 transition-colors flex items-center justify-center gap-1">
+                          <button
+                            onClick={e => { e.stopPropagation(); navigate('/appointments'); }}
+                            className="py-1.5 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-50 transition-colors flex items-center justify-center gap-1"
+                          >
                             <Calendar className="w-3 h-3" />Book
                           </button>
                         </div>
@@ -325,7 +341,10 @@ export default function PatientDashboard() {
               <div className="space-y-6">
 
                 {/* Next Appointment */}
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+                <div
+                  className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => navigate('/appointments')}
+                >
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center">
@@ -369,17 +388,26 @@ export default function PatientDashboard() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
-                    <button className="py-2 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-50 transition-colors">
+                    <button
+                      onClick={e => e.stopPropagation()}
+                      className="py-2 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-50 transition-colors"
+                    >
                       Directions
                     </button>
-                    <button className="py-2 bg-teal-600 text-white rounded-lg text-xs font-semibold hover:bg-teal-700 transition-colors">
+                    <button
+                      onClick={e => { e.stopPropagation(); navigate('/appointments'); }}
+                      className="py-2 bg-teal-600 text-white rounded-lg text-xs font-semibold hover:bg-teal-700 transition-colors"
+                    >
                       Details
                     </button>
                   </div>
                 </div>
 
                 {/* Messages */}
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+                <div
+                  className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => navigate('/messages')}
+                >
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
@@ -394,7 +422,7 @@ export default function PatientDashboard() {
 
                   <div className="space-y-2 mb-4">
                     {MOCK_MESSAGES.map(msg => (
-                      <div key={msg.id} className="flex gap-3 p-3 bg-slate-50 rounded-xl hover:bg-slate-100 cursor-pointer transition-colors">
+                      <div key={msg.id} onClick={e => { e.stopPropagation(); navigate('/messages'); }} className="flex gap-3 p-3 bg-slate-50 rounded-xl hover:bg-slate-100 cursor-pointer transition-colors">
                         <div className="relative flex-shrink-0">
                           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-700 to-teal-600 flex items-center justify-center text-white font-bold text-xs">
                             {msg.fromDoctor.initials}
@@ -421,7 +449,10 @@ export default function PatientDashboard() {
                 </div>
 
                 {/* Insurance */}
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+                <div
+                  className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => navigate('/patient/insurance')}
+                >
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
@@ -458,7 +489,7 @@ export default function PatientDashboard() {
                   </div>
 
                   <button
-                    onClick={() => navigate('/patient/insurance')}
+                    onClick={e => { e.stopPropagation(); navigate('/patient/insurance'); }}
                     className="w-full text-center text-xs text-teal-600 font-semibold hover:underline"
                   >
                     View full details →
@@ -522,7 +553,7 @@ export default function PatientDashboard() {
   );
 }
 
-function StatCard({ icon, iconBg, label, value, badge, badgeColor, trend, trendLabel }: {
+function StatCard({ icon, iconBg, label, value, badge, badgeColor, trend, trendLabel, onClick }: {
   icon: React.ReactNode;
   iconBg: string;
   label: string;
@@ -531,12 +562,13 @@ function StatCard({ icon, iconBg, label, value, badge, badgeColor, trend, trendL
   badgeColor: string;
   trend: 'up' | 'down' | 'stable';
   trendLabel: string;
+  onClick?: () => void;
 }) {
   const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus;
   const trendColor = trend === 'down' ? 'text-emerald-600' : trend === 'up' ? 'text-teal-600' : 'text-slate-500';
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 hover:shadow-md transition-shadow cursor-pointer">
+    <div onClick={onClick} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 hover:shadow-md transition-shadow cursor-pointer">
       <div className="flex items-center justify-between mb-3">
         <div className={`w-9 h-9 rounded-lg ${iconBg} flex items-center justify-center`}>
           {icon}
