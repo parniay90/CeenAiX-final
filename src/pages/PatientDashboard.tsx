@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Calendar,
   Heart,
@@ -19,6 +19,7 @@ import {
   Clock,
   FlaskConical,
   Stethoscope,
+  ChevronUp,
 } from 'lucide-react';
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import PatientSidebar from '../components/patient/PatientSidebar';
@@ -47,10 +48,37 @@ export default function PatientDashboard() {
   const [tipIndex, setTipIndex] = useState(0);
   const [allergyDismissed, setAllergyDismissed] = useState(false);
   const [directionsOpen, setDirectionsOpen] = useState(false);
+  const [now, setNow] = useState(new Date());
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
 
-  const hour = new Date().getHours();
+  // Real-time clock — updates every minute
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Show scroll-to-top button after scrolling 300px
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+    const onScroll = () => setShowScrollTop(el.scrollTop > 300);
+    el.addEventListener('scroll', onScroll);
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const scrollToTop = () => mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const hour = now.getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const firstName = MOCK_PATIENT.name.split(' ')[0];
+
+  const formattedDate = now.toLocaleDateString('en-AE', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
 
   const takenCount = medications.filter(m =>
     m.status === 'taken' ||
@@ -74,7 +102,7 @@ export default function PatientDashboard() {
       <div className="flex flex-1 overflow-hidden">
         <PatientSidebar currentPage="dashboard" />
 
-        <main className="flex-1 overflow-y-auto">
+        <main ref={mainRef} className="flex-1 overflow-y-auto">
           {!allergyDismissed && (
             <div className="bg-red-50 border-b border-red-100 px-6 py-2.5 flex items-center justify-between">
               <div className="flex items-center gap-2.5 text-red-700 text-sm">
@@ -95,7 +123,7 @@ export default function PatientDashboard() {
               <div>
                 <p className="text-sm text-slate-500 font-medium">{greeting},</p>
                 <h1 className="text-2xl font-bold text-slate-900 mt-0.5">{firstName}</h1>
-                <p className="text-xs text-slate-400 mt-1">Thursday, 10 April 2026 · Dubai, UAE</p>
+                <p className="text-xs text-slate-400 mt-1">{formattedDate} · Dubai, UAE</p>
               </div>
               <div className="flex items-center gap-3">
                 <div className="bg-white rounded-xl border border-slate-100 shadow-sm px-5 py-3 text-center">
@@ -552,6 +580,17 @@ export default function PatientDashboard() {
           </div>
         </main>
       </div>
+
+      {/* Scroll to top button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 w-11 h-11 bg-teal-600 hover:bg-teal-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
+          aria-label="Scroll to top"
+        >
+          <ChevronUp className="w-5 h-5" />
+        </button>
+      )}
 
       <DirectionsModal
         isOpen={directionsOpen}
