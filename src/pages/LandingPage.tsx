@@ -6,13 +6,20 @@ function navigate(path: string) {
   window.dispatchEvent(new PopStateEvent('popstate'));
 }
 
-function useInView(threshold = 0.15) {
+function useInView(threshold = 0.15, initialInView = false) {
   const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
+  const [inView, setInView] = useState(initialInView);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold });
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      setInView(true);
+      return;
+    }
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) setInView(true);
+    }, { threshold });
     obs.observe(el);
     return () => obs.disconnect();
   }, [threshold]);
@@ -52,7 +59,7 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [activePortal, setActivePortal] = useState(0);
 
-  const heroRef = useInView(0.1);
+  const heroRef = useInView(0.1, true);
   const statsRef = useInView(0.2);
   const featuresRef = useInView(0.1);
   const howRef = useInView(0.1);

@@ -1675,6 +1675,7 @@ const Profile: React.FC = () => {
           </div>
         </div>
       )}
+        </div>
         </main>
       </div>
     </div>
