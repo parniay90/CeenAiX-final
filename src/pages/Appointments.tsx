@@ -21,6 +21,13 @@ const CLINIC_COORDINATES: Record<string, { lat: number; lng: number }> = {
 };
 
 function applyFilters(appointments: AppointmentDetail[], filters: AppointmentFilters): AppointmentDetail[] {
+  if (filters.selectedCalendarDate) {
+    return appointments.filter(apt => {
+      const d = new Date(apt.date);
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+      return key === filters.selectedCalendarDate;
+    });
+  }
   return appointments.filter(apt => {
     if (filters.status !== 'All' && apt.status !== filters.status) return false;
     if (filters.type !== 'All' && apt.type !== filters.type) return false;
@@ -608,7 +615,7 @@ export default function Appointments() {
 
   const [filters, setFilters] = useState<AppointmentFilters>({
     status: 'All', type: 'All', specialty: 'All',
-    provider: 'All', dateFrom: '', dateTo: '',
+    provider: 'All', dateFrom: '', dateTo: '', selectedCalendarDate: '',
   });
 
   const handleFilterChange = useCallback((f: AppointmentFilters) => setFilters(f), []);
@@ -673,7 +680,7 @@ export default function Appointments() {
   });
 
   const totalFiltered = filteredUpcoming.length + filteredPast.length;
-  const filtersActive = filters.status !== 'All' || filters.type !== 'All' ||
+  const filtersActive = filters.status !== 'All' || filters.type !== 'All' || filters.selectedCalendarDate !== '' ||
     filters.specialty !== 'All' || filters.provider !== 'All' ||
     filters.dateFrom !== '' || filters.dateTo !== '';
 
@@ -686,7 +693,7 @@ export default function Appointments() {
 
         <main ref={mainRef} className="flex-1 overflow-y-auto">
           <div className="flex">
-            <FilterPanel onFilterChange={handleFilterChange} />
+            <FilterPanel onFilterChange={handleFilterChange} upcomingAppointments={appointments} />
 
             <div className="flex-1 p-6">
               {hasTodayTeleconsult && todayTeleconsult && (
@@ -699,7 +706,7 @@ export default function Appointments() {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <h1 className="text-3xl font-bold text-gray-900">
-                    {isStatusFilteringPast ? 'Past Appointments' : 'Upcoming Appointments'}
+                    {filters.selectedCalendarDate ? new Date(filters.selectedCalendarDate + 'T00:00:00').toLocaleDateString('en-AE', { weekday: 'long', day: 'numeric', month: 'long' }) : isStatusFilteringPast ? 'Past Appointments' : 'Upcoming Appointments'}
                   </h1>
                   <span className="px-3 py-1 bg-teal-600 text-white rounded-full text-sm font-semibold">
                     {filtersActive ? totalFiltered : filteredUpcoming.length}
