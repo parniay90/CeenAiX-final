@@ -189,7 +189,15 @@ const CANCEL_REASONS = [
   'Other',
 ];
 
-function CancelModal({ appointment, onClose }: { appointment: AppointmentDetail; onClose: () => void }) {
+function CancelModal({
+  appointment,
+  onClose,
+  onConfirm,
+}: {
+  appointment: AppointmentDetail;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [otherText, setOtherText] = useState('');
   const [confirmed, setConfirmed] = useState(false);
@@ -199,8 +207,13 @@ function CancelModal({ appointment, onClose }: { appointment: AppointmentDetail;
     setConfirmed(true);
   };
 
+  const handleDone = () => {
+    onConfirm();
+    onClose();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={confirmed ? undefined : onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
         {/* Header */}
@@ -227,7 +240,7 @@ function CancelModal({ appointment, onClose }: { appointment: AppointmentDetail;
               </div>
               <h3 className="font-bold text-gray-900 text-lg mb-2">Appointment Cancelled</h3>
               <p className="text-gray-500 text-sm">Your appointment with {appointment.doctorName} has been cancelled.</p>
-              <button onClick={onClose} className="mt-6 px-6 py-2 bg-gray-800 text-white rounded-lg font-medium hover:bg-gray-900 transition-colors">
+              <button onClick={handleDone} className="mt-6 px-6 py-2 bg-gray-800 text-white rounded-lg font-medium hover:bg-gray-900 transition-colors">
                 Done
               </button>
             </div>
@@ -324,9 +337,11 @@ function AddToCalendarModal({ onClose }: { onClose: () => void }) {
 function AppointmentCardWithActions({
   appointment,
   onReschedule,
+  onCancel,
 }: {
   appointment: AppointmentDetail;
   onReschedule: (id: string, date: Date, time: string) => void;
+  onCancel: (id: string) => void;
 }) {
   const [showReschedule, setShowReschedule] = useState(false);
   const [showCancel, setShowCancel] = useState(false);
@@ -335,6 +350,7 @@ function AppointmentCardWithActions({
   const [successData, setSuccessData] = useState<{ date: Date; time: string } | null>(null);
 
   const coordinates = CLINIC_COORDINATES[appointment.clinicName] || { lat: 25.2048, lng: 55.2708 };
+  const isCancelled = appointment.status === 'Cancelled';
 
   const isWithin10Minutes = () => {
     const now = new Date();
@@ -353,9 +369,19 @@ function AppointmentCardWithActions({
     setSuccessData(null);
   };
 
+  const handleCancelConfirm = () => {
+    onCancel(appointment.id);
+  };
+
+  const statusBadgeClass = isCancelled
+    ? 'bg-red-100 text-red-700 border-red-300'
+    : appointment.status === 'Confirmed'
+    ? 'bg-green-100 text-green-700 border-green-300'
+    : 'bg-amber-100 text-amber-700 border-amber-300';
+
   return (
     <>
-      <div className="bg-white rounded-lg border-l-4 border-teal-600 p-6 shadow-sm hover:shadow-md transition-all">
+      <div className={`bg-white rounded-lg border-l-4 p-6 shadow-sm hover:shadow-md transition-all ${isCancelled ? 'border-red-400' : 'border-teal-600'}`}>
         <div className="flex gap-4">
           <img src={appointment.doctorPhoto} alt={appointment.doctorName} className="w-16 h-16 rounded-full object-cover" />
           <div className="flex-1">
@@ -368,7 +394,7 @@ function AppointmentCardWithActions({
                 <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${appointment.type === 'Teleconsult' ? 'bg-violet-100 text-violet-700 border-violet-300' : 'bg-teal-100 text-teal-700 border-teal-300'}`}>
                   {appointment.type}
                 </span>
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${appointment.status === 'Confirmed' ? 'bg-green-100 text-green-700 border-green-300' : 'bg-amber-100 text-amber-700 border-amber-300'}`}>
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${statusBadgeClass}`}>
                   {appointment.status}
                 </span>
               </div>
@@ -392,30 +418,38 @@ function AppointmentCardWithActions({
               </div>
             )}
 
-            <div className="flex flex-wrap gap-2">
-              {appointment.type === 'Teleconsult' && (
-                <button
-                  disabled={!isWithin10Minutes()}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${isWithin10Minutes() ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
-                >
-                  {isWithin10Minutes() ? 'Join Call' : 'Join Call (Available 10 min before)'}
+            {isCancelled ? (
+              <div className="flex flex-wrap gap-2">
+                <span className="px-4 py-2 bg-gray-100 text-gray-400 rounded-lg font-medium text-sm cursor-not-allowed">
+                  Appointment Cancelled
+                </span>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {appointment.type === 'Teleconsult' && (
+                  <button
+                    disabled={!isWithin10Minutes()}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${isWithin10Minutes() ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+                  >
+                    {isWithin10Minutes() ? 'Join Call' : 'Join Call (Available 10 min before)'}
+                  </button>
+                )}
+                <button onClick={() => setShowReschedule(true)} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
+                  Reschedule
                 </button>
-              )}
-              <button onClick={() => setShowReschedule(true)} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
-                Reschedule
-              </button>
-              <button onClick={() => setShowCancel(true)} className="px-4 py-2 bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-600 rounded-lg font-medium transition-colors">
-                Cancel
-              </button>
-              <button onClick={() => setShowCalendar(true)} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
-                Add to Calendar
-              </button>
-              {appointment.type === 'In-Person' && (
-                <button onClick={() => setShowDirections(true)} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
-                  Get Directions
+                <button onClick={() => setShowCancel(true)} className="px-4 py-2 bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-600 rounded-lg font-medium transition-colors">
+                  Cancel
                 </button>
-              )}
-            </div>
+                <button onClick={() => setShowCalendar(true)} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
+                  Add to Calendar
+                </button>
+                {appointment.type === 'In-Person' && (
+                  <button onClick={() => setShowDirections(true)} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
+                    Get Directions
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -434,7 +468,13 @@ function AppointmentCardWithActions({
           onDone={handleSuccessDone}
         />
       )}
-      {showCancel && <CancelModal appointment={appointment} onClose={() => setShowCancel(false)} />}
+      {showCancel && (
+        <CancelModal
+          appointment={appointment}
+          onClose={() => setShowCancel(false)}
+          onConfirm={handleCancelConfirm}
+        />
+      )}
       {showCalendar && <AddToCalendarModal onClose={() => setShowCalendar(false)} />}
       {showDirections && (
         <DirectionsModal
@@ -607,6 +647,16 @@ export default function Appointments() {
     );
   }, []);
 
+  const handleCancel = useCallback((id: string) => {
+    setAppointments(prev =>
+      prev.map(apt =>
+        apt.id === id
+          ? { ...apt, status: 'Cancelled' as AppointmentDetail['status'] }
+          : apt
+      )
+    );
+  }, []);
+
   // Scroll-to-top
   useEffect(() => {
     const el = mainRef.current;
@@ -621,7 +671,8 @@ export default function Appointments() {
   const isStatusFilteringPast = filters.status === 'Completed' || filters.status === 'Cancelled';
 
   const upcomingSource = appointments.filter(apt => apt.status !== 'Completed' && apt.status !== 'Cancelled');
-  const pastSource = MOCK_PAST_APPOINTMENTS;
+  const cancelledFromState = appointments.filter(apt => apt.status === 'Cancelled');
+  const pastSource = [...cancelledFromState, ...MOCK_PAST_APPOINTMENTS];
 
   const filteredUpcoming = isStatusFilteringPast ? [] : applyFilters(upcomingSource, filters);
   const filteredPast = applyFilters(pastSource, filters);
@@ -690,7 +741,7 @@ export default function Appointments() {
               {!isStatusFilteringPast && (
                 <div className="space-y-4 mb-8">
                   {filteredUpcoming.map(appointment => (
-                    <AppointmentCardWithActions key={appointment.id} appointment={appointment} onReschedule={handleReschedule} />
+                    <AppointmentCardWithActions key={appointment.id} appointment={appointment} onReschedule={handleReschedule} onCancel={handleCancel} />
                   ))}
 
                   {filteredUpcoming.length === 0 && !filtersActive && (
