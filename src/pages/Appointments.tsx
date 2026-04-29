@@ -65,7 +65,6 @@ function RescheduleModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
-        {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center">
@@ -82,7 +81,6 @@ function RescheduleModal({
         </div>
 
         <div className="px-6 py-4 max-h-[70vh] overflow-y-auto">
-          {/* Date picker */}
           <p className="text-sm font-semibold text-gray-700 mb-3">Select a new date</p>
           <div className="flex gap-2 overflow-x-auto pb-2 mb-5">
             {days.map(day => {
@@ -105,7 +103,6 @@ function RescheduleModal({
             })}
           </div>
 
-          {/* Time slots */}
           <p className="text-sm font-semibold text-gray-700 mb-3">Select a time</p>
           <div className="grid grid-cols-3 gap-2 mb-5">
             {MOCK_TIME_SLOTS.map(slot => (
@@ -216,7 +213,6 @@ function CancelModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={confirmed ? undefined : onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
-        {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
@@ -365,13 +361,8 @@ function AppointmentCardWithActions({
     onReschedule(appointment.id, date, time);
   };
 
-  const handleSuccessDone = () => {
-    setSuccessData(null);
-  };
-
-  const handleCancelConfirm = () => {
-    onCancel(appointment.id);
-  };
+  const handleSuccessDone = () => setSuccessData(null);
+  const handleCancelConfirm = () => onCancel(appointment.id);
 
   const statusBadgeClass = isCancelled
     ? 'bg-red-100 text-red-700 border-red-300'
@@ -419,11 +410,9 @@ function AppointmentCardWithActions({
             )}
 
             {isCancelled ? (
-              <div className="flex flex-wrap gap-2">
-                <span className="px-4 py-2 bg-gray-100 text-gray-400 rounded-lg font-medium text-sm cursor-not-allowed">
-                  Appointment Cancelled
-                </span>
-              </div>
+              <span className="px-4 py-2 bg-gray-100 text-gray-400 rounded-lg font-medium text-sm cursor-not-allowed inline-block">
+                Appointment Cancelled
+              </span>
             ) : (
               <div className="flex flex-wrap gap-2">
                 {appointment.type === 'Teleconsult' && (
@@ -434,19 +423,11 @@ function AppointmentCardWithActions({
                     {isWithin10Minutes() ? 'Join Call' : 'Join Call (Available 10 min before)'}
                   </button>
                 )}
-                <button onClick={() => setShowReschedule(true)} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
-                  Reschedule
-                </button>
-                <button onClick={() => setShowCancel(true)} className="px-4 py-2 bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-600 rounded-lg font-medium transition-colors">
-                  Cancel
-                </button>
-                <button onClick={() => setShowCalendar(true)} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
-                  Add to Calendar
-                </button>
+                <button onClick={() => setShowReschedule(true)} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">Reschedule</button>
+                <button onClick={() => setShowCancel(true)} className="px-4 py-2 bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-600 rounded-lg font-medium transition-colors">Cancel</button>
+                <button onClick={() => setShowCalendar(true)} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">Add to Calendar</button>
                 {appointment.type === 'In-Person' && (
-                  <button onClick={() => setShowDirections(true)} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
-                    Get Directions
-                  </button>
+                  <button onClick={() => setShowDirections(true)} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">Get Directions</button>
                 )}
               </div>
             )}
@@ -454,27 +435,9 @@ function AppointmentCardWithActions({
         </div>
       </div>
 
-      {showReschedule && (
-        <RescheduleModal
-          appointment={appointment}
-          onClose={() => setShowReschedule(false)}
-          onConfirm={handleRescheduleConfirm}
-        />
-      )}
-      {successData && (
-        <RescheduleSuccessModal
-          date={successData.date}
-          time={successData.time}
-          onDone={handleSuccessDone}
-        />
-      )}
-      {showCancel && (
-        <CancelModal
-          appointment={appointment}
-          onClose={() => setShowCancel(false)}
-          onConfirm={handleCancelConfirm}
-        />
-      )}
+      {showReschedule && <RescheduleModal appointment={appointment} onClose={() => setShowReschedule(false)} onConfirm={handleRescheduleConfirm} />}
+      {successData && <RescheduleSuccessModal date={successData.date} time={successData.time} onDone={handleSuccessDone} />}
+      {showCancel && <CancelModal appointment={appointment} onClose={() => setShowCancel(false)} onConfirm={handleCancelConfirm} />}
       {showCalendar && <AddToCalendarModal onClose={() => setShowCalendar(false)} />}
       {showDirections && (
         <DirectionsModal
@@ -494,9 +457,22 @@ function AppointmentCardWithActions({
 function PastAppointmentsSectionOpen({ appointments }: { appointments: AppointmentDetail[] }) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [selectedAppointment, setSelectedAppointment] = useState<string | null>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const detailRef = useRef<HTMLDivElement>(null);
+
+  const handleViewNotes = (id: string) => {
+    const isClosing = selectedAppointment === id;
+    setSelectedAppointment(isClosing ? null : id);
+    // Only scroll when opening notes, not closing
+    if (!isClosing) {
+      setTimeout(() => {
+        sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
+  };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200">
+    <div ref={sectionRef} className="bg-white rounded-lg border border-gray-200">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition-colors"
@@ -550,10 +526,10 @@ function PastAppointmentsSectionOpen({ appointments }: { appointments: Appointme
                     </td>
                     <td className="px-6 py-4">
                       <button
-                        onClick={() => setSelectedAppointment(selectedAppointment === appointment.id ? null : appointment.id)}
+                        onClick={() => handleViewNotes(appointment.id)}
                         className="text-sm text-teal-600 hover:text-teal-700 font-medium"
                       >
-                        View Notes
+                        {selectedAppointment === appointment.id ? 'Hide Notes' : 'View Notes'}
                       </button>
                     </td>
                     <td className="px-6 py-4">
@@ -570,7 +546,7 @@ function PastAppointmentsSectionOpen({ appointments }: { appointments: Appointme
           </div>
 
           {selectedAppointment && (
-            <div className="p-6 bg-gray-50 border-t border-gray-200">
+            <div ref={detailRef} className="p-6 bg-gray-50 border-t border-gray-200">
               {appointments.filter(a => a.id === selectedAppointment).map(appointment => (
                 <div key={appointment.id} className="bg-white rounded-lg p-6 border border-gray-200">
                   <div className="flex items-start justify-between mb-4">
@@ -657,7 +633,6 @@ export default function Appointments() {
     );
   }, []);
 
-  // Scroll-to-top
   useEffect(() => {
     const el = mainRef.current;
     if (!el) return;
@@ -669,11 +644,9 @@ export default function Appointments() {
   const scrollToTop = () => mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
 
   const isStatusFilteringPast = filters.status === 'Completed' || filters.status === 'Cancelled';
-
   const upcomingSource = appointments.filter(apt => apt.status !== 'Completed' && apt.status !== 'Cancelled');
   const cancelledFromState = appointments.filter(apt => apt.status === 'Cancelled');
   const pastSource = [...cancelledFromState, ...MOCK_PAST_APPOINTMENTS];
-
   const filteredUpcoming = isStatusFilteringPast ? [] : applyFilters(upcomingSource, filters);
   const filteredPast = applyFilters(pastSource, filters);
 
@@ -741,7 +714,12 @@ export default function Appointments() {
               {!isStatusFilteringPast && (
                 <div className="space-y-4 mb-8">
                   {filteredUpcoming.map(appointment => (
-                    <AppointmentCardWithActions key={appointment.id} appointment={appointment} onReschedule={handleReschedule} onCancel={handleCancel} />
+                    <AppointmentCardWithActions
+                      key={appointment.id}
+                      appointment={appointment}
+                      onReschedule={handleReschedule}
+                      onCancel={handleCancel}
+                    />
                   ))}
 
                   {filteredUpcoming.length === 0 && !filtersActive && (
@@ -771,7 +749,6 @@ export default function Appointments() {
         </main>
       </div>
 
-      {/* Scroll to top */}
       {showScrollTop && (
         <button
           onClick={scrollToTop}
