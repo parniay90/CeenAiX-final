@@ -97,7 +97,7 @@ export const MOCK_DOCTORS: Doctor[] = [
     languages: ['English', 'Hindi', 'Urdu'],
     nextAvailable: new Date('2026-04-12T14:00:00'),
     consultationFee: 550,
-    inNetwork: false,
+    inNetwork: true,
   },
 
   // ── New doctors for missing specialties ───────────────────────────────────
