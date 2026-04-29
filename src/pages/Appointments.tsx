@@ -41,17 +41,24 @@ function applyFilters(appointments: AppointmentDetail[], filters: AppointmentFil
 }
 
 // ── Reschedule Modal ───────────────────────────────────────────────────────────
-function RescheduleModal({ appointment, onClose }: { appointment: AppointmentDetail; onClose: () => void }) {
+function RescheduleModal({
+  appointment,
+  onClose,
+  onConfirm,
+}: {
+  appointment: AppointmentDetail;
+  onClose: () => void;
+  onConfirm: (date: Date, time: string) => void;
+}) {
   const today = new Date();
   const [selectedDate, setSelectedDate] = useState<Date>(addDays(today, 1));
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [confirmed, setConfirmed] = useState(false);
 
   const days = Array.from({ length: 14 }, (_, i) => addDays(today, i + 1));
 
   const handleConfirm = () => {
     if (!selectedTime) return;
-    setConfirmed(true);
+    onConfirm(selectedDate, selectedTime);
   };
 
   return (
@@ -75,80 +82,97 @@ function RescheduleModal({ appointment, onClose }: { appointment: AppointmentDet
         </div>
 
         <div className="px-6 py-4 max-h-[70vh] overflow-y-auto">
-          {confirmed ? (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 rounded-full bg-teal-50 flex items-center justify-center mx-auto mb-4">
-                <CalendarCheck className="w-8 h-8 text-teal-600" />
-              </div>
-              <h3 className="font-bold text-gray-900 text-lg mb-2">Reschedule Requested!</h3>
-              <p className="text-gray-500 text-sm mb-1">
-                {format(selectedDate, 'EEEE, MMMM d, yyyy')}
-              </p>
-              <p className="text-teal-600 font-semibold">{selectedTime}</p>
-              <p className="text-gray-400 text-xs mt-3">Your doctor will confirm the new time shortly.</p>
-              <button onClick={onClose} className="mt-6 px-6 py-2 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition-colors">
-                Done
-              </button>
-            </div>
-          ) : (
-            <>
-              {/* Date picker */}
-              <p className="text-sm font-semibold text-gray-700 mb-3">Select a new date</p>
-              <div className="flex gap-2 overflow-x-auto pb-2 mb-5">
-                {days.map(day => {
-                  const isSelected = format(day, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
-                  return (
-                    <button
-                      key={day.toISOString()}
-                      onClick={() => { setSelectedDate(day); setSelectedTime(null); }}
-                      className={`flex-shrink-0 flex flex-col items-center px-3 py-2 rounded-xl border-2 transition-all ${
-                        isSelected
-                          ? 'border-teal-600 bg-teal-50 text-teal-700'
-                          : 'border-gray-200 text-gray-600 hover:border-teal-300'
-                      }`}
-                    >
-                      <span className="text-xs font-medium">{format(day, 'EEE')}</span>
-                      <span className="text-lg font-bold">{format(day, 'd')}</span>
-                      <span className="text-xs">{format(day, 'MMM')}</span>
-                    </button>
-                  );
-                })}
-              </div>
+          {/* Date picker */}
+          <p className="text-sm font-semibold text-gray-700 mb-3">Select a new date</p>
+          <div className="flex gap-2 overflow-x-auto pb-2 mb-5">
+            {days.map(day => {
+              const isSelected = format(day, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
+              return (
+                <button
+                  key={day.toISOString()}
+                  onClick={() => { setSelectedDate(day); setSelectedTime(null); }}
+                  className={`flex-shrink-0 flex flex-col items-center px-3 py-2 rounded-xl border-2 transition-all ${
+                    isSelected
+                      ? 'border-teal-600 bg-teal-50 text-teal-700'
+                      : 'border-gray-200 text-gray-600 hover:border-teal-300'
+                  }`}
+                >
+                  <span className="text-xs font-medium">{format(day, 'EEE')}</span>
+                  <span className="text-lg font-bold">{format(day, 'd')}</span>
+                  <span className="text-xs">{format(day, 'MMM')}</span>
+                </button>
+              );
+            })}
+          </div>
 
-              {/* Time slots */}
-              <p className="text-sm font-semibold text-gray-700 mb-3">Select a time</p>
-              <div className="grid grid-cols-3 gap-2 mb-5">
-                {MOCK_TIME_SLOTS.map(slot => (
-                  <button
-                    key={slot.time}
-                    disabled={!slot.available}
-                    onClick={() => setSelectedTime(slot.time)}
-                    className={`py-2 rounded-lg text-sm font-medium border-2 transition-all ${
-                      !slot.available
-                        ? 'border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed'
-                        : selectedTime === slot.time
-                        ? 'border-teal-600 bg-teal-50 text-teal-700'
-                        : 'border-gray-200 text-gray-700 hover:border-teal-300'
-                    }`}
-                  >
-                    {slot.available ? slot.time : <span className="line-through">{slot.time}</span>}
-                  </button>
-                ))}
-              </div>
-
+          {/* Time slots */}
+          <p className="text-sm font-semibold text-gray-700 mb-3">Select a time</p>
+          <div className="grid grid-cols-3 gap-2 mb-5">
+            {MOCK_TIME_SLOTS.map(slot => (
               <button
-                onClick={handleConfirm}
-                disabled={!selectedTime}
-                className={`w-full py-3 rounded-xl font-semibold transition-all ${
-                  selectedTime
-                    ? 'bg-teal-600 text-white hover:bg-teal-700'
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                key={slot.time}
+                disabled={!slot.available}
+                onClick={() => setSelectedTime(slot.time)}
+                className={`py-2 rounded-lg text-sm font-medium border-2 transition-all ${
+                  !slot.available
+                    ? 'border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed'
+                    : selectedTime === slot.time
+                    ? 'border-teal-600 bg-teal-50 text-teal-700'
+                    : 'border-gray-200 text-gray-700 hover:border-teal-300'
                 }`}
               >
-                Confirm Reschedule
+                {slot.available ? slot.time : <span className="line-through">{slot.time}</span>}
               </button>
-            </>
-          )}
+            ))}
+          </div>
+
+          <button
+            onClick={handleConfirm}
+            disabled={!selectedTime}
+            className={`w-full py-3 rounded-xl font-semibold transition-all ${
+              selectedTime
+                ? 'bg-teal-600 text-white hover:bg-teal-700'
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
+          >
+            Confirm Reschedule
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Reschedule Success Modal ───────────────────────────────────────────────────
+function RescheduleSuccessModal({
+  date,
+  time,
+  onDone,
+}: {
+  date: Date;
+  time: string;
+  onDone: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
+        <div className="px-8 py-10 text-center">
+          <div className="w-16 h-16 rounded-full bg-teal-50 flex items-center justify-center mx-auto mb-5">
+            <CalendarCheck className="w-8 h-8 text-teal-600" />
+          </div>
+          <h3 className="font-bold text-gray-900 text-xl mb-4">Reschedule Requested!</h3>
+          <p className="text-gray-700 font-semibold text-base mb-1">
+            {format(date, 'EEEE, MMMM d, yyyy')}
+          </p>
+          <p className="text-teal-600 font-semibold text-base mb-4">{time}</p>
+          <p className="text-gray-400 text-sm mb-8">Your doctor will confirm the new time shortly.</p>
+          <button
+            onClick={onDone}
+            className="w-full py-3 bg-teal-600 text-white rounded-xl font-semibold hover:bg-teal-700 transition-colors"
+          >
+            Done
+          </button>
         </div>
       </div>
     </div>
@@ -297,11 +321,18 @@ function AddToCalendarModal({ onClose }: { onClose: () => void }) {
 }
 
 // ── Enhanced AppointmentCard with action handlers ─────────────────────────────
-function AppointmentCardWithActions({ appointment }: { appointment: AppointmentDetail }) {
+function AppointmentCardWithActions({
+  appointment,
+  onReschedule,
+}: {
+  appointment: AppointmentDetail;
+  onReschedule: (id: string, date: Date, time: string) => void;
+}) {
   const [showReschedule, setShowReschedule] = useState(false);
   const [showCancel, setShowCancel] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [showDirections, setShowDirections] = useState(false);
+  const [successData, setSuccessData] = useState<{ date: Date; time: string } | null>(null);
 
   const coordinates = CLINIC_COORDINATES[appointment.clinicName] || { lat: 25.2048, lng: 55.2708 };
 
@@ -310,6 +341,16 @@ function AppointmentCardWithActions({ appointment }: { appointment: AppointmentD
     const appointmentTime = new Date(appointment.date);
     const diff = appointmentTime.getTime() - now.getTime();
     return diff <= 10 * 60 * 1000 && diff > 0;
+  };
+
+  const handleRescheduleConfirm = (date: Date, time: string) => {
+    setShowReschedule(false);
+    setSuccessData({ date, time });
+    onReschedule(appointment.id, date, time);
+  };
+
+  const handleSuccessDone = () => {
+    setSuccessData(null);
   };
 
   return (
@@ -379,7 +420,20 @@ function AppointmentCardWithActions({ appointment }: { appointment: AppointmentD
         </div>
       </div>
 
-      {showReschedule && <RescheduleModal appointment={appointment} onClose={() => setShowReschedule(false)} />}
+      {showReschedule && (
+        <RescheduleModal
+          appointment={appointment}
+          onClose={() => setShowReschedule(false)}
+          onConfirm={handleRescheduleConfirm}
+        />
+      )}
+      {successData && (
+        <RescheduleSuccessModal
+          date={successData.date}
+          time={successData.time}
+          onDone={handleSuccessDone}
+        />
+      )}
       {showCancel && <CancelModal appointment={appointment} onClose={() => setShowCancel(false)} />}
       {showCalendar && <AddToCalendarModal onClose={() => setShowCalendar(false)} />}
       {showDirections && (
@@ -531,6 +585,7 @@ function PastAppointmentsSectionOpen({ appointments }: { appointments: Appointme
 
 // ── Main Page ──────────────────────────────────────────────────────────────────
 export default function Appointments() {
+  const [appointments, setAppointments] = useState(MOCK_APPOINTMENTS);
   const [isBookingDrawerOpen, setIsBookingDrawerOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
@@ -541,6 +596,16 @@ export default function Appointments() {
   });
 
   const handleFilterChange = useCallback((f: AppointmentFilters) => setFilters(f), []);
+
+  const handleReschedule = useCallback((id: string, date: Date, time: string) => {
+    setAppointments(prev =>
+      prev.map(apt =>
+        apt.id === id
+          ? { ...apt, date, time, status: 'Awaiting Confirmation' as AppointmentDetail['status'] }
+          : apt
+      )
+    );
+  }, []);
 
   // Scroll-to-top
   useEffect(() => {
@@ -555,7 +620,7 @@ export default function Appointments() {
 
   const isStatusFilteringPast = filters.status === 'Completed' || filters.status === 'Cancelled';
 
-  const upcomingSource = MOCK_APPOINTMENTS.filter(apt => apt.status !== 'Completed' && apt.status !== 'Cancelled');
+  const upcomingSource = appointments.filter(apt => apt.status !== 'Completed' && apt.status !== 'Cancelled');
   const pastSource = MOCK_PAST_APPOINTMENTS;
 
   const filteredUpcoming = isStatusFilteringPast ? [] : applyFilters(upcomingSource, filters);
@@ -625,7 +690,7 @@ export default function Appointments() {
               {!isStatusFilteringPast && (
                 <div className="space-y-4 mb-8">
                   {filteredUpcoming.map(appointment => (
-                    <AppointmentCardWithActions key={appointment.id} appointment={appointment} />
+                    <AppointmentCardWithActions key={appointment.id} appointment={appointment} onReschedule={handleReschedule} />
                   ))}
 
                   {filteredUpcoming.length === 0 && !filtersActive && (
