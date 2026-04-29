@@ -601,7 +601,7 @@ function PastAppointmentsSectionOpen({ appointments }: { appointments: Appointme
 
 // ── Main Page ──────────────────────────────────────────────────────────────────
 export default function Appointments() {
-  const [appointments, setAppointments] = useState(MOCK_APPOINTMENTS);
+  const [appointments, setAppointments] = useState<AppointmentDetail[]>(MOCK_APPOINTMENTS);
   const [isBookingDrawerOpen, setIsBookingDrawerOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
@@ -631,6 +631,10 @@ export default function Appointments() {
           : apt
       )
     );
+  }, []);
+
+  const handleBooked = useCallback((newAppointment: AppointmentDetail) => {
+    setAppointments(prev => [newAppointment, ...prev]);
   }, []);
 
   useEffect(() => {
@@ -762,6 +766,7 @@ export default function Appointments() {
       <BookAppointmentDrawer
         isOpen={isBookingDrawerOpen}
         onClose={() => setIsBookingDrawerOpen(false)}
+        onBooked={handleBooked}
       />
     </div>
   );
