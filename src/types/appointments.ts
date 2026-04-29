@@ -50,6 +50,7 @@ export const SPECIALTIES = [
 ];
 
 export const MOCK_DOCTORS: Doctor[] = [
+  // ── Existing doctors ──────────────────────────────────────────────────────
   {
     id: '1',
     name: 'Dr. Sarah Johnson',
@@ -97,6 +98,80 @@ export const MOCK_DOCTORS: Doctor[] = [
     nextAvailable: new Date('2026-04-12T14:00:00'),
     consultationFee: 550,
     inNetwork: false,
+  },
+
+  // ── New doctors for missing specialties ───────────────────────────────────
+  {
+    id: '5',
+    name: 'Dr. Layla Al Mansouri',
+    specialty: 'Dermatology',
+    photo: 'https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg?auto=compress&cs=tinysrgb&w=100',
+    hospital: 'Mediclinic City Hospital',
+    rating: 4.8,
+    languages: ['Arabic', 'English'],
+    nextAvailable: new Date('2026-04-11T11:00:00'),
+    consultationFee: 400,
+    inNetwork: true,
+  },
+  {
+    id: '6',
+    name: 'Dr. Ahmed Al Rashidi',
+    specialty: 'Ophthalmology',
+    photo: 'https://images.pexels.com/photos/5327656/pexels-photo-5327656.jpeg?auto=compress&cs=tinysrgb&w=100',
+    hospital: 'Dubai Healthcare City',
+    rating: 4.7,
+    languages: ['Arabic', 'English'],
+    nextAvailable: new Date('2026-04-13T10:00:00'),
+    consultationFee: 480,
+    inNetwork: true,
+  },
+  {
+    id: '7',
+    name: 'Dr. Noor Al Farsi',
+    specialty: 'Gynecology',
+    photo: 'https://images.pexels.com/photos/5214958/pexels-photo-5214958.jpeg?auto=compress&cs=tinysrgb&w=100',
+    hospital: 'Latifa Hospital Dubai',
+    rating: 4.9,
+    languages: ['Arabic', 'English', 'French'],
+    nextAvailable: new Date('2026-04-09T09:30:00'),
+    consultationFee: 420,
+    inNetwork: true,
+  },
+  {
+    id: '8',
+    name: 'Dr. Priya Sharma',
+    specialty: 'Pediatrics',
+    photo: 'https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&w=100',
+    hospital: 'Mediclinic Dubai Mall',
+    rating: 4.8,
+    languages: ['English', 'Hindi', 'Arabic'],
+    nextAvailable: new Date('2026-04-10T08:30:00'),
+    consultationFee: 380,
+    inNetwork: true,
+  },
+  {
+    id: '9',
+    name: 'Dr. Omar Al Suwaidi',
+    specialty: 'Mental Health',
+    photo: 'https://images.pexels.com/photos/5327585/pexels-photo-5327585.jpeg?auto=compress&cs=tinysrgb&w=100',
+    hospital: 'American Hospital Dubai',
+    rating: 4.9,
+    languages: ['Arabic', 'English'],
+    nextAvailable: new Date('2026-04-14T02:00:00'),
+    consultationFee: 500,
+    inNetwork: false,
+  },
+  {
+    id: '10',
+    name: 'Dr. Hana Al Blooshi',
+    specialty: 'Dentistry',
+    photo: 'https://images.pexels.com/photos/5214958/pexels-photo-5214958.jpeg?auto=compress&cs=tinysrgb&w=100',
+    hospital: 'Dubai Healthcare City',
+    rating: 4.7,
+    languages: ['Arabic', 'English'],
+    nextAvailable: new Date('2026-04-11T03:00:00'),
+    consultationFee: 350,
+    inNetwork: true,
   },
 ];
 
