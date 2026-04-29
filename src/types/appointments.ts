@@ -159,7 +159,7 @@ export const MOCK_DOCTORS: Doctor[] = [
     languages: ['Arabic', 'English'],
     nextAvailable: new Date('2026-04-14T02:00:00'),
     consultationFee: 500,
-    inNetwork: false,
+    inNetwork: true,
   },
   {
     id: '10',
