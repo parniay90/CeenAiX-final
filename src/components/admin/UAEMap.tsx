@@ -42,7 +42,7 @@ const UAEMap: React.FC = () => {
   return (
     <div
       className="rounded-2xl overflow-hidden flex flex-col"
-      style={{ background: '#1E293B', border: '1px solid rgba(51,65,85,0.5)', height: 360 }}
+      style={{ background: '#1E293B', border: '1px solid rgba(51,65,85,0.5)' }}
     >
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 flex-shrink-0" style={{ borderBottom: '1px solid rgba(51,65,85,0.5)' }}>
@@ -76,7 +76,7 @@ const UAEMap: React.FC = () => {
       </div>
 
       {/* Map SVG */}
-      <div className="flex-1 relative overflow-hidden" style={{ background: viewMode === 'satellite' ? '#0D1F0D' : '#1a2744' }}>
+      <div className="flex-1 relative overflow-hidden" style={{ background: viewMode === 'satellite' ? '#0D1F0D' : '#1a2744', minHeight: 260 }}>
         <svg
           viewBox="0 0 104 96"
           className="w-full h-full"

@@ -38,7 +38,7 @@ const ActivityFeed: React.FC = () => {
   return (
     <div
       className="rounded-2xl flex flex-col overflow-hidden"
-      style={{ background: '#1E293B', border: '1px solid rgba(51,65,85,0.5)', height: 360 }}
+      style={{ background: '#1E293B', border: '1px solid rgba(51,65,85,0.5)' }}
     >
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 flex-shrink-0" style={{ borderBottom: '1px solid rgba(51,65,85,0.5)' }}>
@@ -69,7 +69,7 @@ const ActivityFeed: React.FC = () => {
       </div>
 
       {/* Feed */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="overflow-y-auto" style={{ maxHeight: 260 }}>
         {items.map(item => {
           const style = typeStyle[item.type];
           const isNew = newIds.has(item.id);
