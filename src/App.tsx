@@ -24,6 +24,7 @@ import AdminWorkspaces from './pages/AdminWorkspaces';
 import AdminIntegrations from './pages/AdminIntegrations';
 import AdminIntegrationDetail from './pages/AdminIntegrationDetail';
 import AdminRevenue from './pages/AdminRevenue';
+import NabidhPage from './pages/NabidhPage';
 import PharmacyDashboard from './pages/PharmacyDashboard';
 import PharmacyPortal from './pages/pharmacy/PharmacyPortal';
 import DiagnosticsPortal from './pages/DiagnosticsPortal';
@@ -130,6 +131,8 @@ function App() {
         setView('admin-workspaces');
       } else if (path === '/admin/revenue') {
         setView('admin-revenue');
+      } else if (path === '/admin/integrations/nabidh') {
+        setView('admin-nabidh');
       } else if (path.startsWith('/admin/integrations/')) {
         setView('admin-integration-detail');
       } else if (path === '/admin/integrations') {
@@ -235,6 +238,7 @@ function App() {
   if (view === 'admin-support') return <AdminSupport />;
   if (view === 'admin-workspaces') return <AdminWorkspaces />;
   if (view === 'admin-revenue') return <AdminRevenue />;
+  if (view === 'admin-nabidh') return <NabidhPage />;
   if (view === 'admin-integrations') return <AdminIntegrations />;
   if (view === 'admin-integration-detail') {
     const id = window.location.pathname.replace('/admin/integrations/', '');
