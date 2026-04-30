@@ -79,29 +79,23 @@ export default function AdminDashboard() {
             <QuickActions />
           </div>
 
-          {/* Main grid */}
-          <div className="grid grid-cols-12 gap-5 items-start">
+          {/* Main grid — 12 cols, auto rows */}
+          <div className="grid grid-cols-12 gap-5">
 
-            {/* Col A — 5 cols */}
-            <div className="col-span-5 flex flex-col gap-5">
-              <UAEMap />
-              <RevenueChart />
-            </div>
-
-            {/* Col B — 4 cols */}
-            <div className="col-span-4 flex flex-col gap-5">
-              <ActivityFeed />
-              <SystemHealthPanel />
-            </div>
-
-            {/* Col C — 3 cols */}
-            <div className="col-span-3 flex flex-col gap-5">
+            {/* Row 1: UAEMap | ActivityFeed | PortalStatus */}
+            <div className="col-span-5 row-start-1"><UAEMap /></div>
+            <div className="col-span-4 row-start-1"><ActivityFeed /></div>
+            <div className="col-span-3 row-start-1 row-span-2 flex flex-col gap-5">
               <PortalStatus />
               <CompliancePanel />
             </div>
 
-            {/* Row 2 — AI Analytics full width */}
-            <div className="col-span-12">
+            {/* Row 2: RevenueChart | SystemHealthPanel (col C spans both rows) */}
+            <div className="col-span-5 row-start-2 flex"><RevenueChart /></div>
+            <div className="col-span-4 row-start-2 flex"><SystemHealthPanel /></div>
+
+            {/* Row 3: AI Analytics under col A+B only (9 cols) */}
+            <div className="col-span-9 row-start-3">
               <AIMetricsPanel />
             </div>
 
