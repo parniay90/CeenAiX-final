@@ -580,3 +580,142 @@ export const MOCK_UPCOMING_VACCINES: UpcomingVaccine[] = [
     priority: 'recommended',
   },
 ];
+
+// ── Family History interfaces ─────────────────────────────────────────────────
+export interface FamilyMemberCondition {
+  name: string;
+  detail: string;
+}
+
+export interface FamilyMember {
+  relation: string;
+  age: string;
+  status: 'living' | 'deceased';
+  conditions: FamilyMemberCondition[];
+}
+
+export interface RiskAssessment {
+  condition: string;
+  risk: 'high' | 'moderate' | 'low';
+  members: string[];
+  recommendation: string;
+}
+
+// ── Family History mock data ──────────────────────────────────────────────────
+export const MOCK_FAMILY_MEMBERS: FamilyMember[] = [
+  {
+    relation: 'Father',
+    age: '68',
+    status: 'living',
+    conditions: [
+      { name: 'Type 2 Diabetes', detail: 'diagnosed age 45' },
+      { name: 'Hypertension', detail: 'diagnosed age 50' },
+      { name: 'Coronary Artery Disease', detail: 'diagnosed age 60' },
+    ],
+  },
+  {
+    relation: 'Mother',
+    age: '64',
+    status: 'living',
+    conditions: [
+      { name: 'Hypertension', detail: 'diagnosed age 52' },
+      { name: 'Osteoporosis', detail: 'diagnosed age 58' },
+      { name: 'Hypothyroidism', detail: 'diagnosed age 48' },
+    ],
+  },
+  {
+    relation: 'Paternal Grandfather',
+    age: 'Deceased at age 72',
+    status: 'deceased',
+    conditions: [
+      { name: 'Type 2 Diabetes', detail: '' },
+      { name: 'Heart Attack', detail: 'cause of death at 72' },
+      { name: 'Hypertension', detail: '' },
+    ],
+  },
+  {
+    relation: 'Paternal Grandmother',
+    age: 'Deceased at age 78',
+    status: 'deceased',
+    conditions: [
+      { name: 'Breast Cancer', detail: 'diagnosed age 65' },
+      { name: 'Type 2 Diabetes', detail: '' },
+    ],
+  },
+  {
+    relation: 'Maternal Grandfather',
+    age: 'Deceased at age 80',
+    status: 'deceased',
+    conditions: [
+      { name: 'Hypertension', detail: '' },
+      { name: 'Stroke', detail: 'age 75' },
+    ],
+  },
+  {
+    relation: 'Maternal Grandmother',
+    age: '82',
+    status: 'living',
+    conditions: [
+      { name: 'Osteoporosis', detail: '' },
+      { name: 'Type 2 Diabetes', detail: 'diagnosed age 60' },
+      { name: "Alzheimer's Disease", detail: 'diagnosed age 78' },
+    ],
+  },
+];
+
+export const MOCK_RISK_ASSESSMENTS: RiskAssessment[] = [
+  {
+    condition: 'Type 2 Diabetes',
+    risk: 'high',
+    members: ['Father', 'Paternal Grandfather', 'Paternal Grandmother', 'Maternal Grandmother'],
+    recommendation: 'Annual HbA1c screening, fasting glucose test, maintain healthy weight and diet',
+  },
+  {
+    condition: 'Cardiovascular Disease',
+    risk: 'high',
+    members: ['Father', 'Paternal Grandfather', 'Maternal Grandfather'],
+    recommendation: 'Annual lipid panel, blood pressure monitoring, ECG every 2 years after age 40',
+  },
+  {
+    condition: 'Hypertension',
+    risk: 'high',
+    members: ['Father', 'Mother', 'Paternal Grandfather', 'Maternal Grandfather'],
+    recommendation: 'Regular blood pressure monitoring at home and during checkups',
+  },
+  {
+    condition: 'Osteoporosis',
+    risk: 'moderate',
+    members: ['Mother', 'Maternal Grandmother'],
+    recommendation: 'DEXA scan after age 50, adequate calcium and vitamin D intake',
+  },
+  {
+    condition: 'Breast Cancer',
+    risk: 'moderate',
+    members: ['Paternal Grandmother'],
+    recommendation: 'Annual mammogram after age 40, consider BRCA genetic testing',
+  },
+  {
+    condition: "Alzheimer's Disease",
+    risk: 'moderate',
+    members: ['Maternal Grandmother'],
+    recommendation: 'Cognitive health monitoring, mental stimulation, regular physical activity',
+  },
+  {
+    condition: 'Hypothyroidism',
+    risk: 'low',
+    members: ['Mother'],
+    recommendation: 'Thyroid function test every 3–5 years',
+  },
+  {
+    condition: 'Stroke',
+    risk: 'low',
+    members: ['Maternal Grandfather'],
+    recommendation: 'Blood pressure control, healthy lifestyle',
+  },
+];
+
+export const MOCK_GENETIC_FLAGS: string[] = [
+  'No known chromosomal disorders reported in family',
+  'BRCA genetic testing not yet performed — recommended given paternal grandmother history',
+  'No known hereditary cancer syndromes confirmed',
+];
