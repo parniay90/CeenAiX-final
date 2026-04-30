@@ -98,9 +98,13 @@ export default function AdminDashboard() {
             <div className="col-span-3 flex flex-col gap-5">
               <PortalStatus />
               <CompliancePanel />
-              <AIMetricsPanel />
             </div>
 
+          </div>
+
+          {/* AI Analytics — full-width horizontal card */}
+          <div className="mt-5">
+            <AIMetricsPanel />
           </div>
         </div>
       </div>
