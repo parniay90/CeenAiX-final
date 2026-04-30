@@ -185,7 +185,7 @@ function App() {
         setView('insurance-dashboard');
       } else if (path === '/insurance') {
         setView('insurance');
-      } else if (path === '/compliance') {
+      } else if (path === '/compliance' || path === '/admin/compliance') {
         setView('compliance');
       } else if (path === '/system-health') {
         setView('system-health');
