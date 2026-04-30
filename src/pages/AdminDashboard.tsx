@@ -94,8 +94,8 @@ export default function AdminDashboard() {
             <div className="col-span-5 flex"><RevenueChart /></div>
             <div className="col-span-4 flex"><SystemHealthPanel /></div>
 
-            {/* Row 3 — AI Analytics spans cols A+B (9 cols) */}
-            <div className="col-span-9">
+            {/* Row 3 — AI Analytics full width */}
+            <div className="col-span-12">
               <AIMetricsPanel />
             </div>
 
