@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Eye, EyeOff, Lock, LogOut, Fingerprint, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Lock, LogOut, Fingerprint, AlertCircle, X } from 'lucide-react';
 import { SUPER_ADMIN_USER, PLATFORM_INFO } from '../../data/superAdminData';
 
 interface Props {
   lockedAt: Date;
   onUnlock: (password: string) => 'success' | 'fail' | 'expired';
+  onDismiss: () => void;
   onSignOut: () => void;
   impersonationExpiredWhileLocked?: boolean;
 }
 
 const CORRECT_PASSWORD = 'admin123'; // demo only
 
-export default function LockScreenOverlay({ lockedAt, onUnlock, onSignOut, impersonationExpiredWhileLocked }: Props) {
+export default function LockScreenOverlay({ lockedAt, onUnlock, onDismiss, onSignOut, impersonationExpiredWhileLocked }: Props) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -76,7 +77,17 @@ export default function LockScreenOverlay({ lockedAt, onUnlock, onSignOut, imper
         {/* Top accent */}
         <div className="w-full h-1" style={{ background: 'linear-gradient(90deg, #0D9488, #0891B2)' }} />
 
-        <div className="px-8 py-8 w-full flex flex-col items-center">
+        <div className="px-8 py-8 w-full flex flex-col items-center relative">
+          <button
+            onClick={onDismiss}
+            className="absolute top-0 right-0 w-8 h-8 rounded-xl flex items-center justify-center transition-colors"
+            style={{ color: '#475569' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(51,65,85,0.5)'; e.currentTarget.style.color = '#94A3B8'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#475569'; }}
+            title="Dismiss lock screen"
+          >
+            <X className="w-4 h-4" />
+          </button>
           {/* Lock icon */}
           <div
             className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5"

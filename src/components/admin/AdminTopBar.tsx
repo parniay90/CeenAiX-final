@@ -548,6 +548,7 @@ const AdminTopBar: React.FC = () => {
         <LockScreenOverlay
           lockedAt={lockedAt}
           onUnlock={handleUnlock}
+          onDismiss={() => { setIsLocked(false); setLockedAt(null); }}
           onSignOut={handleSignOut}
           impersonationExpiredWhileLocked={impersonationExpiredWhileLocked}
         />
