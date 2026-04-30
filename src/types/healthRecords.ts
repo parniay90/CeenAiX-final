@@ -82,6 +82,37 @@ export interface Vaccination {
   nextDoseDue?: Date;
 }
 
+// ── Medical History interfaces ────────────────────────────────────────────────
+export interface PastCondition {
+  condition: string;
+  diagnosed: string;
+  resolved: string;
+  doctor: string;
+  notes: string;
+}
+
+export interface Surgery {
+  procedure: string;
+  date: string;
+  hospital: string;
+  surgeon: string;
+  notes: string;
+}
+
+export interface Hospitalization {
+  reason: string;
+  hospital: string;
+  admitted: string;
+  discharged: string;
+  days: number;
+}
+
+export interface SocialHistoryItem {
+  label: string;
+  value: string;
+}
+
+// ── Existing mock data (unchanged) ───────────────────────────────────────────
 export const MOCK_TIMELINE_EVENTS: HealthTimelineEvent[] = [
   {
     id: '1',
@@ -357,4 +388,74 @@ export const MOCK_VACCINATIONS: Vaccination[] = [
     lotNumber: 'TD-2023-5567',
     nextDoseDue: new Date('2033-05-15'),
   },
+];
+
+// ── Medical History mock data ─────────────────────────────────────────────────
+export const MOCK_PAST_CONDITIONS: PastCondition[] = [
+  {
+    condition: 'Pneumonia',
+    diagnosed: '2019',
+    resolved: '2019',
+    doctor: 'Dr. Fatima Hassan',
+    notes: 'Treated with antibiotics, full recovery',
+  },
+  {
+    condition: 'Acute Gastroenteritis',
+    diagnosed: '2021',
+    resolved: '2021',
+    doctor: 'Dr. Ahmed Al Rashidi',
+    notes: 'Recovered after 5 days of treatment',
+  },
+  {
+    condition: 'Iron Deficiency Anemia',
+    diagnosed: '2020',
+    resolved: '2021',
+    doctor: 'Dr. Noor Al Farsi',
+    notes: 'Resolved after 6 months of iron supplementation',
+  },
+];
+
+export const MOCK_SURGERIES: Surgery[] = [
+  {
+    procedure: 'Appendectomy',
+    date: 'March 2015',
+    hospital: 'American Hospital Dubai',
+    surgeon: 'Dr. Rajesh Kumar',
+    notes: 'Laparoscopic procedure, no complications',
+  },
+  {
+    procedure: 'Wisdom Tooth Extraction',
+    date: 'June 2018',
+    hospital: 'Dubai Healthcare City',
+    surgeon: 'Dr. Hana Al Blooshi',
+    notes: 'All 4 wisdom teeth removed under local anesthesia',
+  },
+];
+
+export const MOCK_HOSPITALIZATIONS: Hospitalization[] = [
+  {
+    reason: 'Severe Pneumonia',
+    hospital: 'Mediclinic Dubai Mall',
+    admitted: 'Jan 12, 2019',
+    discharged: 'Jan 18, 2019',
+    days: 6,
+  },
+  {
+    reason: 'Appendectomy Recovery',
+    hospital: 'American Hospital Dubai',
+    admitted: 'Mar 5, 2015',
+    discharged: 'Mar 7, 2015',
+    days: 2,
+  },
+];
+
+export const MOCK_SOCIAL_HISTORY: SocialHistoryItem[] = [
+  { label: 'Smoking Status', value: 'Non-smoker' },
+  { label: 'Alcohol Use', value: 'Non-drinker' },
+  { label: 'Exercise', value: '3–4 times per week (moderate intensity)' },
+  { label: 'Diet', value: 'Balanced diet, low sugar due to pre-diabetic condition' },
+  { label: 'Occupation', value: 'Software Engineer' },
+  { label: 'Marital Status', value: 'Married' },
+  { label: 'Living Situation', value: 'Lives with family' },
+  { label: 'Stress Level', value: 'Moderate' },
 ];
