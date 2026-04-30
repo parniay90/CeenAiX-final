@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  Bell, Search, Activity, X, ChevronDown, User, LogOut,
+  Bell, Search, X, ChevronDown, User, LogOut,
   ChevronRight, UserCheck, Lock, LayoutGrid,
 } from 'lucide-react';
 import { SUPER_ADMIN_USER, PLATFORM_INFO, alerts } from '../../data/superAdminData';
@@ -9,6 +9,7 @@ import SwitchWorkspaceSubmenu from './SwitchWorkspaceSubmenu';
 import ImpersonateUserModal from './ImpersonateUserModal';
 import ImpersonationBanner, { ImpersonationSession } from './ImpersonationBanner';
 import LockScreenOverlay from './LockScreenOverlay';
+import LiveActivityDropdown from './LiveActivityDropdown';
 
 const searchResults = {
   patients: [
@@ -266,15 +267,8 @@ const AdminTopBar: React.FC = () => {
             <Search className="w-4 h-4" />
           </button>
 
-          {/* System health */}
-          <button
-            className="w-9 h-9 rounded-xl flex items-center justify-center transition-colors"
-            style={{ background: 'rgba(5,150,105,0.15)', color: '#34D399' }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(5,150,105,0.25)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(5,150,105,0.15)'; }}
-          >
-            <Activity className="w-4 h-4" />
-          </button>
+          {/* Live Activity */}
+          <LiveActivityDropdown />
 
           {/* Avatar + Dropdown */}
           <div className="relative" ref={menuRef}>
