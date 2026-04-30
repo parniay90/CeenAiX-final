@@ -77,24 +77,31 @@ export default function AdminDashboard() {
 
           <QuickActions />
 
-          {/* Main grid — 12 cols, auto rows */}
-          <div className="grid grid-cols-12 gap-5">
+          {/* Main grid */}
+          <div className="flex gap-5">
 
-            {/* Row 1: UAEMap | ActivityFeed | PortalStatus — fixed height matching RevenueChart */}
-            <div className="col-span-5 row-start-1" style={{ height: 304 }}><UAEMap /></div>
-            <div className="col-span-4 row-start-1" style={{ height: 304 }}><ActivityFeed /></div>
-            <div className="col-span-3 row-start-1 row-span-2 flex flex-col gap-5">
-              <PortalStatus />
-              <CompliancePanel />
+            {/* Left 9-col area */}
+            <div className="flex flex-col gap-5 min-w-0" style={{ flex: '0 0 calc(75% - 10px)' }}>
+              {/* Row 1: UAEMap + ActivityFeed */}
+              <div className="flex gap-5">
+                <div style={{ flex: '0 0 calc(55.55% - 10px)', height: 304 }}><UAEMap /></div>
+                <div style={{ flex: '1 1 0', height: 304 }}><ActivityFeed /></div>
+              </div>
+
+              {/* Row 2: RevenueChart + SystemHealthPanel */}
+              <div className="flex gap-5">
+                <div style={{ flex: '0 0 calc(55.55% - 10px)' }}><RevenueChart /></div>
+                <div style={{ flex: '1 1 0' }}><SystemHealthPanel /></div>
+              </div>
+
+              {/* Row 3: AI Analytics */}
+              <div><AIMetricsPanel /></div>
             </div>
 
-            {/* Row 2: RevenueChart | SystemHealthPanel (col C spans both rows) */}
-            <div className="col-span-5 row-start-2 flex"><RevenueChart /></div>
-            <div className="col-span-4 row-start-2 flex"><SystemHealthPanel /></div>
-
-            {/* Row 3: AI Analytics under col A+B only (9 cols) */}
-            <div className="col-span-9 row-start-3">
-              <AIMetricsPanel />
+            {/* Right column: PortalStatus + CompliancePanel */}
+            <div className="flex flex-col gap-5" style={{ flex: '0 0 calc(25% - 10px)' }}>
+              <PortalStatus />
+              <CompliancePanel />
             </div>
 
           </div>
