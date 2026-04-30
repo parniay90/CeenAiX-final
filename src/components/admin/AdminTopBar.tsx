@@ -337,7 +337,15 @@ const AdminTopBar: React.FC = () => {
 
                 {/* Section 1 — Profile */}
                 <div className="py-1.5 border-b" style={{ borderColor: 'rgba(51,65,85,0.4)' }}>
-                  <MenuRow icon={<User className="w-4 h-4" />} label="Profile" />
+                  <MenuRow
+                    icon={<User className="w-4 h-4" />}
+                    label="Profile"
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      window.history.pushState({}, '', '/admin/profile');
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                    }}
+                  />
                 </div>
 
                 {/* Section 2 — Workspace & Access */}
@@ -561,7 +569,7 @@ const AdminTopBar: React.FC = () => {
   );
 };
 
-function MenuRow({ icon, label }: { icon: React.ReactNode; label: string }) {
+function MenuRow({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick?: () => void }) {
   const [hovered, setHovered] = useState(false);
   return (
     <button
@@ -574,6 +582,7 @@ function MenuRow({ icon, label }: { icon: React.ReactNode; label: string }) {
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onClick={onClick}
     >
       <span style={{ color: '#64748B' }}>{icon}</span>
       {label}
