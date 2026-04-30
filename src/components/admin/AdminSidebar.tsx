@@ -84,7 +84,7 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
 
   return (
     <div
-      className="flex flex-col flex-shrink-0 h-screen overflow-y-auto transition-all duration-300"
+      className="flex flex-col flex-shrink-0 h-screen overflow-hidden transition-all duration-300"
       style={{
         width: collapsed ? 72 : 260,
         background: '#0A1628',
@@ -92,7 +92,7 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
         borderLeft: isRTL ? '1px solid rgba(30,41,59,0.8)' : 'none',
       }}
     >
-      <div className={`flex items-center justify-between px-4 py-4 flex-shrink-0 ${isRTL ? 'flex-row-reverse' : ''}`}>
+      <div className={`flex items-center justify-between px-4 py-3 flex-shrink-0 ${isRTL ? 'flex-row-reverse' : ''}`}>
         {!collapsed && (
           <div className={isRTL ? 'text-right' : ''}>
             <div className="font-bold text-white" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 18 }}>
@@ -115,7 +115,7 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
       </div>
 
       {!collapsed && (
-        <div className="mx-3 mb-3 flex items-center gap-2 rounded-lg px-3 py-2" style={{ background: 'rgba(5,150,105,0.12)', border: '1px solid rgba(52,211,153,0.2)' }}>
+        <div className="mx-3 mb-2 flex items-center gap-2 rounded-lg px-3 py-1.5" style={{ background: 'rgba(5,150,105,0.12)', border: '1px solid rgba(52,211,153,0.2)' }}>
           <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
           <span className="font-bold text-emerald-400" style={{ fontFamily: 'DM Mono, monospace', fontSize: 9 }}>
             {PLATFORM_INFO.environment}
@@ -127,7 +127,7 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
       )}
 
       {!collapsed && (
-        <div className="mx-3 mb-4 rounded-xl p-3" style={{ background: 'rgba(13,148,136,0.08)', border: '1px solid rgba(13,148,136,0.25)' }}>
+        <div className="mx-3 mb-2 rounded-xl p-2.5" style={{ background: 'rgba(13,148,136,0.08)', border: '1px solid rgba(13,148,136,0.25)' }}>
           <div className={`flex items-center gap-2.5 mb-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
@@ -156,11 +156,11 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto pb-2">
+      <div className="flex-1 overflow-hidden pb-1">
         {navSections.map(section => (
-          <div key={section.titleKey} className="mb-1">
+          <div key={section.titleKey} className="mb-0.5">
             {!collapsed && (
-              <div className={`px-4 mb-1 mt-3 ${isRTL ? 'text-right' : ''}`} style={{ fontSize: 9, fontFamily: 'DM Mono, monospace', color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              <div className={`px-4 mb-0.5 mt-2 ${isRTL ? 'text-right' : ''}`} style={{ fontSize: 9, fontFamily: 'DM Mono, monospace', color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                 {t(section.titleKey)}
               </div>
             )}
@@ -198,7 +198,7 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
                   }}
                   className="w-full flex items-center transition-all"
                   style={{
-                    padding: collapsed ? '10px 0' : '9px 12px 9px 16px',
+                    padding: collapsed ? '7px 0' : '6px 12px 6px 16px',
                     justifyContent: collapsed ? 'center' : (isRTL ? 'flex-end' : 'flex-start'),
                     flexDirection: isRTL && !collapsed ? 'row-reverse' : 'row',
                     background: isActive ? 'rgba(13,148,136,0.15)' : 'transparent',
