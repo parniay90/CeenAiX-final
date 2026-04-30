@@ -26,10 +26,11 @@ export default function AdminDashboard() {
       <div className="flex-1 flex flex-col min-w-0 h-full">
         <AdminTopBar />
 
-        <div className="flex-1 overflow-y-auto" style={{ padding: '20px 24px' }}>
+        <div className="flex-1 overflow-y-auto">
+          <div className="flex flex-col gap-5" style={{ padding: '20px 24px' }}>
 
           {visibleAlerts.length > 0 && (
-            <div className="flex flex-col gap-2 mb-5">
+            <div className="flex flex-col gap-2">
               {visibleAlerts.map(alert => (
                 <div
                   key={alert.id}
@@ -74,10 +75,7 @@ export default function AdminDashboard() {
 
           <HeroMetrics />
 
-          {/* Quick actions bar — compact single row */}
-          <div className="mb-5">
-            <QuickActions />
-          </div>
+          <QuickActions />
 
           {/* Main grid — 12 cols, auto rows */}
           <div className="grid grid-cols-12 gap-5">
@@ -100,6 +98,7 @@ export default function AdminDashboard() {
             </div>
 
           </div>
+          </div>{/* end flex-col gap-5 */}
         </div>
       </div>
     </div>
