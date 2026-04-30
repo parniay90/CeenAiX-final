@@ -79,7 +79,7 @@ export default function AdminDashboard() {
             <QuickActions />
           </div>
 
-          {/* Main 3-column grid */}
+          {/* Main grid */}
           <div className="grid grid-cols-12 gap-5">
 
             {/* Col A — 5 cols */}
@@ -100,11 +100,11 @@ export default function AdminDashboard() {
               <CompliancePanel />
             </div>
 
-          </div>
+            {/* AI Analytics — spans cols A+B (9 cols), below Revenue + System Health */}
+            <div className="col-span-9">
+              <AIMetricsPanel />
+            </div>
 
-          {/* AI Analytics — full-width horizontal card */}
-          <div className="mt-5">
-            <AIMetricsPanel />
           </div>
         </div>
       </div>
