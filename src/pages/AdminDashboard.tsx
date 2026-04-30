@@ -20,10 +20,10 @@ export default function AdminDashboard() {
   const visibleAlerts = alerts.filter(a => !dismissedAlerts.has(a.id));
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#0F172A' }}>
+    <div className="h-screen flex overflow-hidden" style={{ background: '#0F172A' }}>
       <AdminSidebar activeSection={activeSection} onSectionChange={setActiveSection} />
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 h-full">
         <AdminTopBar />
 
         <div className="flex-1 overflow-y-auto" style={{ padding: '20px 24px' }}>
