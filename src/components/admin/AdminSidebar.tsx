@@ -181,6 +181,7 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
                       users: '/admin/users',
                       organizations: '/admin/organizations',
                       integrations: '/admin/integrations',
+                      revenue: '/admin/revenue',
                       'system-status': '/admin/system/status',
                       'system-changelog': '/admin/system/changelog',
                       'api-keys': '/admin/settings/api-keys',
