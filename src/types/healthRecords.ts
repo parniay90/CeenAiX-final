@@ -112,6 +112,24 @@ export interface SocialHistoryItem {
   value: string;
 }
 
+// ── Vaccinations interfaces ───────────────────────────────────────────────────
+export interface ReceivedVaccine {
+  name: string;
+  protects: string;
+  dose: string;
+  date: string;
+  clinic: string;
+  admin: string;
+  lot: string;
+}
+
+export interface UpcomingVaccine {
+  name: string;
+  reason: string;
+  due: string;
+  priority: 'overdue' | 'due-soon' | 'recommended';
+}
+
 // ── Existing mock data (unchanged) ───────────────────────────────────────────
 export const MOCK_TIMELINE_EVENTS: HealthTimelineEvent[] = [
   {
@@ -458,4 +476,107 @@ export const MOCK_SOCIAL_HISTORY: SocialHistoryItem[] = [
   { label: 'Marital Status', value: 'Married' },
   { label: 'Living Situation', value: 'Lives with family' },
   { label: 'Stress Level', value: 'Moderate' },
+];
+
+// ── Vaccinations mock data ────────────────────────────────────────────────────
+export const MOCK_RECEIVED_VACCINES: ReceivedVaccine[] = [
+  {
+    name: 'COVID-19 (Pfizer-BioNTech)',
+    protects: 'COVID-19',
+    dose: 'Dose 2 of 2',
+    date: 'Jan 15, 2021',
+    clinic: 'Dubai Healthcare City',
+    admin: 'Dr. Ahmed Al Rashidi',
+    lot: 'EW0553',
+  },
+  {
+    name: 'COVID-19 Booster (Pfizer-BioNTech)',
+    protects: 'COVID-19',
+    dose: 'Booster',
+    date: 'Sep 10, 2021',
+    clinic: 'Mediclinic Dubai Mall',
+    admin: 'Dr. Fatima Hassan',
+    lot: 'FK3456',
+  },
+  {
+    name: 'Influenza',
+    protects: 'Seasonal Flu',
+    dose: 'Annual',
+    date: 'Oct 5, 2025',
+    clinic: 'Cleveland Clinic Abu Dhabi',
+    admin: 'Dr. Mohammed Al Zarooni',
+    lot: 'FL2025X',
+  },
+  {
+    name: 'Hepatitis B',
+    protects: 'Hepatitis B',
+    dose: 'Dose 3 of 3',
+    date: 'Mar 20, 2019',
+    clinic: 'American Hospital Dubai',
+    admin: 'Dr. Rajesh Kumar',
+    lot: 'HB9821',
+  },
+  {
+    name: 'Hepatitis A',
+    protects: 'Hepatitis A',
+    dose: 'Dose 2 of 2',
+    date: 'Jun 8, 2018',
+    clinic: 'Dubai Healthcare City',
+    admin: 'Dr. Ahmed Al Rashidi',
+    lot: 'HA7734',
+  },
+  {
+    name: 'MMR (Measles, Mumps, Rubella)',
+    protects: 'Measles, Mumps, Rubella',
+    dose: 'Dose 2 of 2',
+    date: 'Childhood',
+    clinic: 'Dubai Healthcare City',
+    admin: 'Dr. Fatima Hassan',
+    lot: 'MMR2234',
+  },
+  {
+    name: 'Varicella (Chickenpox)',
+    protects: 'Chickenpox',
+    dose: 'Dose 2 of 2',
+    date: 'Childhood',
+    clinic: 'Mediclinic Dubai Mall',
+    admin: 'Dr. Noor Al Farsi',
+    lot: 'VAR5512',
+  },
+  {
+    name: 'Tetanus (Td Booster)',
+    protects: 'Tetanus and Diphtheria',
+    dose: 'Booster',
+    date: 'Aug 14, 2020',
+    clinic: 'American Hospital Dubai',
+    admin: 'Dr. Rajesh Kumar',
+    lot: 'TD4421',
+  },
+];
+
+export const MOCK_UPCOMING_VACCINES: UpcomingVaccine[] = [
+  {
+    name: 'Influenza (Annual)',
+    reason: 'Recommended annually for adults',
+    due: 'Oct 2026',
+    priority: 'recommended',
+  },
+  {
+    name: 'COVID-19 Booster',
+    reason: 'Updated booster recommended every 12 months',
+    due: 'Sep 2026',
+    priority: 'due-soon',
+  },
+  {
+    name: 'HPV Vaccine',
+    reason: 'Recommended for adults up to age 45',
+    due: 'Overdue since 2023',
+    priority: 'overdue',
+  },
+  {
+    name: 'Pneumococcal (PPSV23)',
+    reason: 'Recommended for adults with diabetes',
+    due: '2027',
+    priority: 'recommended',
+  },
 ];
