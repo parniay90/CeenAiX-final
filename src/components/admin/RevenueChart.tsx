@@ -35,7 +35,7 @@ const RevenueChart: React.FC = () => {
 
   return (
     <div
-      className="rounded-2xl overflow-hidden flex flex-col"
+      className="rounded-2xl overflow-hidden flex flex-col w-full"
       style={{ background: '#1E293B', border: '1px solid rgba(51,65,85,0.5)' }}
     >
       <div
