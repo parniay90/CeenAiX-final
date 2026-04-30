@@ -386,16 +386,28 @@ const AdminTopBar: React.FC = () => {
 
                 {/* Section 3 — Lock */}
                 <div className="py-1.5 border-b" style={{ borderColor: 'rgba(51,65,85,0.4)' }}>
-                  <button
-                    className="w-full flex items-center gap-3 px-4 py-2 text-left transition-colors"
-                    style={{ color: '#CBD5E1', fontSize: 13, fontFamily: 'Inter, sans-serif' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(51,65,85,0.5)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
-                    onClick={handleLock}
-                  >
-                    <Lock className="w-4 h-4" style={{ color: '#64748B' }} />
-                    Lock Screen
-                  </button>
+                  <div className="flex items-center gap-1 px-2">
+                    <button
+                      className="flex-1 flex items-center gap-3 px-2 py-2 text-left rounded-lg transition-colors"
+                      style={{ color: '#CBD5E1', fontSize: 13, fontFamily: 'Inter, sans-serif' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(51,65,85,0.5)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                      onClick={handleLock}
+                    >
+                      <Lock className="w-4 h-4" style={{ color: '#64748B' }} />
+                      Lock Screen
+                    </button>
+                    <button
+                      className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors"
+                      style={{ color: '#475569' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(51,65,85,0.5)'; e.currentTarget.style.color = '#94A3B8'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#475569'; }}
+                      onClick={() => setShowUserMenu(false)}
+                      title="Close menu"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Section 4 — Sign out */}
