@@ -11,6 +11,16 @@ import AdminPatients from './pages/AdminPatients';
 import AdminDoctors from './pages/AdminDoctors';
 import AdminInsurance from './pages/AdminInsurance';
 import AdminAIAnalytics from './pages/AdminAIAnalytics';
+import AdminProfile from './pages/AdminProfile';
+import AdminSettingsAccount from './pages/AdminSettingsAccount';
+import AdminSettingsSecurity from './pages/AdminSettingsSecurity';
+import AdminSettingsNotifications from './pages/AdminSettingsNotifications';
+import AdminAuditMe from './pages/AdminAuditMe';
+import AdminSettingsApiKeys from './pages/AdminSettingsApiKeys';
+import AdminSystemStatus from './pages/AdminSystemStatus';
+import AdminSystemChangelog from './pages/AdminSystemChangelog';
+import AdminSupport from './pages/AdminSupport';
+import AdminWorkspaces from './pages/AdminWorkspaces';
 import PharmacyDashboard from './pages/PharmacyDashboard';
 import PharmacyPortal from './pages/pharmacy/PharmacyPortal';
 import DiagnosticsPortal from './pages/DiagnosticsPortal';
@@ -95,6 +105,26 @@ function App() {
         setView('admin-insurance');
       } else if (path === '/admin/ai') {
         setView('admin-ai');
+      } else if (path === '/admin/profile') {
+        setView('admin-profile');
+      } else if (path === '/admin/settings/account') {
+        setView('admin-settings-account');
+      } else if (path === '/admin/settings/security') {
+        setView('admin-settings-security');
+      } else if (path === '/admin/settings/notifications') {
+        setView('admin-settings-notifications');
+      } else if (path === '/admin/audit/me') {
+        setView('admin-audit-me');
+      } else if (path === '/admin/settings/api-keys') {
+        setView('admin-settings-api-keys');
+      } else if (path === '/admin/system/status') {
+        setView('admin-system-status');
+      } else if (path === '/admin/system/changelog') {
+        setView('admin-system-changelog');
+      } else if (path === '/admin/support') {
+        setView('admin-support');
+      } else if (path === '/admin/workspaces') {
+        setView('admin-workspaces');
       } else if (path === '/pharmacy/dashboard' || path.startsWith('/pharmacy/')) {
         setView('pharmacy-portal');
       } else if (path === '/diagnostics/dashboard' || path.startsWith('/diagnostics/')) {
@@ -185,6 +215,16 @@ function App() {
   if (view === 'admin-doctors') return <AdminDoctors />;
   if (view === 'admin-insurance') return <AdminInsurance />;
   if (view === 'admin-ai') return <AdminAIAnalytics />;
+  if (view === 'admin-profile') return <AdminProfile />;
+  if (view === 'admin-settings-account') return <AdminSettingsAccount />;
+  if (view === 'admin-settings-security') return <AdminSettingsSecurity />;
+  if (view === 'admin-settings-notifications') return <AdminSettingsNotifications />;
+  if (view === 'admin-audit-me') return <AdminAuditMe />;
+  if (view === 'admin-settings-api-keys') return <AdminSettingsApiKeys />;
+  if (view === 'admin-system-status') return <AdminSystemStatus />;
+  if (view === 'admin-system-changelog') return <AdminSystemChangelog />;
+  if (view === 'admin-support') return <AdminSupport />;
+  if (view === 'admin-workspaces') return <AdminWorkspaces />;
   if (view === 'pharmacy-dashboard') return <PharmacyDashboard />;
   if (view === 'pharmacy-portal') return <PharmacyPortal />;
   if (view === 'diagnostics-portal') return <DiagnosticsPortal />;

@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
-import {
-  LayoutDashboard, Users, Stethoscope, Building2, Shield,
-  Bot, Link2, TrendingUp, Activity, ShieldCheck, FileText,
-  Lock, Server, Settings, LogOut, ChevronLeft, ChevronRight,
-} from 'lucide-react';
+import { LayoutDashboard, Users, Stethoscope, Building2, Shield, Bot, Link2, TrendingUp, Activity, ShieldCheck, FileText, Lock, Server, Settings, LogOut, ChevronLeft, ChevronRight, CircleUser as UserCircle, Bell, Key, Globe, ScrollText, LifeBuoy, Layers } from 'lucide-react';
 import { SUPER_ADMIN_USER, PLATFORM_INFO } from '../../data/superAdminData';
 import { useLanguage } from '../../contexts/LanguageContext';
 
@@ -57,7 +53,22 @@ const navSections: NavSection[] = [
     titleKey: 'admin.sidebar.system',
     items: [
       { id: 'system', labelKey: 'admin.sidebar.systemHealth', icon: Server },
+      { id: 'system-status', labelKey: 'admin.sidebar.systemStatus', icon: Activity },
+      { id: 'system-changelog', labelKey: 'admin.sidebar.changelog', icon: ScrollText },
       { id: 'platform-settings', labelKey: 'admin.sidebar.platformSettings', icon: Settings },
+      { id: 'api-keys', labelKey: 'admin.sidebar.apiKeys', icon: Key },
+      { id: 'workspaces', labelKey: 'admin.sidebar.workspaces', icon: Layers },
+      { id: 'support', labelKey: 'admin.sidebar.support', icon: LifeBuoy },
+    ],
+  },
+  {
+    titleKey: 'admin.sidebar.account',
+    items: [
+      { id: 'profile', labelKey: 'admin.sidebar.profile', icon: UserCircle },
+      { id: 'settings-account', labelKey: 'admin.sidebar.accountSettings', icon: Settings },
+      { id: 'settings-security', labelKey: 'admin.sidebar.securitySettings', icon: Lock },
+      { id: 'settings-notifications', labelKey: 'admin.sidebar.notifications', icon: Bell },
+      { id: 'audit-me', labelKey: 'admin.sidebar.myAuditLog', icon: FileText },
     ],
   },
 ];
@@ -169,6 +180,16 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
                       ai: '/admin/ai',
                       users: '/admin/users',
                       organizations: '/admin/organizations',
+                      'system-status': '/admin/system/status',
+                      'system-changelog': '/admin/system/changelog',
+                      'api-keys': '/admin/settings/api-keys',
+                      workspaces: '/admin/workspaces',
+                      support: '/admin/support',
+                      profile: '/admin/profile',
+                      'settings-account': '/admin/settings/account',
+                      'settings-security': '/admin/settings/security',
+                      'settings-notifications': '/admin/settings/notifications',
+                      'audit-me': '/admin/audit/me',
                     };
                     if (navPaths[item.id]) {
                       window.history.pushState({}, '', navPaths[item.id]);
