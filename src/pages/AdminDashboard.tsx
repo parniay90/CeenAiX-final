@@ -74,37 +74,23 @@ export default function AdminDashboard() {
 
           <HeroMetrics />
 
-          <div className="grid grid-cols-12 gap-5 mb-5">
-            <div className="col-span-7">
+          <div className="grid grid-cols-12 gap-5">
+            {/* Left column */}
+            <div className="col-span-7 flex flex-col gap-5">
               <UAEMap />
-            </div>
-            <div className="col-span-5">
-              <ActivityFeed />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-12 gap-5 mb-5">
-            <div className="col-span-4">
-              <PortalStatus />
-            </div>
-            <div className="col-span-5">
               <RevenueChart />
-            </div>
-            <div className="col-span-3">
-              <CompliancePanel />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-12 gap-5 mb-5">
-            <div className="col-span-6">
-              <AIMetricsPanel />
-            </div>
-            <div className="col-span-6">
               <SystemHealthPanel />
             </div>
-          </div>
 
-          <QuickActions />
+            {/* Right column */}
+            <div className="col-span-5 flex flex-col gap-5">
+              <ActivityFeed />
+              <PortalStatus />
+              <CompliancePanel />
+              <AIMetricsPanel />
+              <QuickActions />
+            </div>
+          </div>
         </div>
       </div>
     </div>
