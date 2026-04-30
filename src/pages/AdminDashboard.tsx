@@ -82,9 +82,9 @@ export default function AdminDashboard() {
           {/* Main grid — 12 cols, auto rows */}
           <div className="grid grid-cols-12 gap-5">
 
-            {/* Row 1: UAEMap | ActivityFeed | PortalStatus */}
-            <div className="col-span-5 row-start-1"><UAEMap /></div>
-            <div className="col-span-4 row-start-1"><ActivityFeed /></div>
+            {/* Row 1: UAEMap | ActivityFeed | PortalStatus — fixed height matching RevenueChart */}
+            <div className="col-span-5 row-start-1" style={{ height: 304 }}><UAEMap /></div>
+            <div className="col-span-4 row-start-1" style={{ height: 304 }}><ActivityFeed /></div>
             <div className="col-span-3 row-start-1 row-span-2 flex flex-col gap-5">
               <PortalStatus />
               <CompliancePanel />

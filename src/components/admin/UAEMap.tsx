@@ -76,7 +76,7 @@ const UAEMap: React.FC = () => {
       </div>
 
       {/* Map SVG */}
-      <div className="flex-1 relative overflow-hidden" style={{ background: viewMode === 'satellite' ? '#0D1F0D' : '#1a2744', minHeight: 260 }}>
+      <div className="flex-1 relative overflow-hidden" style={{ background: viewMode === 'satellite' ? '#0D1F0D' : '#1a2744' }}>
         <svg
           viewBox="0 0 104 96"
           className="w-full h-full"
