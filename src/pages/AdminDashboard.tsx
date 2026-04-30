@@ -74,22 +74,33 @@ export default function AdminDashboard() {
 
           <HeroMetrics />
 
+          {/* Quick actions bar — compact single row */}
+          <div className="mb-5">
+            <QuickActions />
+          </div>
+
+          {/* Main 3-column grid */}
           <div className="grid grid-cols-12 gap-5">
-            {/* Left column */}
-            <div className="col-span-7 flex flex-col gap-5">
+
+            {/* Col A — 5 cols */}
+            <div className="col-span-5 flex flex-col gap-5">
               <UAEMap />
               <RevenueChart />
+            </div>
+
+            {/* Col B — 4 cols */}
+            <div className="col-span-4 flex flex-col gap-5">
+              <ActivityFeed />
               <SystemHealthPanel />
             </div>
 
-            {/* Right column */}
-            <div className="col-span-5 flex flex-col gap-5">
-              <ActivityFeed />
+            {/* Col C — 3 cols */}
+            <div className="col-span-3 flex flex-col gap-5">
               <PortalStatus />
               <CompliancePanel />
               <AIMetricsPanel />
-              <QuickActions />
             </div>
+
           </div>
         </div>
       </div>
