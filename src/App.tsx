@@ -21,6 +21,8 @@ import AdminSystemStatus from './pages/AdminSystemStatus';
 import AdminSystemChangelog from './pages/AdminSystemChangelog';
 import AdminSupport from './pages/AdminSupport';
 import AdminWorkspaces from './pages/AdminWorkspaces';
+import AdminIntegrations from './pages/AdminIntegrations';
+import AdminIntegrationDetail from './pages/AdminIntegrationDetail';
 import PharmacyDashboard from './pages/PharmacyDashboard';
 import PharmacyPortal from './pages/pharmacy/PharmacyPortal';
 import DiagnosticsPortal from './pages/DiagnosticsPortal';
@@ -125,6 +127,10 @@ function App() {
         setView('admin-support');
       } else if (path === '/admin/workspaces') {
         setView('admin-workspaces');
+      } else if (path.startsWith('/admin/integrations/')) {
+        setView('admin-integration-detail');
+      } else if (path === '/admin/integrations') {
+        setView('admin-integrations');
       } else if (path === '/pharmacy/dashboard' || path.startsWith('/pharmacy/')) {
         setView('pharmacy-portal');
       } else if (path === '/diagnostics/dashboard' || path.startsWith('/diagnostics/')) {
@@ -225,6 +231,11 @@ function App() {
   if (view === 'admin-system-changelog') return <AdminSystemChangelog />;
   if (view === 'admin-support') return <AdminSupport />;
   if (view === 'admin-workspaces') return <AdminWorkspaces />;
+  if (view === 'admin-integrations') return <AdminIntegrations />;
+  if (view === 'admin-integration-detail') {
+    const id = window.location.pathname.replace('/admin/integrations/', '');
+    return <AdminIntegrationDetail integrationId={id} />;
+  }
   if (view === 'pharmacy-dashboard') return <PharmacyDashboard />;
   if (view === 'pharmacy-portal') return <PharmacyPortal />;
   if (view === 'diagnostics-portal') return <DiagnosticsPortal />;
