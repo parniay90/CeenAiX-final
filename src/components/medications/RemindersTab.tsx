@@ -87,23 +87,29 @@ function SetReminderModal({
               {!isEdit && (
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Medication</label>
-                  <div className="relative">
-                    <select
-                      value={selectedMed}
-                      onChange={e => setSelectedMed(e.target.value)}
-                      className="w-full appearance-none px-4 py-3 pr-10 border-2 border-teal-200 bg-teal-50 rounded-xl text-sm font-medium text-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 cursor-pointer"
-                    >
-                      {medications.map(med => (
-                        <option key={med.id} value={med.id}>
-                          {med.brandName} {med.strength} — {med.category}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                      <svg className="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {medications.map(med => (
+                      <button
+                        key={med.id}
+                        onClick={() => setSelectedMed(med.id)}
+                        className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-left transition-all ${
+                          selectedMed === med.id
+                            ? 'border-teal-600 bg-teal-50'
+                            : 'border-gray-200 hover:border-teal-300 bg-white'
+                        }`}
+                      >
+                        <div
+                          className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: med.categoryColor }}
+                        />
+                        <div className="min-w-0">
+                          <p className={`text-xs font-semibold truncate ${selectedMed === med.id ? 'text-teal-700' : 'text-gray-800'}`}>
+                            {med.brandName}
+                          </p>
+                          <p className="text-xs text-gray-400">{med.strength}</p>
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 </div>
               )}
