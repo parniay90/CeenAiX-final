@@ -308,9 +308,7 @@ export default function Medications() {
         <PatientSidebar currentPage="medications" />
 
         <main ref={mainRef} className="flex-1 overflow-y-auto">
-        <div className="flex-1">
-        <div className="p-8">
-          <div >
+          <div className="p-8">
             <div className="flex items-start justify-between mb-8">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">My Medications 💊</h1>
@@ -494,8 +492,6 @@ export default function Medications() {
               </div>
             </div>
           </div>
-        </div>
-        </div>
         </main>
       </div>
 
