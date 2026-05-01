@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Bell, CreditCard as Edit, Pause, Trash2, TrendingUp, X, CheckCircle2, Play } from 'lucide-react';
 import type { Reminder, Medication } from '../../types/medications';
@@ -6,6 +6,141 @@ import type { Reminder, Medication } from '../../types/medications';
 interface RemindersTabProps {
   reminders: Reminder[];
   medications: Medication[];
+}
+
+// ── Custom Time Picker ───────────────────────────────────────────────────────
+function CustomTimePicker({ time, onChange }: { time: string; onChange: (t: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const [h, m] = time.split(':');
+  const hour24 = parseInt(h);
+  const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+  const isPM = hour24 >= 12;
+  const displayTime = `${String(hour12).padStart(2, '0')}:${m} ${isPM ? 'PM' : 'AM'}`;
+
+  // Close on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const changeHour = (delta: number) => {
+    const newH = (hour24 + delta + 24) % 24;
+    onChange(`${String(newH).padStart(2, '0')}:${m}`);
+  };
+
+  const changeMinute = (delta: number) => {
+    const newM = (parseInt(m) + delta + 60) % 60;
+    onChange(`${h}:${String(newM).padStart(2, '0')}`);
+  };
+
+  const toggleAMPM = (period: 'AM' | 'PM') => {
+    let newH = hour24;
+    if (period === 'AM' && hour24 >= 12) newH -= 12;
+    if (period === 'PM' && hour24 < 12) newH += 12;
+    onChange(`${String(newH).padStart(2, '0')}:${m}`);
+  };
+
+  return (
+    <div className="relative" ref={ref}>
+      {/* Display button */}
+      <button
+        type="button"
+        onClick={() => setOpen(prev => !prev)}
+        className="w-full flex items-center justify-between px-4 py-3 border-2 border-teal-200 bg-teal-50 rounded-xl hover:border-teal-400 transition-colors"
+      >
+        <span className="text-xl font-bold text-teal-800">{displayTime}</span>
+        <svg className="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </button>
+
+      {/* Dropdown picker */}
+      {open && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white border-2 border-teal-200 rounded-xl shadow-xl z-50 p-4">
+          <div className="flex items-center justify-center gap-4">
+
+            {/* Hours */}
+            <div className="flex flex-col items-center gap-2">
+              <button
+                onClick={() => changeHour(1)}
+                className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200 text-teal-600 font-bold hover:bg-teal-100 transition-colors flex items-center justify-center"
+              >
+                ▲
+              </button>
+              <span className="text-3xl font-bold text-teal-800 w-14 text-center">
+                {String(hour12).padStart(2, '0')}
+              </span>
+              <button
+                onClick={() => changeHour(-1)}
+                className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200 text-teal-600 font-bold hover:bg-teal-100 transition-colors flex items-center justify-center"
+              >
+                ▼
+              </button>
+              <span className="text-xs text-teal-400 font-medium uppercase tracking-wide">Hour</span>
+            </div>
+
+            <span className="text-3xl font-bold text-teal-300 mb-6">:</span>
+
+            {/* Minutes */}
+            <div className="flex flex-col items-center gap-2">
+              <button
+                onClick={() => changeMinute(5)}
+                className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200 text-teal-600 font-bold hover:bg-teal-100 transition-colors flex items-center justify-center"
+              >
+                ▲
+              </button>
+              <span className="text-3xl font-bold text-teal-800 w-14 text-center">
+                {m}
+              </span>
+              <button
+                onClick={() => changeMinute(-5)}
+                className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200 text-teal-600 font-bold hover:bg-teal-100 transition-colors flex items-center justify-center"
+              >
+                ▼
+              </button>
+              <span className="text-xs text-teal-400 font-medium uppercase tracking-wide">Min</span>
+            </div>
+
+            {/* Divider */}
+            <div className="w-px h-24 bg-teal-100 mx-1" />
+
+            {/* AM / PM */}
+            <div className="flex flex-col gap-2">
+              {(['AM', 'PM'] as const).map(period => (
+                <button
+                  key={period}
+                  onClick={() => toggleAMPM(period)}
+                  className={`px-4 py-2.5 rounded-xl text-sm font-bold border-2 transition-all ${
+                    (period === 'AM' && !isPM) || (period === 'PM' && isPM)
+                      ? 'bg-teal-600 text-white border-teal-600'
+                      : 'bg-white text-teal-600 border-teal-200 hover:bg-teal-50'
+                  }`}
+                >
+                  {period}
+                </button>
+              ))}
+            </div>
+
+          </div>
+
+          {/* Confirm button */}
+          <button
+            onClick={() => setOpen(false)}
+            className="mt-4 w-full py-2 bg-teal-600 text-white rounded-xl text-sm font-semibold hover:bg-teal-700 transition-colors"
+          >
+            Confirm
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ── Set / Edit Reminder Modal ─────────────────────────────────────────────────
@@ -114,17 +249,10 @@ function SetReminderModal({
                 </div>
               )}
 
-              {/* Time — styled input */}
+              {/* Time — custom picker */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Reminder Time</label>
-                <div className="relative">
-                  <input
-                    type="time"
-                    value={time}
-                    onChange={e => setTime(e.target.value)}
-                    className="w-full appearance-none px-4 py-3 border-2 border-teal-200 bg-teal-50 rounded-xl text-lg font-bold text-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 cursor-pointer"
-                  />
-                </div>
+                <CustomTimePicker time={time} onChange={setTime} />
               </div>
 
               {/* Frequency */}
