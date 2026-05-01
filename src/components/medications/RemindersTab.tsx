@@ -11,7 +11,13 @@ interface RemindersTabProps {
 // ── Custom Time Picker ───────────────────────────────────────────────────────
 function CustomTimePicker({ time, onChange }: { time: string; onChange: (t: string) => void }) {
   const [open, setOpen] = useState(false);
+  const [editingHour, setEditingHour] = useState(false);
+  const [editingMin, setEditingMin] = useState(false);
+  const [hourInput, setHourInput] = useState('');
+  const [minInput, setMinInput] = useState('');
   const ref = useRef<HTMLDivElement>(null);
+  const hourInputRef = useRef<HTMLInputElement>(null);
+  const minInputRef = useRef<HTMLInputElement>(null);
 
   const [h, m] = time.split(':');
   const hour24 = parseInt(h);
@@ -24,11 +30,21 @@ function CustomTimePicker({ time, onChange }: { time: string; onChange: (t: stri
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false);
+        setEditingHour(false);
+        setEditingMin(false);
       }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  // Auto focus input when editing starts
+  useEffect(() => {
+    if (editingHour) hourInputRef.current?.focus();
+  }, [editingHour]);
+  useEffect(() => {
+    if (editingMin) minInputRef.current?.focus();
+  }, [editingMin]);
 
   const changeHour = (delta: number) => {
     const newH = (hour24 + delta + 24) % 24;
@@ -45,6 +61,25 @@ function CustomTimePicker({ time, onChange }: { time: string; onChange: (t: stri
     if (period === 'AM' && hour24 >= 12) newH -= 12;
     if (period === 'PM' && hour24 < 12) newH += 12;
     onChange(`${String(newH).padStart(2, '0')}:${m}`);
+  };
+
+  const commitHour = (val: string) => {
+    const num = parseInt(val);
+    if (!isNaN(num) && num >= 1 && num <= 12) {
+      const newH = isPM ? (num === 12 ? 12 : num + 12) : (num === 12 ? 0 : num);
+      onChange(`${String(newH).padStart(2, '0')}:${m}`);
+    }
+    setEditingHour(false);
+    setHourInput('');
+  };
+
+  const commitMinute = (val: string) => {
+    const num = parseInt(val);
+    if (!isNaN(num) && num >= 0 && num <= 59) {
+      onChange(`${h}:${String(num).padStart(2, '0')}`);
+    }
+    setEditingMin(false);
+    setMinInput('');
   };
 
   return (
@@ -74,9 +109,31 @@ function CustomTimePicker({ time, onChange }: { time: string; onChange: (t: stri
               >
                 ▲
               </button>
-              <span className="text-3xl font-bold text-teal-800 w-14 text-center">
-                {String(hour12).padStart(2, '0')}
-              </span>
+              {editingHour ? (
+                <input
+                  ref={hourInputRef}
+                  type="number"
+                  min={1}
+                  max={12}
+                  value={hourInput}
+                  onChange={e => setHourInput(e.target.value)}
+                  onBlur={() => commitHour(hourInput)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') commitHour(hourInput);
+                    if (e.key === 'Escape') { setEditingHour(false); setHourInput(''); }
+                  }}
+                  className="w-14 text-3xl font-bold text-teal-800 text-center bg-teal-50 border-2 border-teal-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  placeholder={String(hour12).padStart(2, '0')}
+                />
+              ) : (
+                <button
+                  onClick={() => { setEditingHour(true); setHourInput(''); }}
+                  className="text-3xl font-bold text-teal-800 w-14 text-center hover:bg-teal-50 rounded-xl py-1 transition-colors"
+                  title="Click to type"
+                >
+                  {String(hour12).padStart(2, '0')}
+                </button>
+              )}
               <button
                 onClick={() => changeHour(-1)}
                 className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200 text-teal-600 font-bold hover:bg-teal-100 transition-colors flex items-center justify-center"
@@ -96,9 +153,31 @@ function CustomTimePicker({ time, onChange }: { time: string; onChange: (t: stri
               >
                 ▲
               </button>
-              <span className="text-3xl font-bold text-teal-800 w-14 text-center">
-                {m}
-              </span>
+              {editingMin ? (
+                <input
+                  ref={minInputRef}
+                  type="number"
+                  min={0}
+                  max={59}
+                  value={minInput}
+                  onChange={e => setMinInput(e.target.value)}
+                  onBlur={() => commitMinute(minInput)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') commitMinute(minInput);
+                    if (e.key === 'Escape') { setEditingMin(false); setMinInput(''); }
+                  }}
+                  className="w-14 text-3xl font-bold text-teal-800 text-center bg-teal-50 border-2 border-teal-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  placeholder={m}
+                />
+              ) : (
+                <button
+                  onClick={() => { setEditingMin(true); setMinInput(''); }}
+                  className="text-3xl font-bold text-teal-800 w-14 text-center hover:bg-teal-50 rounded-xl py-1 transition-colors"
+                  title="Click to type"
+                >
+                  {m}
+                </button>
+              )}
               <button
                 onClick={() => changeMinute(-5)}
                 className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200 text-teal-600 font-bold hover:bg-teal-100 transition-colors flex items-center justify-center"
