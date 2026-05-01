@@ -1,3 +1,4 @@
+// do it after the LabResults and Documents
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, Search, CreditCard as Edit, MoreVertical, Send, Paperclip, Smile, Mic, Calendar, Info, X, FileText, Image as ImageIcon, Activity, Download, Check, Clock, Phone, MapPin, Award, ChevronLeft, Video, PhoneCall, PhoneOff, VideoOff, MicOff, Volume2, Maximize2, Settings } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
