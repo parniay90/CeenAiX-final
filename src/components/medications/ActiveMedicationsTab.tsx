@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Pill, ChevronDown, ChevronUp, Info, Bell, FileText, RefreshCw, Phone, AlertTriangle, X, CheckCircle2, Clock } from 'lucide-react';
 import type { Medication } from '../../types/medications';
 
@@ -8,7 +9,7 @@ interface ActiveMedicationsTabProps {
 
 // ── Drug Info Modal ───────────────────────────────────────────────────────────
 function DrugInfoModal({ med, onClose }: { med: Medication; onClose: () => void }) {
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden max-h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
@@ -85,7 +86,8 @@ function DrugInfoModal({ med, onClose }: { med: Medication; onClose: () => void 
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -102,7 +104,7 @@ function SetReminderModal({ med, onClose }: { med: Medication; onClose: () => vo
 
   const handleSave = () => setSaved(true);
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={saved ? undefined : onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
@@ -217,13 +219,14 @@ function SetReminderModal({ med, onClose }: { med: Medication; onClose: () => vo
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
 // ── Prescription Details Modal ────────────────────────────────────────────────
 function PrescriptionDetailsModal({ med, onClose }: { med: Medication; onClose: () => void }) {
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
@@ -279,7 +282,8 @@ function PrescriptionDetailsModal({ med, onClose }: { med: Medication; onClose: 
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -287,7 +291,7 @@ function PrescriptionDetailsModal({ med, onClose }: { med: Medication; onClose: 
 function RequestRefillModal({ med, onClose }: { med: Medication; onClose: () => void }) {
   const [confirmed, setConfirmed] = useState(false);
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={confirmed ? undefined : onClose}>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
@@ -359,7 +363,8 @@ function RequestRefillModal({ med, onClose }: { med: Medication; onClose: () => 
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
