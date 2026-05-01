@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Pill, Calendar, Bell, Clock, CreditCard, RefreshCw, CheckCircle, TrendingUp } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Pill, Calendar, Bell, Clock, CreditCard, RefreshCw, CheckCircle, TrendingUp, ChevronUp } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
 import PatientTopNav from '../components/patient/PatientTopNav';
 import ActiveMedicationsTab from '../components/medications/ActiveMedicationsTab';
@@ -8,9 +8,22 @@ import RemindersTab from '../components/medications/RemindersTab';
 import PastMedicationsTab from '../components/medications/PastMedicationsTab';
 import CostsCoverageTab from '../components/medications/CostsCoverageTab';
 import type { Medication, PastMedication, Reminder } from '../types/medications';
+import { MOCK_PATIENT } from '../types/patientDashboard';
 
 export default function Medications() {
   const [activeTab, setActiveTab] = useState<'active' | 'schedule' | 'reminders' | 'past' | 'costs'>('active');
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+    const onScroll = () => setShowScrollTop(el.scrollTop > 300);
+    el.addEventListener('scroll', onScroll);
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const scrollToTop = () => mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
 
   const activeMedications: Medication[] = [
     {
@@ -289,25 +302,25 @@ export default function Medications() {
 
   return (
     <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
-      <PatientTopNav patientName="Parnia Yazdkhasti" />
+      <PatientTopNav patientName={MOCK_PATIENT.name} />
 
       <div className="flex flex-1 overflow-hidden">
         <PatientSidebar currentPage="medications" />
 
-        <main className="flex-1 overflow-y-auto">
+        <main ref={mainRef} className="flex-1 overflow-y-auto">
         <div className="flex-1">
         <div className="p-8">
-          <div className="animate-fadeIn">
+          <div >
             <div className="flex items-start justify-between mb-8">
               <div>
-                <h1 className="text-4xl font-playfair font-bold text-slate-900 mb-2">My Medications 💊</h1>
-                <p className="text-slate-400 text-[15px]">Track your medications, doses, and refills</p>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">My Medications 💊</h1>
+                <p className="text-gray-400 text-sm">Track your medications, doses, and refills</p>
               </div>
 
               <div className="flex items-center gap-4">
                 <div className="bg-gradient-to-r from-teal-600 to-teal-700 text-white px-6 py-3 rounded-full flex items-center gap-2 shadow-lg shadow-teal-500/30">
                   <Pill className="w-4 h-4" />
-                  <span className="text-[13px] font-bold">{takenToday} / {totalDosesToday} doses taken today</span>
+                  <span className="text-xs font-bold">{takenToday} / {totalDosesToday} doses taken today</span>
                 </div>
                 <button className="px-5 py-2.5 border-2 border-teal-600 text-teal-600 rounded-lg hover:bg-teal-600 hover:text-white transition-all duration-300 font-medium">
                   + Request Refill
@@ -315,28 +328,27 @@ export default function Medications() {
               </div>
             </div>
 
-            <div className="grid grid-cols-5 gap-4 mb-8 animate-slideUp" style={{ animationDelay: '80ms' }}>
-              <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+              <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer">
                 <div className="flex items-center gap-4 mb-3">
                   <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center">
                     <Pill className="w-7 h-7 text-blue-600" />
                   </div>
                   <div>
-                    <div className="text-3xl font-mono font-bold text-slate-900">{activeMedications.length}</div>
-                    <div className="text-xs text-slate-400">Active Medications</div>
+                    <div className="text-3xl font-bold text-gray-900">{activeMedications.length}</div>
+                    <div className="text-xs text-gray-400">Active Medications</div>
                   </div>
                 </div>
                 <div className="text-xs text-teal-600 font-medium">For 2 conditions</div>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+              <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer">
                 <div className="flex items-center gap-4 mb-3">
                   <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center">
                     <CheckCircle className="w-7 h-7 text-emerald-600" />
                   </div>
                   <div>
-                    <div className="text-3xl font-mono font-bold text-emerald-600">{takenToday}/{totalDosesToday}</div>
-                    <div className="text-xs text-slate-400">Taken Today</div>
+                    <div className="text-3xl font-bold text-emerald-600">{takenToday}/{totalDosesToday}</div>
+                    <div className="text-xs text-gray-400">Taken Today</div>
                   </div>
                 </div>
                 <div className="text-xs text-amber-500 font-medium mb-2">{totalDosesToday - takenToday} more pending</div>
@@ -348,56 +360,55 @@ export default function Medications() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+              <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer">
                 <div className="flex items-center gap-4 mb-3">
                   <div className="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center">
                     <TrendingUp className="w-7 h-7 text-teal-600" />
                   </div>
                   <div>
-                    <div className="text-3xl font-mono font-bold text-teal-600">{monthlyAdherence}%</div>
-                    <div className="text-xs text-slate-400">Adherence This Month</div>
+                    <div className="text-3xl font-bold text-teal-600">{monthlyAdherence}%</div>
+                    <div className="text-xs text-gray-400">Adherence This Month</div>
                   </div>
                 </div>
                 <div className="text-xs text-emerald-600 font-medium">↑ +4% vs last month</div>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer animate-glow">
+              <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer">
                 <div className="flex items-center gap-4 mb-3">
                   <div className="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center">
                     <RefreshCw className="w-7 h-7 text-amber-600" />
                   </div>
                   <div>
-                    <div className="text-3xl font-mono font-bold text-amber-600">{refillsDue}</div>
-                    <div className="text-xs text-slate-400">Refill Due Soon</div>
+                    <div className="text-3xl font-bold text-amber-600">{refillsDue}</div>
+                    <div className="text-xs text-gray-400">Refill Due Soon</div>
                   </div>
                 </div>
                 <div className="text-xs text-amber-500 font-medium">Metformin — 21 days</div>
               </div>
 
-              <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+              <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 cursor-pointer">
                 <div className="flex items-center gap-4 mb-3">
                   <div className="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center">
                     <CreditCard className="w-7 h-7 text-purple-600" />
                   </div>
                   <div>
-                    <div className="text-3xl font-mono font-bold text-slate-900">AED {monthlyCost}</div>
-                    <div className="text-xs text-slate-400">My Monthly Cost</div>
+                    <div className="text-3xl font-bold text-gray-900">AED {monthlyCost}</div>
+                    <div className="text-xs text-gray-400">My Monthly Cost</div>
                   </div>
                 </div>
                 <div className="text-xs text-teal-600 font-medium mb-1">After Daman Gold insurance</div>
-                <div className="text-[11px] text-slate-400 line-through">Full price: AED 280</div>
+                <div className="text-xs text-gray-400 line-through">Full price: AED 280</div>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm mb-6 animate-slideUp" style={{ animationDelay: '160ms' }}>
               <div className="border-b border-slate-100 px-6">
                 <div className="flex gap-8">
                   <button
                     onClick={() => setActiveTab('active')}
-                    className={`py-4 px-2 text-[15px] font-medium transition-all duration-300 relative ${
+                    className={`py-4 px-2 text-sm font-medium transition-all duration-300 relative ${
                       activeTab === 'active'
                         ? 'text-teal-600'
-                        : 'text-slate-400 hover:text-slate-600'
+                        : 'text-gray-400 hover:text-gray-600'
                     }`}
                   >
                     <span className="flex items-center gap-2">
@@ -413,10 +424,10 @@ export default function Medications() {
 
                   <button
                     onClick={() => setActiveTab('schedule')}
-                    className={`py-4 px-2 text-[15px] font-medium transition-all duration-300 relative ${
+                    className={`py-4 px-2 text-sm font-medium transition-all duration-300 relative ${
                       activeTab === 'schedule'
                         ? 'text-teal-600'
-                        : 'text-slate-400 hover:text-slate-600'
+                        : 'text-gray-400 hover:text-gray-600'
                     }`}
                   >
                     📅 Today's Schedule
@@ -427,10 +438,10 @@ export default function Medications() {
 
                   <button
                     onClick={() => setActiveTab('reminders')}
-                    className={`py-4 px-2 text-[15px] font-medium transition-all duration-300 relative ${
+                    className={`py-4 px-2 text-sm font-medium transition-all duration-300 relative ${
                       activeTab === 'reminders'
                         ? 'text-teal-600'
-                        : 'text-slate-400 hover:text-slate-600'
+                        : 'text-gray-400 hover:text-gray-600'
                     }`}
                   >
                     📋 Reminders
@@ -441,10 +452,10 @@ export default function Medications() {
 
                   <button
                     onClick={() => setActiveTab('past')}
-                    className={`py-4 px-2 text-[15px] font-medium transition-all duration-300 relative ${
+                    className={`py-4 px-2 text-sm font-medium transition-all duration-300 relative ${
                       activeTab === 'past'
                         ? 'text-teal-600'
-                        : 'text-slate-400 hover:text-slate-600'
+                        : 'text-gray-400 hover:text-gray-600'
                     }`}
                   >
                     <span className="flex items-center gap-2">
@@ -460,10 +471,10 @@ export default function Medications() {
 
                   <button
                     onClick={() => setActiveTab('costs')}
-                    className={`py-4 px-2 text-[15px] font-medium transition-all duration-300 relative ${
+                    className={`py-4 px-2 text-sm font-medium transition-all duration-300 relative ${
                       activeTab === 'costs'
                         ? 'text-teal-600'
-                        : 'text-slate-400 hover:text-slate-600'
+                        : 'text-gray-400 hover:text-gray-600'
                     }`}
                   >
                     💰 Costs & Coverage
@@ -487,6 +498,17 @@ export default function Medications() {
         </div>
         </main>
       </div>
+
+      {/* Scroll to top button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 w-11 h-11 bg-teal-600 hover:bg-teal-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
+          aria-label="Scroll to top"
+        >
+          <ChevronUp className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 }
