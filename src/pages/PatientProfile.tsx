@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { User, Phone, CreditCard, AlertTriangle, AlertOctagon, Calendar, Shield, Stethoscope, Download, Share2, CreditCard as Edit2, Save, X, Check, Heart, FlaskConical, Clock, Bell, ShieldCheck, Pill, PenLine, ChevronDown, ChevronRight, MessageSquare, Camera, Lock, Eye, Copy, ExternalLink, Activity, FileText, RefreshCw } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { User, Phone, CreditCard, AlertTriangle, AlertOctagon, Calendar, Shield, Stethoscope, Download, Share2, CreditCard as Edit2, Save, X, Check, Heart, FlaskConical, Clock, Bell, ShieldCheck, Pill, PenLine, ChevronDown, ChevronRight, MessageSquare, Camera, Lock, Eye, Copy, ExternalLink, Activity, FileText, RefreshCw, ChevronUp, Database } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
 import PatientTopNav from '../components/patient/PatientTopNav';
 import { ToastContainer, useToast } from '../components/common/Toast';
+import { MOCK_PATIENT } from '../types/patientDashboard';
 
 function navigate(path: string) {
   window.history.pushState({}, '', path);
@@ -74,7 +76,17 @@ export default function PatientProfile() {
   const [photoSrc, setPhotoSrc] = useState<string | null>(null);
   const [showPhotoHover, setShowPhotoHover] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const { toasts, dismiss, addToast } = useToast();
+
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+    const onScroll = () => setShowScrollTop(el.scrollTop > 300);
+    el.addEventListener('scroll', onScroll);
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
 
   const [notifPrefs, setNotifPrefs] = useState({
     appointments: true, labResults: true, prescription: true,
@@ -115,12 +127,12 @@ export default function PatientProfile() {
 
   return (
     <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
-      <PatientTopNav patientName="Parnia Yazdkhasti" />
+      <PatientTopNav patientName={MOCK_PATIENT.name} />
 
       <div className="flex flex-1 overflow-hidden">
         <PatientSidebar currentPage="profile" />
 
-        <main className="flex-1 overflow-y-auto">
+        <main ref={mainRef} className="flex-1 overflow-y-auto">
         {/* Page Header */}
         <div className="bg-white border-b border-slate-200 px-8 py-4 flex items-center gap-4">
           <div className="flex items-center gap-3 flex-1">
@@ -129,7 +141,7 @@ export default function PatientProfile() {
             </div>
             <div>
               <div className="font-bold text-slate-900" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 22 }}>My Profile</div>
-              <div className="text-xs text-slate-400" style={{ fontFamily: 'Inter, sans-serif' }}>Parnia Yazdkhasti · <span style={{ fontFamily: 'DM Mono, monospace' }}>PT-001</span></div>
+              <div className="text-xs text-slate-400" style={{ fontFamily: 'Inter, sans-serif' }}>{MOCK_PATIENT.name} · <span style={{ fontFamily: 'DM Mono, monospace' }}>PT-001</span></div>
             </div>
           </div>
           <button onClick={() => setShowDownloadModal(true)} className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition-colors">
@@ -157,7 +169,7 @@ export default function PatientProfile() {
                       <img src={photoSrc} alt="Profile" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-white font-bold" style={{ fontSize: 28, fontFamily: 'Plus Jakarta Sans, sans-serif' }}>
-                        PY
+                        {MOCK_PATIENT.name.split(' ').map((n: string) => n[0]).join('')}
                       </div>
                     )}
                   </div>
@@ -170,7 +182,7 @@ export default function PatientProfile() {
                   <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
                 </div>
                 <div>
-                  <div className="text-white font-bold" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 22 }}>Parnia Yazdkhasti</div>
+                  <div className="text-white font-bold" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 22 }}>{MOCK_PATIENT.name}</div>
                   <div className="text-white/70 text-sm mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>بارنيا يزدخاستي</div>
                   <div className="flex flex-wrap gap-1.5">
                     <span className="px-2 py-0.5 rounded-full text-teal-200 font-bold" style={{ fontSize: 10, background: 'rgba(13,148,136,0.35)' }}>PT-001</span>
@@ -213,7 +225,7 @@ export default function PatientProfile() {
                 </span>
               </div>
             </div>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg text-xs font-medium transition-colors shrink-0">
+            <button onClick={() => setShowEditAllergies(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg text-xs font-medium transition-colors shrink-0">
               <Edit2 size={11} /> Edit Allergies
             </button>
           </div>
@@ -268,6 +280,16 @@ export default function PatientProfile() {
       {showDownloadModal && <DownloadModal onClose={() => setShowDownloadModal(false)} addToast={addToast} />}
       {showShareModal && <ShareModal onClose={() => setShowShareModal(false)} addToast={addToast} />}
 
+      {showScrollTop && (
+        <button
+          onClick={() => mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-6 right-6 z-50 w-11 h-11 bg-teal-600 hover:bg-teal-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
+          aria-label="Scroll to top"
+        >
+          <ChevronUp className="w-5 h-5" />
+        </button>
+      )}
+
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
     </div>
   );
@@ -282,6 +304,13 @@ function Tab1Profile({ editPersonal, setEditPersonal, editContact, setEditContac
   revealId: boolean; setRevealId: (v: boolean) => void;
   saveSection: (msg: string, section?: 'personal' | 'contact' | 'emergency' | 'about') => void;
 }) {
+  const [showEditAllergies, setShowEditAllergies] = useState(false);
+  const [showAddPassport, setShowAddPassport] = useState(false);
+  const [showViewVisa, setShowViewVisa] = useState(false);
+  const [showAddLanguage, setShowAddLanguage] = useState(false);
+  const [showAddEmergency, setShowAddEmergency] = useState(false);
+  const [emergencyAccess, setEmergencyAccess] = useState(true);
+
   return (
     <div className="grid grid-cols-5 gap-5">
       {/* LEFT 60% */}
@@ -311,7 +340,7 @@ function Tab1Profile({ editPersonal, setEditPersonal, editContact, setEditContac
                       {l}
                     </span>
                   ))}
-                  <button className="px-3 py-1 bg-slate-50 text-slate-400 rounded-full text-xs border border-slate-200 hover:border-teal-300 hover:text-teal-600 transition-colors">
+                  <button onClick={() => setShowAddLanguage(true)} className="px-3 py-1 bg-slate-50 text-slate-400 rounded-full text-xs border border-slate-200 hover:border-teal-300 hover:text-teal-600 transition-colors">
                     + Add Language
                   </button>
                 </div>
@@ -389,14 +418,14 @@ function Tab1Profile({ editPersonal, setEditPersonal, editContact, setEditContac
             <div className="text-xs uppercase tracking-wider text-slate-400 mb-1" style={{ fontSize: 10 }}>Passport</div>
             <div className="flex items-center gap-2">
               <span className="text-sm italic text-slate-400">Not added</span>
-              <button className="text-xs text-teal-600 hover:text-teal-800 transition-colors">+ Add Passport</button>
+              <button onClick={() => setShowAddPassport(true)} className="text-xs text-teal-600 hover:text-teal-800 transition-colors">+ Add Passport</button>
             </div>
           </div>
           <div className="py-3">
             <div className="text-xs uppercase tracking-wider text-slate-400 mb-1" style={{ fontSize: 10 }}>Residency Visa</div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-emerald-600">UAE Resident — Visa valid</span>
-              <button className="text-xs text-teal-600 hover:text-teal-800">View</button>
+              <button onClick={() => setShowViewVisa(true)} className="text-xs text-teal-600 hover:text-teal-800">View</button>
             </div>
           </div>
         </div>
@@ -418,11 +447,11 @@ function Tab1Profile({ editPersonal, setEditPersonal, editContact, setEditContac
                 </div>
                 <div className="text-xs text-emerald-600 mb-2">In an emergency, this person can access your blood group, allergies, and current medications.</div>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <Toggle checked={true} onChange={() => {}} />
+                  <Toggle checked={emergencyAccess} onChange={setEmergencyAccess} />
                   <span className="text-xs text-slate-600">Allow emergency record access</span>
                 </label>
               </div>
-              <button className="text-xs text-teal-600 hover:text-teal-800 transition-colors">+ Add Second Emergency Contact</button>
+              <button onClick={() => setShowAddEmergency(true)} className="text-xs text-teal-600 hover:text-teal-800 transition-colors">+ Add Second Emergency Contact</button>
             </>
           ) : (
             <div className="space-y-3">
@@ -495,6 +524,101 @@ function Tab1Profile({ editPersonal, setEditPersonal, editContact, setEditContac
         {/* UPCOMING APPOINTMENTS */}
         <UpcomingApptsCard />
       </div>
+
+      {/* Edit Allergies Modal */}
+      {showEditAllergies && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+            <div className="w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Clock size={24} className="text-teal-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">In Progress</h3>
+            <p className="text-sm text-slate-500 mb-6">Allergy records can only be added or modified by your treating physician. Please inform your doctor at your next visit.</p>
+            <button onClick={() => setShowEditAllergies(false)} className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-colors">Got it</button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Add Passport Modal */}
+      {showAddPassport && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+            <div className="w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Clock size={24} className="text-teal-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">In Progress</h3>
+            <p className="text-sm text-slate-500 mb-6">Passport upload feature is coming soon. You can add your passport details at your next clinic visit.</p>
+            <button onClick={() => setShowAddPassport(false)} className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-colors">Got it</button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* View Residency Visa Modal */}
+      {showViewVisa && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-teal-100 rounded-full flex items-center justify-center">
+                  <Shield size={18} className="text-teal-600" />
+                </div>
+                <h3 className="font-bold text-slate-900">Residency Visa</h3>
+              </div>
+              <button onClick={() => setShowViewVisa(false)} className="p-1 hover:bg-slate-100 rounded-lg transition-colors">
+                <X size={18} className="text-slate-400" />
+              </button>
+            </div>
+            <div className="p-5 space-y-3">
+              {[
+                { label: 'Status', value: 'UAE Resident — Valid' },
+                { label: 'Type', value: 'Employment Visa' },
+                { label: 'Issued by', value: 'UAE GDRFA' },
+              ].map(r => (
+                <div key={r.label} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">{r.label}</span>
+                  <span className="text-sm font-medium text-slate-800">{r.value}</span>
+                </div>
+              ))}
+            </div>
+            <div className="px-5 pb-5">
+              <button onClick={() => setShowViewVisa(false)} className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition-colors text-sm">Close</button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Add Language Modal */}
+      {showAddLanguage && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+            <div className="w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Clock size={24} className="text-teal-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">In Progress</h3>
+            <p className="text-sm text-slate-500 mb-6">Language preferences can be updated from your profile settings soon.</p>
+            <button onClick={() => setShowAddLanguage(false)} className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-colors">Got it</button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Add Second Emergency Contact Modal */}
+      {showAddEmergency && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+            <div className="w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Clock size={24} className="text-teal-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">In Progress</h3>
+            <p className="text-sm text-slate-500 mb-6">Multiple emergency contacts feature is coming soon.</p>
+            <button onClick={() => setShowAddEmergency(false)} className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-colors">Got it</button>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
@@ -508,7 +632,7 @@ function InsuranceCard() {
           <span className="font-bold text-white" style={{ fontSize: 13 }}>Daman National Health Insurance</span>
           <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold text-white text-sm">D</div>
         </div>
-        <div className="text-white font-bold uppercase tracking-wider mb-1" style={{ fontFamily: 'DM Mono, monospace', fontSize: 13 }}>PARNIA YAZDKHASTI</div>
+        <div className="text-white font-bold uppercase tracking-wider mb-1" style={{ fontFamily: 'DM Mono, monospace', fontSize: 13 }}>{MOCK_PATIENT.name.toUpperCase()}</div>
         <div className="text-white/70 mb-2" style={{ fontFamily: 'DM Mono, monospace', fontSize: 11 }}>DAM-IND-PT001-2024</div>
         <div className="flex items-center justify-between">
           <span className="text-white/60" style={{ fontFamily: 'DM Mono, monospace', fontSize: 10 }}>DAM-2024-IND-047821</span>
@@ -885,6 +1009,8 @@ function Tab3Privacy({ nabidh, setNabidh, notifPrefs, setNotifPrefs, showAccount
   setShowAccountActions: (v: boolean) => void;
   addToast: (type: 'success' | 'error' | 'warning' | 'info', title: string, message?: string) => void;
 }) {
+  const [showNabidhLog, setShowNabidhLog] = useState(false);
+
   return (
     <div className="grid grid-cols-5 gap-5">
       <div className="col-span-3 space-y-4">
@@ -932,7 +1058,7 @@ function Tab3Privacy({ nabidh, setNabidh, notifPrefs, setNotifPrefs, showAccount
           </div>
           <div className="mt-4 flex items-center justify-between">
             <div className="text-xs text-teal-500 font-medium" style={{ fontFamily: 'DM Mono, monospace' }}>Last synced: Today 2:07 PM · 12 records</div>
-            <button className="text-xs text-teal-600 hover:text-teal-800">View Nabidh Sync Log →</button>
+            <button onClick={() => setShowNabidhLog(true)} className="text-xs text-teal-600 hover:text-teal-800">View Nabidh Sync Log →</button>
           </div>
         </div>
 
@@ -1056,6 +1182,44 @@ function Tab3Privacy({ nabidh, setNabidh, notifPrefs, setNotifPrefs, showAccount
           )}
         </div>
       </div>
+
+      {/* Nabidh Sync Log Modal */}
+      {showNabidhLog && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-teal-50 rounded-full flex items-center justify-center">
+                  <Database size={18} className="text-teal-600" />
+                </div>
+                <h3 className="font-bold text-slate-900">Nabidh Sync Log</h3>
+              </div>
+              <button onClick={() => setShowNabidhLog(false)} className="p-1 hover:bg-slate-100 rounded-lg transition-colors">
+                <X size={18} className="text-slate-400" />
+              </button>
+            </div>
+            <div className="p-5 space-y-3">
+              {[
+                { time: 'Today 2:07 PM', detail: '12 records synced successfully ✅' },
+                { time: 'Yesterday 9:15 AM', detail: '8 records synced successfully ✅' },
+                { time: '3 days ago', detail: '15 records synced successfully ✅' },
+              ].map((entry, i) => (
+                <div key={i} className="flex items-start gap-3 py-2 border-b border-slate-100 last:border-0">
+                  <div className="w-2 h-2 rounded-full bg-teal-500 shrink-0 mt-1.5" />
+                  <div>
+                    <div className="text-xs font-semibold text-slate-500" style={{ fontFamily: 'DM Mono, monospace' }}>{entry.time}</div>
+                    <div className="text-sm text-slate-700">{entry.detail}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="px-5 pb-5">
+              <button onClick={() => setShowNabidhLog(false)} className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition-colors text-sm">Close</button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
@@ -1086,7 +1250,7 @@ function DownloadModal({ onClose, addToast }: { onClose: () => void; addToast: (
             <div className="text-center mb-3">
               <div className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">CeenAiX · DHA Licensed</div>
               <div className="font-bold text-slate-800 text-sm" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Patient Health Summary</div>
-              <div className="text-xs text-slate-500">Parnia Yazdkhasti · DOB: 22 Mar 1988 · Female</div>
+              <div className="text-xs text-slate-500">{MOCK_PATIENT.name} · DOB: 22 Mar 1988 · Female</div>
             </div>
             <div className="flex items-center justify-center gap-2 mb-3">
               <span className="px-3 py-1 bg-red-600 text-white font-bold rounded-full" style={{ fontSize: 18, fontFamily: 'DM Mono, monospace' }}>A+</span>
@@ -1133,12 +1297,15 @@ function DownloadModal({ onClose, addToast }: { onClose: () => void; addToast: (
 }
 
 function ShareModal({ onClose, addToast }: { onClose: () => void; addToast: (type: 'success' | 'error' | 'warning' | 'info', title: string, message?: string) => void }) {
+  const [showWhatsApp, setShowWhatsApp] = useState(false);
+
   function copyLink() {
     navigator.clipboard.writeText('https://ceenaix.com/emergency/PT-001-xxxx').catch(() => {});
     addToast('success', 'Emergency profile link copied', 'Link copied to clipboard.');
   }
 
   return (
+    <>
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(15,23,42,0.7)', backdropFilter: 'blur(6px)' }} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
@@ -1174,18 +1341,37 @@ function ShareModal({ onClose, addToast }: { onClose: () => void; addToast: (typ
             <span className="text-xs text-amber-600 font-medium">This link expires in 24 hours</span>
           </div>
           <div className="flex gap-2">
-            <button className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-medium transition-colors flex items-center justify-center gap-1">
+            <button
+              onClick={() => addToast('success', 'New emergency link generated', 'Previous link has been invalidated.')}
+              className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-medium transition-colors flex items-center justify-center gap-1"
+            >
               <RefreshCw size={12} /> New Link
             </button>
             <button onClick={copyLink} className="flex-1 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-medium transition-colors flex items-center justify-center gap-1">
               <Copy size={12} /> Copy Link
             </button>
-            <button className="flex-1 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-xl text-xs font-medium transition-colors flex items-center justify-center gap-1">
+            <button onClick={() => setShowWhatsApp(true)} className="flex-1 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-xl text-xs font-medium transition-colors flex items-center justify-center gap-1">
               <ExternalLink size={12} /> WhatsApp
             </button>
           </div>
         </div>
       </div>
     </div>
+
+    {/* WhatsApp Modal */}
+    {showWhatsApp && createPortal(
+      <div className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+          <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <MessageSquare size={24} className="text-emerald-600" />
+          </div>
+          <h3 className="text-lg font-bold text-slate-900 mb-2">Share via WhatsApp</h3>
+          <p className="text-sm text-slate-500 mb-6">WhatsApp sharing is coming soon. Use the Copy Link option to share manually for now.</p>
+          <button onClick={() => setShowWhatsApp(false)} className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-colors">Got it</button>
+        </div>
+      </div>,
+      document.body
+    )}
+    </>
   );
 }
