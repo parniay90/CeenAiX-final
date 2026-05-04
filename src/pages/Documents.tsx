@@ -1296,8 +1296,6 @@ export default function Documents() {
           </div>
         </div>
       )}
-    </div>
-
       {/* Secure Vault Modal */}
       {showSecurityModal && (
         <SecureVaultModal onClose={() => setShowSecurityModal(false)} />
