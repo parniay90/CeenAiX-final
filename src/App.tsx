@@ -17,7 +17,7 @@ import AdminSettingsSecurity from './pages/AdminSettingsSecurity';
 import AdminSettingsNotifications from './pages/AdminSettingsNotifications';
 import AdminAuditMe from './pages/AdminAuditMe';
 import AdminSettingsApiKeys from './pages/AdminSettingsApiKeys';
-import AdminSystemStatus from './pages/AdminSystemStatus';
+import AdminSystemStatus from './pages/systemHealth/AdminSystemStatus';
 import AdminSystemChangelog from './pages/AdminSystemChangelog';
 import AdminSupport from './pages/AdminSupport';
 import AdminWorkspaces from './pages/AdminWorkspaces';
