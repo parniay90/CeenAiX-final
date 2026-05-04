@@ -1015,8 +1015,6 @@ export default function Documents() {
           </div>
         </div>
       )}
-    </div>
-
       {/* Scroll to top button */}
       {showScrollTop && (
         <button
