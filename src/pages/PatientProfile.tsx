@@ -624,7 +624,10 @@ function Tab1Profile({ editPersonal, setEditPersonal, editContact, setEditContac
 }
 
 function InsuranceCard() {
+  const [showSecondaryModal, setShowSecondaryModal] = useState(false);
+
   return (
+    <>
     <div className="bg-white rounded-2xl shadow-sm border-l-4 border-l-blue-500 border border-slate-100 p-6">
       <SectionHeader icon={Shield} iconBg="bg-blue-100" iconColor="text-blue-600" title="Insurance" onEdit={() => {}} />
       <div className="rounded-xl overflow-hidden mb-4" style={{ background: 'linear-gradient(135deg, #1E3A5F, #1D4ED8)', padding: 20, minHeight: 120 }}>
@@ -681,11 +684,26 @@ function InsuranceCard() {
           </span>
         ))}
       </div>
-      <button className="w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2">
+      <button onClick={() => { window.location.href = '/patient/insurance'; }} className="w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2">
         <FileText size={14} /> View Full Insurance Card
       </button>
-      <button className="mt-2 text-xs text-teal-600 hover:text-teal-800 transition-colors">+ Add Secondary Insurance</button>
+      <button onClick={() => setShowSecondaryModal(true)} className="mt-2 text-xs text-teal-600 hover:text-teal-800 transition-colors">+ Add Secondary Insurance</button>
     </div>
+
+    {showSecondaryModal && createPortal(
+      <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+          <div className="w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Clock size={24} className="text-teal-600" />
+          </div>
+          <h3 className="text-lg font-bold text-slate-900 mb-2">In Progress</h3>
+          <p className="text-sm text-slate-500 mb-6">Secondary insurance support is coming soon. Contact support if you need to add a secondary plan.</p>
+          <button onClick={() => setShowSecondaryModal(false)} className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-colors">Got it</button>
+        </div>
+      </div>,
+      document.body
+    )}
+    </>
   );
 }
 
@@ -733,7 +751,31 @@ function UpcomingApptsCard() {
     { month: 'APR', day: '15', doctor: 'Dr. Ahmed Al Rashidi', spec: 'Cardiology · Al Noor', time: 'In-person · 10:30 AM' },
     { month: 'MAY', day: '3', doctor: 'Dr. Fatima Al Mansoori', spec: 'Endocrinology · DSH', time: 'In-person · 2:00 PM' },
   ];
+
+  const [rescheduleAppt, setRescheduleAppt] = useState<typeof appts[0] | null>(null);
+  const [rescheduleDate, setRescheduleDate] = useState('');
+  const [rescheduleReason, setRescheduleReason] = useState('');
+  const [rescheduleSuccess, setRescheduleSuccess] = useState(false);
+
+  const [cancelAppt, setCancelAppt] = useState<typeof appts[0] | null>(null);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelSuccess, setCancelSuccess] = useState(false);
+
+  function closeReschedule() {
+    setRescheduleAppt(null);
+    setRescheduleDate('');
+    setRescheduleReason('');
+    setRescheduleSuccess(false);
+  }
+
+  function closeCancel() {
+    setCancelAppt(null);
+    setCancelReason('');
+    setCancelSuccess(false);
+  }
+
   return (
+    <>
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
       <div className="flex items-center gap-3 mb-4">
         <div className="w-9 h-9 rounded-xl bg-teal-100 flex items-center justify-center shrink-0">
@@ -755,8 +797,8 @@ function UpcomingApptsCard() {
               <div className="text-xs text-teal-500 font-medium mt-0.5" style={{ fontFamily: 'DM Mono, monospace', fontSize: 10 }}>{a.time}</div>
             </div>
             <div className="flex gap-1 shrink-0">
-              <button className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs transition-colors">Reschedule</button>
-              <button className="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg text-xs transition-colors">Cancel</button>
+              <button onClick={() => { setRescheduleAppt(a); setRescheduleSuccess(false); }} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs transition-colors">Reschedule</button>
+              <button onClick={() => { setCancelAppt(a); setCancelSuccess(false); }} className="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg text-xs transition-colors">Cancel</button>
             </div>
           </div>
         ))}
@@ -765,6 +807,123 @@ function UpcomingApptsCard() {
         + Book New Appointment
       </button>
     </div>
+
+    {/* Reschedule Modal */}
+    {rescheduleAppt && createPortal(
+      <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-teal-50 rounded-full flex items-center justify-center">
+                <Calendar size={18} className="text-teal-600" />
+              </div>
+              <h3 className="font-bold text-slate-900">Reschedule Appointment</h3>
+            </div>
+            <button onClick={closeReschedule} className="p-1 hover:bg-slate-100 rounded-lg transition-colors"><X size={18} className="text-slate-400" /></button>
+          </div>
+          {rescheduleSuccess ? (
+            <div className="p-8 text-center">
+              <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Check size={28} className="text-emerald-600" />
+              </div>
+              <h4 className="text-lg font-bold text-slate-900 mb-1">Appointment Rescheduled!</h4>
+              <button onClick={closeReschedule} className="mt-6 w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-colors">Done</button>
+            </div>
+          ) : (
+            <div className="p-5 space-y-4">
+              <div className="p-3 bg-slate-50 rounded-xl">
+                <div className="font-semibold text-slate-800 text-sm">{rescheduleAppt.doctor}</div>
+                <div className="text-xs text-slate-400 mt-0.5">{rescheduleAppt.spec}</div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">New Date</label>
+                <input
+                  type="date"
+                  value={rescheduleDate}
+                  onChange={e => setRescheduleDate(e.target.value)}
+                  className="w-full h-11 px-3 border-2 border-teal-500 bg-teal-50 rounded-xl text-sm font-bold text-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-400"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Reason</label>
+                <select
+                  value={rescheduleReason}
+                  onChange={e => setRescheduleReason(e.target.value)}
+                  className="w-full h-11 px-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+                >
+                  <option value="">Select a reason</option>
+                  {['Schedule conflict', 'Feeling unwell', 'Doctor unavailable', 'Personal reasons', 'Other'].map(o => (
+                    <option key={o} value={o}>{o}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button onClick={closeReschedule} className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition-colors">Cancel</button>
+                <button
+                  onClick={() => setRescheduleSuccess(true)}
+                  className="flex-1 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-medium transition-colors"
+                >Confirm Reschedule</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>,
+      document.body
+    )}
+
+    {/* Cancel Appointment Modal */}
+    {cancelAppt && createPortal(
+      <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-red-50 rounded-full flex items-center justify-center">
+                <X size={18} className="text-red-600" />
+              </div>
+              <h3 className="font-bold text-slate-900">Cancel Appointment</h3>
+            </div>
+            <button onClick={closeCancel} className="p-1 hover:bg-slate-100 rounded-lg transition-colors"><X size={18} className="text-slate-400" /></button>
+          </div>
+          {cancelSuccess ? (
+            <div className="p-8 text-center">
+              <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Check size={28} className="text-emerald-600" />
+              </div>
+              <h4 className="text-lg font-bold text-slate-900 mb-1">Appointment Cancelled</h4>
+              <button onClick={closeCancel} className="mt-6 w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-colors">Done</button>
+            </div>
+          ) : (
+            <div className="p-5 space-y-4">
+              <div className="p-3 bg-slate-50 rounded-xl">
+                <div className="font-semibold text-slate-800 text-sm">{cancelAppt.doctor}</div>
+                <div className="text-xs text-slate-400 mt-0.5">{cancelAppt.spec}</div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-slate-600 mb-2">Select a reason</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {['Feeling better', 'Schedule conflict', 'Found another doctor', 'Other reason'].map(opt => (
+                    <button
+                      key={opt}
+                      onClick={() => setCancelReason(opt)}
+                      className={`p-3 rounded-xl border-2 text-left text-xs font-medium transition-all ${cancelReason === opt ? 'border-red-400 bg-red-50 text-red-700' : 'border-slate-200 text-slate-600 hover:border-slate-300'}`}
+                    >{opt}</button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button onClick={closeCancel} className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition-colors">Cancel</button>
+                <button
+                  onClick={() => setCancelSuccess(true)}
+                  className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-medium transition-colors"
+                >Confirm Cancellation</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>,
+      document.body
+    )}
+    </>
   );
 }
 
@@ -1010,6 +1169,12 @@ function Tab3Privacy({ nabidh, setNabidh, notifPrefs, setNotifPrefs, showAccount
   addToast: (type: 'success' | 'error' | 'warning' | 'info', title: string, message?: string) => void;
 }) {
   const [showNabidhLog, setShowNabidhLog] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showManage2FA, setShowManage2FA] = useState(false);
+  const [showFaceId, setShowFaceId] = useState(false);
+  const [showSessions, setShowSessions] = useState(false);
+  const [showDeactivate, setShowDeactivate] = useState(false);
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
 
   return (
     <div className="grid grid-cols-5 gap-5">
@@ -1074,7 +1239,7 @@ function Tab3Privacy({ nabidh, setNabidh, notifPrefs, setNotifPrefs, showAccount
               <div key={item.title} className="p-4 border border-slate-100 rounded-xl hover:border-teal-200 transition-colors">
                 <div className="font-medium text-slate-800 text-sm mb-0.5">{item.title}</div>
                 <div className="text-xs text-slate-400 mb-3">{item.sub}</div>
-                <button className={`px-4 py-2 rounded-lg text-xs font-medium transition-colors ${item.color}`}>
+                <button onClick={() => addToast('success', `Downloading ${item.title}`, 'Your file is being prepared.')} className={`px-4 py-2 rounded-lg text-xs font-medium transition-colors ${item.color}`}>
                   Download PDF
                 </button>
               </div>
@@ -1112,7 +1277,15 @@ function Tab3Privacy({ nabidh, setNabidh, notifPrefs, setNotifPrefs, showAccount
                   <div className="text-xs uppercase tracking-wider text-slate-400 mb-0.5" style={{ fontSize: 10 }}>{item.label}</div>
                   <div className="text-xs text-slate-700">{item.val}</div>
                 </div>
-                <button className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium transition-colors shrink-0">{item.action}</button>
+                <button
+                  onClick={() => {
+                    if (item.action === 'Change Password') setShowChangePassword(true);
+                    else if (item.action === 'Manage 2FA') setShowManage2FA(true);
+                    else if (item.action === 'Set Up Face ID') setShowFaceId(true);
+                    else if (item.action === 'Manage Sessions') setShowSessions(true);
+                  }}
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium transition-colors shrink-0"
+                >{item.action}</button>
               </div>
             ))}
             <div className="py-2">
@@ -1171,12 +1344,12 @@ function Tab3Privacy({ nabidh, setNabidh, notifPrefs, setNotifPrefs, showAccount
               <div className="p-3 border border-amber-200 rounded-xl">
                 <div className="font-medium text-amber-700 text-sm mb-1">Deactivate Account</div>
                 <div className="text-xs text-slate-400 mb-2">Temporarily hide your profile. Your data is retained.</div>
-                <button className="px-4 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-lg text-xs font-medium transition-colors">Deactivate</button>
+                <button onClick={() => setShowDeactivate(true)} className="px-4 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-lg text-xs font-medium transition-colors">Deactivate</button>
               </div>
               <div className="p-3 border border-red-200 rounded-xl">
                 <div className="font-medium text-red-700 text-sm mb-1">Request Account Deletion</div>
                 <div className="text-xs text-slate-400 mb-2">We'll delete your personal data where permitted. Clinical records are retained 10 years per UAE law.</div>
-                <button className="px-4 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-medium transition-colors">Request Deletion</button>
+                <button onClick={() => setShowDeleteAccount(true)} className="px-4 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-medium transition-colors">Request Deletion</button>
               </div>
             </div>
           )}
@@ -1220,7 +1393,239 @@ function Tab3Privacy({ nabidh, setNabidh, notifPrefs, setNotifPrefs, showAccount
         </div>,
         document.body
       )}
+
+      {/* Change Password Modal */}
+      {showChangePassword && <ChangePasswordModal onClose={() => setShowChangePassword(false)} />}
+
+      {/* Manage 2FA Modal */}
+      {showManage2FA && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-teal-50 rounded-full flex items-center justify-center">
+                  <ShieldCheck size={18} className="text-teal-600" />
+                </div>
+                <h3 className="font-bold text-slate-900">Two-Factor Authentication</h3>
+              </div>
+              <button onClick={() => setShowManage2FA(false)} className="p-1 hover:bg-slate-100 rounded-lg"><X size={18} className="text-slate-400" /></button>
+            </div>
+            <div className="p-5 space-y-3">
+              <div className="p-3 bg-emerald-50 rounded-xl text-sm font-medium text-emerald-700">✅ SMS enabled — +971 55 ●●● ●●●●</div>
+              {['SMS (currently active)', 'Authenticator App (recommended)'].map(opt => (
+                <button key={opt} className={`w-full p-3 rounded-xl border-2 text-left text-sm font-medium transition-all ${opt.includes('currently') ? 'border-teal-500 bg-teal-50 text-teal-700' : 'border-slate-200 text-slate-600 hover:border-slate-300'}`}>
+                  {opt}
+                </button>
+              ))}
+            </div>
+            <div className="px-5 pb-5">
+              <button onClick={() => setShowManage2FA(false)} className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition-colors">Close</button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Face ID Modal */}
+      {showFaceId && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+            <div className="w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Clock size={24} className="text-teal-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">In Progress</h3>
+            <p className="text-sm text-slate-500 mb-6">Biometric login (Face ID / Fingerprint) is coming soon on the CeenAiX mobile app.</p>
+            <button onClick={() => setShowFaceId(false)} className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-colors">Got it</button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Manage Sessions Modal */}
+      {showSessions && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center">
+                  <Shield size={18} className="text-slate-600" />
+                </div>
+                <h3 className="font-bold text-slate-900">Active Sessions</h3>
+              </div>
+              <button onClick={() => setShowSessions(false)} className="p-1 hover:bg-slate-100 rounded-lg"><X size={18} className="text-slate-400" /></button>
+            </div>
+            <div className="p-5 space-y-3">
+              <div className="p-3 border border-slate-100 rounded-xl flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-sm font-medium text-slate-800">📱 CeenAiX iOS App</div>
+                  <div className="text-xs text-slate-400 mt-0.5">Dubai, UAE — Active now</div>
+                </div>
+                <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full text-xs font-medium">This device</span>
+              </div>
+              <div className="p-3 border border-slate-100 rounded-xl flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-sm font-medium text-slate-800">💻 Chrome Browser</div>
+                  <div className="text-xs text-slate-400 mt-0.5">Dubai, UAE — Last active 2 hours ago</div>
+                </div>
+                <button onClick={() => setShowSessions(false)} className="px-2 py-0.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-full text-xs font-medium transition-colors">Sign Out</button>
+              </div>
+            </div>
+            <div className="px-5 pb-5">
+              <button onClick={() => setShowSessions(false)} className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition-colors">Close</button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Deactivate Account Modal */}
+      {showDeactivate && <DeactivateModal onClose={() => setShowDeactivate(false)} />}
+
+      {/* Request Deletion Modal */}
+      {showDeleteAccount && <DeleteAccountModal onClose={() => setShowDeleteAccount(false)} />}
     </div>
+  );
+}
+
+/* ─────────────────── SECURITY / ACCOUNT MODALS ─────────────────── */
+function ChangePasswordModal({ onClose }: { onClose: () => void }) {
+  const [current, setCurrent] = useState('');
+  const [next, setNext] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+
+  function handleSave() {
+    if (next !== confirm) { setError('Passwords do not match'); return; }
+    setError('');
+    setSuccess(true);
+  }
+
+  return createPortal(
+    <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center">
+              <Lock size={18} className="text-slate-600" />
+            </div>
+            <h3 className="font-bold text-slate-900">Change Password</h3>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-lg"><X size={18} className="text-slate-400" /></button>
+        </div>
+        {success ? (
+          <div className="p-8 text-center">
+            <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check size={28} className="text-emerald-600" />
+            </div>
+            <h4 className="text-lg font-bold text-slate-900 mb-1">Password Changed!</h4>
+            <button onClick={onClose} className="mt-6 w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-colors">Done</button>
+          </div>
+        ) : (
+          <div className="p-5 space-y-3">
+            {[
+              { label: 'Current Password', val: current, set: setCurrent },
+              { label: 'New Password', val: next, set: setNext },
+              { label: 'Confirm New Password', val: confirm, set: setConfirm },
+            ].map(f => (
+              <div key={f.label}>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">{f.label}</label>
+                <input type="password" value={f.val} onChange={e => f.set(e.target.value)} className="w-full h-11 px-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+              </div>
+            ))}
+            {error && <p className="text-xs text-red-500">{error}</p>}
+            <button onClick={handleSave} className="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-medium transition-colors mt-1">Save</button>
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+function DeactivateModal({ onClose }: { onClose: () => void }) {
+  const [success, setSuccess] = useState(false);
+  return createPortal(
+    <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-amber-100 rounded-full flex items-center justify-center">
+              <AlertTriangle size={18} className="text-amber-600" />
+            </div>
+            <h3 className="font-bold text-slate-900">Deactivate Account</h3>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-lg"><X size={18} className="text-slate-400" /></button>
+        </div>
+        {success ? (
+          <div className="p-8 text-center">
+            <div className="w-14 h-14 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check size={28} className="text-amber-600" />
+            </div>
+            <h4 className="text-lg font-bold text-slate-900 mb-1">Account Deactivated</h4>
+            <p className="text-sm text-slate-500 mb-6">You can reactivate by logging in again.</p>
+            <button onClick={onClose} className="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-colors">Done</button>
+          </div>
+        ) : (
+          <div className="p-5">
+            <p className="text-sm text-slate-600 mb-5">Your account will be temporarily hidden. Your health data will be retained and you can reactivate anytime.</p>
+            <div className="flex gap-2">
+              <button onClick={onClose} className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition-colors">Cancel</button>
+              <button onClick={() => setSuccess(true)} className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-medium transition-colors">Confirm Deactivation</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+function DeleteAccountModal({ onClose }: { onClose: () => void }) {
+  const [checked, setChecked] = useState(false);
+  const [success, setSuccess] = useState(false);
+  return createPortal(
+    <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-red-100 rounded-full flex items-center justify-center">
+              <AlertOctagon size={18} className="text-red-600" />
+            </div>
+            <h3 className="font-bold text-slate-900">Request Account Deletion</h3>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-lg"><X size={18} className="text-slate-400" /></button>
+        </div>
+        {success ? (
+          <div className="p-8 text-center">
+            <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check size={28} className="text-emerald-600" />
+            </div>
+            <h4 className="text-lg font-bold text-slate-900 mb-1">Deletion Requested</h4>
+            <p className="text-sm text-slate-500 mb-6">Our team will process your request within 30 days.</p>
+            <button onClick={onClose} className="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-colors">Done</button>
+          </div>
+        ) : (
+          <div className="p-5 space-y-4">
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm font-semibold text-red-700">⚠️ This action cannot be undone</div>
+            <p className="text-sm text-slate-600">Your personal data will be deleted where permitted by law. Clinical records are retained for 10 years per UAE DHA regulations.</p>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" checked={checked} onChange={e => setChecked(e.target.checked)} className="mt-0.5 accent-red-600" />
+              <span className="text-sm text-slate-700">I understand this action is permanent</span>
+            </label>
+            <div className="flex gap-2 pt-1">
+              <button onClick={onClose} className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition-colors">Cancel</button>
+              <button
+                disabled={!checked}
+                onClick={() => setSuccess(true)}
+                className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-sm font-medium transition-colors"
+              >Request Deletion</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body
   );
 }
 
