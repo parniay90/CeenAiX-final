@@ -1,8 +1,10 @@
 // do it after the LabResults and Documents
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, Search, CreditCard as Edit, MoreVertical, Send, Paperclip, Smile, Mic, Calendar, Info, X, FileText, Image as ImageIcon, Activity, Download, Check, Clock, Phone, MapPin, Award, ChevronLeft, Video, PhoneCall, PhoneOff, VideoOff, MicOff, Volume2, Maximize2, Settings } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { MessageCircle, Search, CreditCard as Edit, MoreVertical, Send, Paperclip, Smile, Mic, Calendar, Info, X, FileText, Image as ImageIcon, Activity, Download, Check, Clock, Phone, MapPin, Award, ChevronLeft, Video, PhoneCall, PhoneOff, VideoOff, MicOff, Volume2, Maximize2, Settings, ChevronUp, CheckCircle2, User } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
 import PatientTopNav from '../components/patient/PatientTopNav';
+import { MOCK_PATIENT } from '../types/patientDashboard';
 
 type OnlineStatus = 'online' | 'offline' | 'away';
 type MessageSender = 'patient' | 'doctor' | 'system' | 'pharmacy' | 'support';
@@ -68,6 +70,21 @@ export default function Messages() {
   const [isVideoOff, setIsVideoOff] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Scroll-to-top
+  const mainRef = useRef<HTMLElement>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Modal states
+  const [showNewConvModal, setShowNewConvModal] = useState(false);
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
+  const [showMoreDropdown, setShowMoreDropdown] = useState(false);
+  const moreButtonRef = useRef<HTMLButtonElement>(null);
+  const [showPaperclipModal, setShowPaperclipModal] = useState(false);
+  const [showMicModal, setShowMicModal] = useState(false);
+  const [downloadModal, setDownloadModal] = useState<{ name: string } | null>(null);
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -75,6 +92,25 @@ export default function Messages() {
   useEffect(() => {
     scrollToBottom();
   }, [selectedConversation]);
+
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+    const onScroll = () => setShowScrollTop(el.scrollTop > 300);
+    el.addEventListener('scroll', onScroll);
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!showMoreDropdown) return;
+    const handler = (e: MouseEvent) => {
+      if (moreButtonRef.current && !moreButtonRef.current.closest('.more-dropdown-container')?.contains(e.target as Node)) {
+        setShowMoreDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showMoreDropdown]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -469,12 +505,12 @@ export default function Messages() {
 
   return (
     <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
-      <PatientTopNav patientName="Ahmed Al Maktoum" />
+      <PatientTopNav patientName={MOCK_PATIENT.name} />
 
       <div className="flex flex-1 overflow-hidden">
         <PatientSidebar currentPage="messages" />
 
-        <main className="flex-1 overflow-y-auto">
+        <main ref={mainRef} className="flex-1 overflow-y-auto">
         <div className="flex flex-1 overflow-hidden">
           <div className="w-80 bg-white border-r border-slate-200 flex flex-col">
             <div className="p-4 border-b border-slate-200">
@@ -488,7 +524,7 @@ export default function Messages() {
                   )}
                 </div>
                 <button
-                  onClick={() => setShowNewMessage(true)}
+                  onClick={() => setShowNewConvModal(true)}
                   className="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 transition-all"
                 >
                   <Edit className="w-3.5 h-3.5" />
@@ -627,7 +663,7 @@ export default function Messages() {
                   >
                     <Video className="w-5 h-5 text-slate-400 group-hover:text-blue-600" />
                   </button>
-                  <button className="p-2 hover:bg-slate-100 rounded-lg transition-all group">
+                  <button onClick={() => setShowCalendarModal(true)} className="p-2 hover:bg-slate-100 rounded-lg transition-all group">
                     <Calendar className="w-5 h-5 text-slate-400 group-hover:text-teal-600" />
                   </button>
                   <button
@@ -645,9 +681,28 @@ export default function Messages() {
                   >
                     <Info className="w-5 h-5 text-slate-400 group-hover:text-teal-600" />
                   </button>
-                  <button className="p-2 hover:bg-slate-100 rounded-lg transition-all group">
-                    <MoreVertical className="w-5 h-5 text-slate-400 group-hover:text-slate-600" />
-                  </button>
+                  <div className="relative more-dropdown-container">
+                    <button
+                      ref={moreButtonRef}
+                      onClick={() => setShowMoreDropdown(v => !v)}
+                      className="p-2 hover:bg-slate-100 rounded-lg transition-all group"
+                    >
+                      <MoreVertical className="w-5 h-5 text-slate-400 group-hover:text-slate-600" />
+                    </button>
+                    {showMoreDropdown && (
+                      <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-slate-200 rounded-xl shadow-lg z-30 overflow-hidden">
+                        {['Mark as read', 'Mute notifications', 'Clear conversation', 'Report issue'].map(opt => (
+                          <button
+                            key={opt}
+                            onClick={() => setShowMoreDropdown(false)}
+                            className="w-full px-4 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50 transition-all"
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -707,7 +762,7 @@ export default function Messages() {
                                         {message.attachment.type.toUpperCase()} · {message.attachment.pages && `${message.attachment.pages} pages · `}{message.attachment.size}
                                       </p>
                                     </div>
-                                    <button className="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-all">
+                                    <button onClick={() => setDownloadModal({ name: message.attachment!.name })} className="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-all">
                                       <Download className="w-4 h-4 text-slate-600" />
                                     </button>
                                   </div>
@@ -738,7 +793,7 @@ export default function Messages() {
                                         {message.attachment.type.toUpperCase()} · {message.attachment.size}
                                       </p>
                                     </div>
-                                    <button className="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-all">
+                                    <button onClick={() => setDownloadModal({ name: message.attachment!.name })} className="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-all">
                                       <Download className="w-4 h-4 text-slate-600" />
                                     </button>
                                   </div>
@@ -809,7 +864,7 @@ export default function Messages() {
                 </div>
 
                 <div className="flex items-end gap-3">
-                  <button className="p-2 hover:bg-slate-100 rounded-lg transition-all">
+                  <button onClick={() => setShowPaperclipModal(true)} className="p-2 hover:bg-slate-100 rounded-lg transition-all">
                     <Paperclip className="w-5 h-5 text-slate-400 hover:text-teal-600" />
                   </button>
                   <button className="p-2 hover:bg-slate-100 rounded-lg transition-all">
@@ -833,7 +888,7 @@ export default function Messages() {
                     />
                   </div>
 
-                  <button className="p-2 hover:bg-slate-100 rounded-lg transition-all">
+                  <button onClick={() => setShowMicModal(true)} className="p-2 hover:bg-slate-100 rounded-lg transition-all">
                     <Mic className="w-5 h-5 text-slate-400 hover:text-teal-600" />
                   </button>
 
@@ -1158,6 +1213,149 @@ export default function Messages() {
         </div>
       )}
 
+      {/* Scroll to top */}
+      {showScrollTop && (
+        <button
+          onClick={() => mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-6 right-6 z-50 w-11 h-11 bg-teal-600 hover:bg-teal-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
+          aria-label="Scroll to top"
+        >
+          <ChevronUp className="w-5 h-5" />
+        </button>
+      )}
+
+      {/* New Conversation Modal */}
+      {showNewConvModal && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+            <div className="w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Clock className="w-6 h-6 text-teal-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">In Progress</h3>
+            <p className="text-sm text-slate-500 mb-6">New conversation feature coming soon. You can message your existing care team from the list.</p>
+            <button onClick={() => setShowNewConvModal(false)} className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-all">Got it</button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Calendar Modal */}
+      {showCalendarModal && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+            <div className="w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Calendar className="w-6 h-6 text-teal-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">In Progress</h3>
+            <p className="text-sm text-slate-500 mb-6">Appointment scheduling from messages is coming soon. Please use the Appointments page to book.</p>
+            <button onClick={() => setShowCalendarModal(false)} className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-all">Got it</button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Paperclip Modal */}
+      {showPaperclipModal && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-teal-50 rounded-full flex items-center justify-center">
+                  <Paperclip className="w-5 h-5 text-teal-600" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">Attach File</h3>
+              </div>
+              <button onClick={() => setShowPaperclipModal(false)} className="p-1 hover:bg-slate-100 rounded-lg transition-all">
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+            <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center mb-5 cursor-pointer hover:border-teal-400 hover:bg-teal-50 transition-all">
+              <Paperclip className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm font-medium text-slate-700">Drop file here or click to browse</p>
+              <p className="text-xs text-slate-400 mt-1">PDF, JPG, PNG up to 10MB</p>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setShowPaperclipModal(false)} className="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition-all">Cancel</button>
+              <button onClick={() => setShowPaperclipModal(false)} className="flex-1 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-all">Attach</button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Mic Modal */}
+      {showMicModal && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+            <div className="w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Mic className="w-6 h-6 text-teal-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">Voice Message</h3>
+            <p className="text-sm text-slate-500 mb-6">Voice messages are coming soon.</p>
+            <button onClick={() => setShowMicModal(false)} className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-all">Got it</button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Download Success Modal */}
+      {downloadModal && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+            <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mb-1">Downloaded!</h3>
+            <p className="text-sm text-slate-500 mb-6">{downloadModal.name}</p>
+            <button onClick={() => setDownloadModal(null)} className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-all">Done</button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Phone Modal */}
+      {showPhoneModal && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 bg-teal-50 rounded-full flex items-center justify-center">
+                <Phone className="w-5 h-5 text-teal-600" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900">Clinic Contact</h3>
+            </div>
+            <div className="space-y-3 mb-6">
+              {[
+                { label: 'Phone', value: '+971 4 XXX XXXX' },
+                { label: 'Hours', value: 'Sunday–Thursday 8AM–8PM' },
+                { label: 'Emergency', value: '998' },
+              ].map(item => (
+                <div key={item.label} className="flex items-center justify-between py-2 border-b border-slate-100">
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">{item.label}</span>
+                  <span className="text-sm font-medium text-slate-900">{item.value}</span>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => setShowPhoneModal(false)} className="w-full px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition-all">Close</button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* View Full Profile Modal */}
+      {showProfileModal && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+            <div className="w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <User className="w-6 h-6 text-teal-600" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">In Progress</h3>
+            <p className="text-sm text-slate-500 mb-6">Full doctor profiles are coming soon.</p>
+            <button onClick={() => setShowProfileModal(false)} className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-all">Got it</button>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {showDoctorInfo && activeConversation && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-end">
           <div className="w-80 bg-white h-full shadow-2xl animate-slideInRight overflow-y-auto">
@@ -1234,17 +1432,23 @@ export default function Messages() {
               )}
 
               <div className="space-y-2">
-                <button className="w-full px-4 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-all">
+                <button
+                  onClick={() => { window.location.href = '/appointments'; }}
+                  className="w-full px-4 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-all"
+                >
                   <Calendar className="w-4 h-4" />
                   Book Appointment
                 </button>
-                <button className="w-full px-4 py-3 bg-white border border-slate-300 hover:border-slate-400 text-slate-700 rounded-xl font-medium flex items-center justify-center gap-2 transition-all">
+                <button
+                  onClick={() => setShowPhoneModal(true)}
+                  className="w-full px-4 py-3 bg-white border border-slate-300 hover:border-slate-400 text-slate-700 rounded-xl font-medium flex items-center justify-center gap-2 transition-all"
+                >
                   <Phone className="w-4 h-4" />
                   Clinic Phone
                 </button>
               </div>
 
-              <button className="w-full mt-4 text-teal-600 hover:text-teal-700 text-sm font-medium">
+              <button onClick={() => setShowProfileModal(true)} className="w-full mt-4 text-teal-600 hover:text-teal-700 text-sm font-medium">
                 View Full Profile →
               </button>
             </div>
