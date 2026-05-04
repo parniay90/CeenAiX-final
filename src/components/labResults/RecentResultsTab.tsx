@@ -66,7 +66,9 @@ export default function RecentResultsTab({ visit }: RecentResultsTabProps) {
             </div>
             <p className="text-sm text-blue-800 italic">"{visit.overallComment}"</p>
             <p className="text-xs text-blue-600 mt-1">— {visit.reviewedBy}</p>
-            <button className="mt-2 px-4 py-2 border-2 border-teal-600 text-teal-600 rounded-lg hover:bg-teal-600 hover:text-white transition-all text-sm font-medium flex items-center gap-2">
+            <button
+              onClick={e => { e.stopPropagation(); window.location.href = '/messages'; }}
+              className="mt-2 px-4 py-2 border-2 border-teal-600 text-teal-600 rounded-lg hover:bg-teal-600 hover:text-white transition-all text-sm font-medium flex items-center gap-2">
               <MessageCircle className="w-4 h-4" />
               Message Dr. Fatima
             </button>
@@ -226,9 +228,6 @@ export default function RecentResultsTab({ visit }: RecentResultsTabProps) {
                       </div>
                     )}
 
-                    <button className="text-xs text-teal-600 hover:text-teal-700 font-medium">
-                      {isExpanded ? '▲ Less Details' : '▼ More Details'}
-                    </button>
                   </div>
                 </div>
 
