@@ -26,6 +26,7 @@ import AdminIntegrationDetail from './pages/AdminIntegrationDetail';
 import AdminRevenue from './pages/AdminRevenue';
 import NabidhPage from './pages/NabidhPage';
 import AuditLogsPage from './pages/AuditLogsPage';
+import DhaCompliancePage from './pages/DhaCompliancePage';
 import PharmacyDashboard from './pages/PharmacyDashboard';
 import PharmacyPortal from './pages/pharmacy/PharmacyPortal';
 import DiagnosticsPortal from './pages/DiagnosticsPortal';
@@ -118,6 +119,8 @@ function App() {
         setView('admin-settings-security');
       } else if (path === '/admin/settings/notifications') {
         setView('admin-settings-notifications');
+      } else if (path === '/admin/compliance/dha') {
+        setView('admin-dha-compliance');
       } else if (path === '/admin/audit') {
         setView('admin-audit');
       } else if (path === '/admin/audit/me') {
@@ -242,6 +245,7 @@ function App() {
   if (view === 'admin-workspaces') return <AdminWorkspaces />;
   if (view === 'admin-revenue') return <AdminRevenue />;
   if (view === 'admin-nabidh') return <NabidhPage />;
+  if (view === 'admin-dha-compliance') return <DhaCompliancePage />;
   if (view === 'admin-audit') return <AuditLogsPage />;
   if (view === 'admin-integrations') return <AdminIntegrations />;
   if (view === 'admin-integration-detail') {
