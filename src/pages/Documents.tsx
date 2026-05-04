@@ -14,6 +14,199 @@ type ViewMode = 'grid' | 'list';
 type SortOption = 'newest' | 'oldest' | 'name-asc' | 'name-desc' | 'size' | 'category';
 
 
+// ── Share Document Modal ─────────────────────────────────────────────────────
+function ShareDocumentModal({ doc, onClose }: { doc: Document; onClose: () => void }) {
+  const [shareWith, setShareWith] = useState<'doctor' | 'clinic' | 'other'>('doctor');
+  const [selectedDoctor, setSelectedDoctor] = useState('Dr. Fatima Al Mansoori');
+  const [clinicName, setClinicName] = useState('');
+  const [email, setEmail] = useState('');
+  const [shareMethod, setShareMethod] = useState<'link' | 'email' | 'whatsapp'>('link');
+  const [shared, setShared] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const doctors = [
+    'Dr. Fatima Al Mansoori',
+    'Dr. Ahmed Al Rashidi',
+    'Dr. Tooraj Helmi',
+  ];
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    if (shareWith === 'clinic' && !clinicName.trim()) newErrors.clinic = 'Please enter a clinic name';
+    if (shareWith === 'other' && !email.trim()) newErrors.email = 'Please enter an email address';
+    if (shareWith === 'other' && email && !/^[^@]+@[^@]+\.[^@]+$/.test(email)) newErrors.email = 'Please enter a valid email address';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleShare = () => {
+    if (validate()) setShared(true);
+  };
+
+  const getRecipient = () => {
+    if (shareWith === 'doctor') return selectedDoctor;
+    if (shareWith === 'clinic') return clinicName;
+    return email;
+  };
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={shared ? undefined : onClose}>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+              <Share2 className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <p className="font-bold text-gray-900 text-sm">Share Document</p>
+              <p className="text-xs text-gray-400 mt-0.5 truncate max-w-[200px]">{doc.name}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+            <X className="w-4 h-4 text-gray-600" />
+          </button>
+        </div>
+
+        <div className="px-6 py-5 overflow-y-auto flex-1">
+          {shared ? (
+            <div className="text-center py-6">
+              <div className="w-16 h-16 rounded-full bg-teal-50 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-teal-600" />
+              </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-2">Document Shared!</h3>
+              <p className="text-gray-500 text-sm mb-1">
+                <span className="font-semibold text-gray-700">{doc.name}</span> has been shared with
+              </p>
+              <p className="text-teal-600 font-semibold text-sm">{getRecipient()}</p>
+              <p className="text-gray-400 text-xs mt-1">via {shareMethod === 'link' ? 'Secure Link' : shareMethod === 'email' ? 'Email' : 'WhatsApp'}</p>
+              <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-left">
+                <p className="text-xs text-amber-800">⚠️ The recipient can only view this document. Editing and downloading require your permission.</p>
+              </div>
+              <button onClick={onClose} className="mt-6 w-full py-3 bg-teal-600 text-white rounded-xl font-semibold hover:bg-teal-700 transition-colors">
+                Done
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-5">
+
+              {/* Document summary */}
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
+                <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-5 h-5 text-red-500" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 truncate">{doc.name}</p>
+                  <p className="text-xs text-gray-400">{doc.fileType.toUpperCase()} · {doc.fileSize} KB · {doc.date}</p>
+                </div>
+              </div>
+
+              {/* Who to share with */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Share With</label>
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  {[
+                    { id: 'doctor', label: 'My Doctor', icon: '👨‍⚕️' },
+                    { id: 'clinic', label: 'Clinic', icon: '🏥' },
+                    { id: 'other', label: 'Other', icon: '✉️' },
+                  ].map(opt => (
+                    <button
+                      key={opt.id}
+                      onClick={() => { setShareWith(opt.id as typeof shareWith); setErrors({}); }}
+                      className={`flex flex-col items-center gap-1 py-3 rounded-xl border-2 transition-all ${shareWith === opt.id ? 'border-teal-600 bg-teal-50' : 'border-gray-200 hover:border-teal-300'}`}
+                    >
+                      <span className="text-xl">{opt.icon}</span>
+                      <span className={`text-xs font-medium ${shareWith === opt.id ? 'text-teal-700' : 'text-gray-600'}`}>{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {shareWith === 'doctor' && (
+                  <div className="space-y-2">
+                    {doctors.map(dr => (
+                      <button
+                        key={dr}
+                        onClick={() => setSelectedDoctor(dr)}
+                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 transition-all ${selectedDoctor === dr ? 'border-teal-600 bg-teal-50' : 'border-gray-200 hover:border-teal-300'}`}
+                      >
+                        <span className={`text-sm font-medium ${selectedDoctor === dr ? 'text-teal-700' : 'text-gray-700'}`}>{dr}</span>
+                        {selectedDoctor === dr && <CheckCircle className="w-4 h-4 text-teal-600" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {shareWith === 'clinic' && (
+                  <div>
+                    <input
+                      type="text"
+                      value={clinicName}
+                      onChange={e => { setClinicName(e.target.value); setErrors(p => ({ ...p, clinic: '' })); }}
+                      placeholder="Enter clinic or hospital name"
+                      className={`w-full px-4 py-3 border-2 rounded-xl text-sm focus:outline-none focus:ring-2 transition-colors ${errors.clinic ? 'border-red-300 focus:ring-red-400' : 'border-gray-200 focus:ring-teal-500 focus:border-teal-500'}`}
+                    />
+                    {errors.clinic && <p className="text-xs text-red-500 mt-1">{errors.clinic}</p>}
+                  </div>
+                )}
+
+                {shareWith === 'other' && (
+                  <div>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={e => { setEmail(e.target.value); setErrors(p => ({ ...p, email: '' })); }}
+                      placeholder="Enter email address"
+                      className={`w-full px-4 py-3 border-2 rounded-xl text-sm focus:outline-none focus:ring-2 transition-colors ${errors.email ? 'border-red-300 focus:ring-red-400' : 'border-gray-200 focus:ring-teal-500 focus:border-teal-500'}`}
+                    />
+                    {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
+                  </div>
+                )}
+              </div>
+
+              {/* Share method */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Share Method</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'link', label: 'Secure Link', icon: '🔗' },
+                    { id: 'email', label: 'Email', icon: '📧' },
+                    { id: 'whatsapp', label: 'WhatsApp', icon: '🟢' },
+                  ].map(opt => (
+                    <button
+                      key={opt.id}
+                      onClick={() => setShareMethod(opt.id as typeof shareMethod)}
+                      className={`flex flex-col items-center gap-1 py-3 rounded-xl border-2 transition-all ${shareMethod === opt.id ? 'border-teal-600 bg-teal-50' : 'border-gray-200 hover:border-teal-300'}`}
+                    >
+                      <span className="text-xl">{opt.icon}</span>
+                      <span className={`text-xs font-medium ${shareMethod === opt.id ? 'text-teal-700' : 'text-gray-600'}`}>{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Disclaimer */}
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                <p className="text-xs text-amber-800">⚠️ Only share medical documents with trusted healthcare providers. The recipient will have view-only access.</p>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-3 pt-1">
+                <button onClick={onClose} className="flex-1 py-3 rounded-xl font-semibold border-2 border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors">Cancel</button>
+                <button onClick={handleShare} className="flex-1 py-3 rounded-xl font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                  <Share2 className="w-4 h-4" />
+                  Share
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 // ── Set Document Reminder Modal ───────────────────────────────────────────────
 function SetDocReminderModal({ onClose }: { onClose: () => void }) {
   const [date, setDate] = useState('');
@@ -401,6 +594,8 @@ export default function Documents() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [showBookTestModal, setShowBookTestModal] = useState(false);
   const [showSetReminderModal, setShowSetReminderModal] = useState(false);
+  const [downloadDocument, setDownloadDocument] = useState<Document | null>(null);
+  const [shareDocument, setShareDocument] = useState<Document | null>(null);
   const mainRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -1292,11 +1487,15 @@ export default function Documents() {
                             <Eye className="w-3 h-3" />
                             Preview
                           </button>
-                          <button className="flex items-center justify-center gap-1 px-3 py-2 bg-teal-50 hover:bg-teal-100 text-teal-600 rounded-lg text-xs font-medium transition-all">
+                          <button
+                            onClick={() => setDownloadDocument(doc)}
+                            className="flex items-center justify-center gap-1 px-3 py-2 bg-teal-50 hover:bg-teal-100 text-teal-600 rounded-lg text-xs font-medium transition-all">
                             <Download className="w-3 h-3" />
                             Download
                           </button>
-                          <button className="flex items-center justify-center gap-1 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium transition-all">
+                          <button
+                            onClick={() => setShareDocument(doc)}
+                            className="flex items-center justify-center gap-1 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-medium transition-all">
                             <Share2 className="w-3 h-3" />
                             Share
                           </button>
@@ -1389,11 +1588,15 @@ export default function Documents() {
               </div>
 
               <div className="mt-6 flex items-center gap-3">
-                <button className="flex-1 px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-all">
+                <button
+                  onClick={() => { setPreviewDocument(null); setDownloadDocument(previewDocument); }}
+                  className="flex-1 px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-all">
                   <Download className="w-5 h-5" />
                   Download
                 </button>
-                <button className="flex-1 px-6 py-3 bg-white border border-slate-300 hover:border-slate-400 text-slate-700 rounded-xl font-medium flex items-center justify-center gap-2 transition-all">
+                <button
+                  onClick={() => { setPreviewDocument(null); setShareDocument(previewDocument); }}
+                  className="flex-1 px-6 py-3 bg-white border border-slate-300 hover:border-slate-400 text-slate-700 rounded-xl font-medium flex items-center justify-center gap-2 transition-all">
                   <Share2 className="w-5 h-5" />
                   Share
                 </button>
@@ -1437,6 +1640,45 @@ export default function Documents() {
       {showSetReminderModal && createPortal(
         <SetDocReminderModal onClose={() => setShowSetReminderModal(false)} />,
         document.body
+      )}
+
+      {/* Download Modal */}
+      {downloadDocument && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setDownloadDocument(null)}>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center">
+                  <Download className="w-5 h-5 text-teal-600" />
+                </div>
+                <p className="font-bold text-gray-900 text-sm">Download Document</p>
+              </div>
+              <button onClick={() => setDownloadDocument(null)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                <X className="w-4 h-4 text-gray-600" />
+              </button>
+            </div>
+            <div className="px-6 py-8 text-center">
+              <div className="w-16 h-16 rounded-full bg-teal-50 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-teal-600" />
+              </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-2">Report Downloaded!</h3>
+              <p className="text-gray-500 text-sm">
+                <span className="font-semibold text-gray-700">{downloadDocument.name}</span> has been downloaded successfully to your device.
+              </p>
+              <p className="text-gray-400 text-xs mt-3">{downloadDocument.fileType.toUpperCase()} · {downloadDocument.fileSize} KB</p>
+              <button onClick={() => setDownloadDocument(null)} className="mt-6 px-6 py-2.5 bg-teal-600 text-white rounded-xl font-medium hover:bg-teal-700 transition-colors">
+                Done
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Share Modal */}
+      {shareDocument && (
+        <ShareDocumentModal doc={shareDocument} onClose={() => setShareDocument(null)} />
       )}
 
       {/* Secure Vault Modal */}
