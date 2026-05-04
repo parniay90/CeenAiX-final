@@ -43,10 +43,29 @@ const STATUS_CONFIG: Record<ServiceStatus, { color: string; bg: string; border: 
 const TIME_RANGES = ['Last 1h', 'Last 6h', 'Last 24h', 'Last 7d', 'Last 30d', 'Last 90d'];
 const ENVIRONMENTS = ['Production', 'Staging', 'Sandbox'];
 
-function KpiCard({ label, value, delta, sub, color, icon: Icon, warning }: {
+function KpiSparkline({ data, color, fill }: { data: number[]; color: string; fill?: boolean }) {
+  const min = Math.min(...data), max = Math.max(...data);
+  const range = max - min || 1;
+  const W = 80, H = 24;
+  const pts = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * W;
+    const y = H - ((v - min) / range) * (H - 2) - 1;
+    return [x, y] as [number, number];
+  });
+  const polyline = pts.map(p => p.join(',')).join(' ');
+  const area = `M ${pts[0][0]},${H} ` + pts.map(p => `L ${p[0]},${p[1]}`).join(' ') + ` L ${pts[pts.length - 1][0]},${H} Z`;
+  return (
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ overflow: 'visible' }}>
+      {fill && <path d={area} fill={color} fillOpacity={0.15} />}
+      <polyline fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" points={polyline} />
+    </svg>
+  );
+}
+
+function KpiCard({ label, value, delta, sub, color, icon: Icon, warning, sparkData }: {
   label: string; value: string; delta?: string; sub?: string; color: string;
   icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
-  warning?: boolean;
+  warning?: boolean; sparkData?: number[];
 }) {
   return (
     <div className="rounded-2xl px-4 py-4 flex flex-col gap-1" style={{ background: '#1E293B', border: `1px solid ${warning ? 'rgba(245,158,11,0.3)' : 'rgba(51,65,85,0.5)'}` }}>
@@ -56,9 +75,12 @@ function KpiCard({ label, value, delta, sub, color, icon: Icon, warning }: {
       </div>
       <div className="font-bold text-white" style={{ fontSize: 22, fontFamily: 'DM Mono, monospace' }}>{value}</div>
       {sub && <div style={{ fontSize: 11, color: '#64748B' }}>{sub}</div>}
-      {delta && (
-        <div style={{ fontSize: 10, color: delta.startsWith('+') ? '#EF4444' : '#10B981', fontFamily: 'DM Mono, monospace' }}>{delta} vs prev</div>
-      )}
+      <div className="flex items-end justify-between mt-1">
+        {delta ? (
+          <div style={{ fontSize: 10, color: delta.startsWith('+') ? '#EF4444' : '#10B981', fontFamily: 'DM Mono, monospace' }}>{delta} vs prev</div>
+        ) : <div />}
+        {sparkData && <KpiSparkline data={sparkData} color={color} fill />}
+      </div>
     </div>
   );
 }
@@ -210,12 +232,12 @@ export default function AdminSystemStatus() {
 
         {/* KPI strip */}
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 px-6 pb-4">
-          <KpiCard label="Uptime" value="99.92%" sub="SLA: 99.95% — At risk" color="#F59E0B" icon={CheckCircle} warning />
-          <KpiCard label="Active Incidents" value={activeIncidents.length.toString()} sub={`Highest: ${activeIncidents[0]?.severity ?? '—'}`} delta="+1" color="#F59E0B" icon={AlertTriangle} warning={activeIncidents.length > 0} />
-          <KpiCard label="Error Rate (5m)" value="2.41%" sub="↑ vs 0.02% baseline" color="#EF4444" icon={AlertCircle} warning />
-          <KpiCard label="API Latency p95" value="5.1s" sub="Insurance Portal spike" color="#F59E0B" icon={Zap} warning />
-          <KpiCard label="Active Users" value="1,847" sub="↑ 12% vs 1h ago" color="#0D9488" icon={Activity} />
-          <KpiCard label="Queue Depth" value="142" sub="Oldest: 4m 12s" color="#10B981" icon={BarChart2} />
+          <KpiCard label="Uptime" value="99.92%" sub="SLA: 99.95% — At risk" color="#F59E0B" icon={CheckCircle} warning sparkData={[100,100,100,99.99,100,100,99.98,100,100,99.95,99.92,99.92]} />
+          <KpiCard label="Active Incidents" value={activeIncidents.length.toString()} sub={`Highest: ${activeIncidents[0]?.severity ?? '—'}`} delta="+1" color="#F59E0B" icon={AlertTriangle} warning={activeIncidents.length > 0} sparkData={[0,0,1,0,0,0,1,2,1,1,2,activeIncidents.length]} />
+          <KpiCard label="Error Rate (5m)" value="2.41%" sub="↑ vs 0.02% baseline" color="#EF4444" icon={AlertCircle} warning sparkData={[0.02,0.03,0.02,0.04,0.03,0.08,0.4,1.2,2.1,2.3,2.41,2.41]} />
+          <KpiCard label="API Latency p95" value="5.1s" sub="Insurance Portal spike" color="#F59E0B" icon={Zap} warning sparkData={[0.21,0.19,0.22,0.20,0.24,0.8,2.1,4.2,5.1,5.0,5.1,5.1]} />
+          <KpiCard label="Active Users" value="1,847" sub="↑ 12% vs 1h ago" color="#0D9488" icon={Activity} sparkData={[420,380,350,520,890,1240,1580,1820,1847,1820,1847,1847]} />
+          <KpiCard label="Queue Depth" value="142" sub="Oldest: 4m 12s" color="#10B981" icon={BarChart2} sparkData={[20,18,24,30,42,88,120,138,142,140,142,142]} />
         </div>
 
         {/* Tabs */}

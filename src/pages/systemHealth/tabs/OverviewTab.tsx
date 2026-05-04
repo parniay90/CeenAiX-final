@@ -66,6 +66,24 @@ function ServiceCard({ svc, onClick }: { svc: Service; onClick: () => void }) {
 
 const FEED_COLORS = { success: '#10B981', info: '#0891B2', warning: '#F59E0B', error: '#EF4444' } as const;
 
+function activeUsersData() {
+  const portals = ['Patient', 'Doctor', 'Pharmacy', 'Lab/Radiology', 'Insurance'];
+  const colors = ['#0D9488', '#10B981', '#0891B2', '#8B5CF6', '#F59E0B'];
+  const base = [320, 180, 60, 40, 25];
+  const data = Array.from({ length: 24 }, (_, i) => {
+    const hour = i;
+    const workdayFactor = hour >= 8 && hour <= 18 ? 1 + Math.sin((hour - 8) / 10 * Math.PI) * 0.6 : 0.15;
+    const row: Record<string, number | string> = { h: `${String(hour).padStart(2, '0')}:00` };
+    portals.forEach((p, j) => {
+      row[p] = Math.max(0, Math.round(base[j] * workdayFactor + Math.random() * base[j] * 0.2));
+    });
+    return row;
+  });
+  return { data, portals, colors };
+}
+
+const ACTIVE_USERS = activeUsersData();
+
 function reqVolumeData() {
   return Array.from({ length: 24 }, (_, i) => ({
     h: `${String(i).padStart(2, '0')}:00`,
@@ -136,6 +154,39 @@ export default function OverviewTab({ onTabChange }: Props) {
             </div>
           );
         })}
+
+        {/* Active users by portal */}
+        <div className="rounded-2xl p-5 mb-4" style={{ background: '#1E293B', border: '1px solid rgba(51,65,85,0.5)' }}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold" style={{ fontSize: 13, color: '#CBD5E1', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>Active Users by Portal (24h)</h3>
+            <div className="flex items-center gap-3">
+              {ACTIVE_USERS.portals.map((p, i) => (
+                <div key={p} className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full" style={{ background: ACTIVE_USERS.colors[i] }} />
+                  <span style={{ fontSize: 9, color: '#64748B', fontFamily: 'Plus Jakarta Sans, sans-serif' }}>{p}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={160}>
+            <AreaChart data={ACTIVE_USERS.data}>
+              <defs>
+                {ACTIVE_USERS.portals.map((p, i) => (
+                  <linearGradient key={p} id={`auGrad${i}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={ACTIVE_USERS.colors[i]} stopOpacity={0.3} />
+                    <stop offset="95%" stopColor={ACTIVE_USERS.colors[i]} stopOpacity={0.03} />
+                  </linearGradient>
+                ))}
+              </defs>
+              <XAxis dataKey="h" tick={{ fontSize: 9, fill: '#475569', fontFamily: 'DM Mono, monospace' }} interval={3} />
+              <YAxis tick={{ fontSize: 9, fill: '#475569' }} />
+              <Tooltip contentStyle={{ background: '#0F172A', border: '1px solid rgba(51,65,85,0.8)', borderRadius: 8, fontSize: 11 }} />
+              {ACTIVE_USERS.portals.map((p, i) => (
+                <Area key={p} type="monotone" dataKey={p} stackId="1" stroke={ACTIVE_USERS.colors[i]} strokeWidth={1.5} fill={`url(#auGrad${i})`} />
+              ))}
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
 
         {/* Charts */}
         <div className="rounded-2xl p-5 mb-4" style={{ background: '#1E293B', border: '1px solid rgba(51,65,85,0.5)' }}>
