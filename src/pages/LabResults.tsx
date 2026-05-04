@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { FlaskConical, CheckCircle, AlertTriangle, Calendar, Building2, AlertCircle, ChevronUp } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { FlaskConical, CheckCircle, AlertTriangle, Calendar, Building2, AlertCircle, ChevronUp, X, Phone, MapPin, Clock } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
 import PatientTopNav from '../components/patient/PatientTopNav';
 import RecentResultsTab from '../components/labResults/RecentResultsTab';
@@ -13,6 +14,7 @@ import { MOCK_PATIENT } from '../types/patientDashboard';
 export default function LabResults() {
   const [activeTab, setActiveTab] = useState<'recent' | 'trends' | 'history' | 'upcoming' | 'reports'>('recent');
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showBookModal, setShowBookModal] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -347,7 +349,9 @@ export default function LabResults() {
                       <div className="text-xs font-bold text-amber-700 mb-1">⏰ Labs due before Apr 15</div>
                       <div className="text-xs text-amber-600">6 tests ordered by Dr. Ahmed</div>
                       <div className="text-xs text-amber-700 font-bold mt-1">{upcomingOrder.daysRemaining} days remaining</div>
-                      <button className="mt-2 w-full px-3 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors text-xs font-bold">
+                      <button
+                        onClick={() => setShowBookModal(true)}
+                        className="mt-2 w-full px-3 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors text-xs font-bold">
                         Book Sample Collection →
                       </button>
                     </div>
@@ -498,6 +502,81 @@ export default function LabResults() {
         </div>
         </main>
       </div>
+
+      {/* Book Sample Collection Modal */}
+      {showBookModal && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowBookModal(false)}>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                  <FlaskConical className="w-5 h-5 text-amber-600" />
+                </div>
+                <div>
+                  <p className="font-bold text-gray-900 text-sm">Book Sample Collection</p>
+                  <p className="text-xs text-gray-400 mt-0.5">6 tests ordered by Dr. Ahmed Al Rashidi</p>
+                </div>
+              </div>
+              <button onClick={() => setShowBookModal(false)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                <X className="w-4 h-4 text-gray-600" />
+              </button>
+            </div>
+
+            <div className="px-6 py-5 space-y-4">
+              {/* Fasting reminder */}
+              <div className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                <span className="text-lg flex-shrink-0">⚠️</span>
+                <p className="text-xs text-amber-800 font-medium">Remember to fast for at least 8 hours before your appointment — Lipid Panel and LFT require fasting. Water is allowed.</p>
+              </div>
+
+              {/* Option 1 — Book through CeenAiX */}
+              <div className="p-4 bg-teal-50 border-2 border-teal-200 rounded-xl">
+                <p className="text-sm font-bold text-teal-800 mb-1">Option 1 — Book through CeenAiX</p>
+                <p className="text-xs text-teal-600 mb-3">Schedule your lab visit through our appointments system</p>
+                <button
+                  onClick={() => { setShowBookModal(false); window.location.href = '/appointments'; }}
+                  className="w-full py-2.5 bg-teal-600 text-white rounded-xl font-semibold hover:bg-teal-700 transition-colors text-sm"
+                >
+                  Go to Appointments →
+                </button>
+              </div>
+
+              {/* Option 2 — Contact lab directly */}
+              <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                <p className="text-sm font-bold text-gray-800 mb-3">Option 2 — Contact the lab directly</p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-xs text-gray-700">
+                    <Building2 className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    <span className="font-medium">Dubai Medical Laboratory</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-700">
+                    <Phone className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    <span>+971 4 362 8888</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-700">
+                    <Clock className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    <span>Sunday–Thursday · 7:00 AM – 2:00 PM (fasting samples)</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-700">
+                    <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    <span>Healthcare City, Dubai</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowBookModal(false)}
+                className="w-full py-2.5 border-2 border-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors text-sm"
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
 
       {/* Scroll to top button */}
       {showScrollTop && (
