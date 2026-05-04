@@ -1,16 +1,435 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import {
   FolderOpen, Upload, ShieldCheck, Search, Grid3x3, List,
   ChevronDown, FileText, Image, File, Download, Share2,
-  Eye, MoreVertical, X, CheckCircle, AlertTriangle, Calendar, ChevronUp
+  Eye, MoreVertical, X, CheckCircle, AlertTriangle, Calendar
 } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
 import PatientTopNav from '../components/patient/PatientTopNav';
 import type { Document, DocumentCategory, DocumentStats } from '../types/documents';
-import { MOCK_PATIENT } from '../types/patientDashboard';
 
 type ViewMode = 'grid' | 'list';
 type SortOption = 'newest' | 'oldest' | 'name-asc' | 'name-desc' | 'size' | 'category';
+
+
+// ── Secure Vault Modal ────────────────────────────────────────────────────────
+function SecureVaultModal({ onClose }: { onClose: () => void }) {
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div
+        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden max-h-[90vh] flex flex-col"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5 text-emerald-600" />
+            </div>
+            <div>
+              <p className="font-bold text-gray-900 text-sm">Secure Vault</p>
+              <p className="text-xs text-gray-400 mt-0.5">Your document security overview</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+          >
+            <X className="w-4 h-4 text-gray-600" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="px-6 py-5 overflow-y-auto flex-1 space-y-5">
+
+          {/* Status banner */}
+          <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
+            <CheckCircle className="w-6 h-6 text-emerald-600 flex-shrink-0" />
+            <div>
+              <p className="font-bold text-emerald-800 text-sm">Your Vault is Secure ✓</p>
+              <p className="text-xs text-emerald-600 mt-0.5">All documents are encrypted and protected</p>
+            </div>
+          </div>
+
+          {/* Encryption */}
+          <div>
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Encryption & Security</p>
+            <div className="space-y-2">
+              {[
+                { icon: '🔐', label: 'AES-256 Encryption', desc: 'Military-grade encryption for all files' },
+                { icon: '🔒', label: 'End-to-End Encrypted', desc: 'Only you can access your documents' },
+                { icon: '🛡️', label: 'Zero-Knowledge Storage', desc: 'CeenAiX cannot read your files' },
+                { icon: '🔑', label: 'Two-Factor Authentication', desc: 'Extra layer of account protection' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
+                  <span className="text-lg flex-shrink-0">{item.icon}</span>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800">{item.label}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
+                  </div>
+                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 ml-auto mt-0.5" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Compliance */}
+          <div>
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">UAE Compliance</p>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { icon: '🇦🇪', label: 'UAE Data Residency', desc: 'All data stored in UAE' },
+                { icon: '🏥', label: 'DHA Compliant', desc: 'Dubai Health Authority approved' },
+                { icon: '📋', label: 'PDPL Protected', desc: 'Personal Data Protection Law' },
+                { icon: '🔗', label: 'NABIDH Connected', desc: 'UAE health data exchange' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-start gap-2 p-3 bg-gray-50 rounded-xl">
+                  <span className="text-base flex-shrink-0">{item.icon}</span>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-800">{item.label}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Access log */}
+          <div>
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Recent Access Log</p>
+            <div className="space-y-2">
+              {[
+                { action: 'Documents viewed', by: 'You', time: 'Today, 9:42 AM', device: 'Chrome — Dubai, UAE' },
+                { action: 'Lab report downloaded', by: 'You', time: 'Yesterday, 3:15 PM', device: 'Safari — Dubai, UAE' },
+                { action: 'Document shared', by: 'You', time: '2 days ago', device: 'Chrome — Dubai, UAE' },
+              ].map((log, i) => (
+                <div key={i} className="flex items-start justify-between p-3 bg-gray-50 rounded-xl">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-800">{log.action}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{log.device}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-gray-500">{log.time}</p>
+                    <p className="text-xs text-teal-600 font-medium">{log.by}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Storage */}
+          <div className="p-4 bg-gray-50 rounded-xl">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-bold text-gray-700">Storage Used</p>
+              <p className="text-xs text-gray-500">12.8 MB of 100 MB</p>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div className="h-full bg-teal-500 rounded-full" style={{ width: '12.8%' }} />
+            </div>
+            <p className="text-xs text-emerald-600 font-medium mt-1">87.2 MB free — plenty of space</p>
+          </div>
+
+        </div>
+
+        <div className="px-6 py-4 border-t border-gray-100">
+          <button
+            onClick={onClose}
+            className="w-full py-2.5 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors text-sm"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+// ── Upload Document Modal ─────────────────────────────────────────────────────
+function UploadDocumentModal({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState<'form' | 'success'>('form');
+  const [dragOver, setDragOver] = useState(false);
+  const [fileName, setFileName] = useState('');
+  const [docName, setDocName] = useState('');
+  const [category, setCategory] = useState('lab-report');
+  const [date, setDate] = useState('');
+  const [issuedBy, setIssuedBy] = useState('');
+  const [privacyLevel, setPrivacyLevel] = useState<'standard' | 'sensitive'>('standard');
+  const [notes, setNotes] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const categories = [
+    { id: 'lab-report', label: 'Lab Report', emoji: '🟣' },
+    { id: 'imaging-report', label: 'Imaging Report', emoji: '🔵' },
+    { id: 'prescription', label: 'Prescription', emoji: '🩵' },
+    { id: 'insurance', label: 'Insurance', emoji: '💙' },
+    { id: 'certificate', label: 'Certificate', emoji: '🟢' },
+    { id: 'vaccination', label: 'Vaccination', emoji: '🌿' },
+    { id: 'personal', label: 'Personal', emoji: '⚫' },
+  ];
+
+  const handleFileSelect = (file: File) => {
+    setFileName(file.name);
+    if (!docName) setDocName(file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '));
+  };
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    if (!fileName) newErrors.file = 'Please select a file to upload';
+    if (!docName.trim()) newErrors.docName = 'Document name is required';
+    if (!date) newErrors.date = 'Date is required';
+    if (!issuedBy.trim()) newErrors.issuedBy = 'Issued by is required';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleUpload = () => {
+    if (validate()) setStep('success');
+  };
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={step === 'success' ? undefined : onClose}>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div
+        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 flex flex-col max-h-[90vh]"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center">
+              <Upload className="w-5 h-5 text-teal-600" />
+            </div>
+            <div>
+              <p className="font-bold text-gray-900 text-sm">Upload Document</p>
+              <p className="text-xs text-gray-400 mt-0.5">Add a new document to your vault</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+          >
+            <X className="w-4 h-4 text-gray-600" />
+          </button>
+        </div>
+
+        <div className="px-6 py-5 overflow-y-auto flex-1">
+          {step === 'success' ? (
+            <div className="text-center py-8">
+              <div className="w-16 h-16 rounded-full bg-teal-50 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-teal-600" />
+              </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-2">Document Uploaded!</h3>
+              <p className="text-gray-500 text-sm mb-1">
+                <span className="font-semibold text-gray-700">{docName}</span> has been securely uploaded to your vault.
+              </p>
+              <p className="text-gray-400 text-xs mt-3">
+                Your document is encrypted and stored safely.
+              </p>
+              <div className="mt-4 p-3 bg-teal-50 border border-teal-200 rounded-xl text-left">
+                <div className="flex items-center gap-2 text-xs text-teal-700">
+                  <ShieldCheck className="w-4 h-4 flex-shrink-0" />
+                  <span>Document encrypted with AES-256 and stored in UAE servers</span>
+                </div>
+              </div>
+              <button
+                onClick={onClose}
+                className="mt-6 w-full py-3 bg-teal-600 text-white rounded-xl font-semibold hover:bg-teal-700 transition-colors"
+              >
+                Done
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-5">
+
+              {/* File drop zone */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  File <span className="text-red-500">*</span>
+                </label>
+                <div
+                  onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={e => {
+                    e.preventDefault();
+                    setDragOver(false);
+                    const file = e.dataTransfer.files[0];
+                    if (file) handleFileSelect(file);
+                  }}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
+                    dragOver ? 'border-teal-500 bg-teal-50' :
+                    fileName ? 'border-teal-400 bg-teal-50' :
+                    errors.file ? 'border-red-300 bg-red-50' :
+                    'border-gray-300 hover:border-teal-400 hover:bg-gray-50'
+                  }`}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileSelect(file);
+                    }}
+                  />
+                  {fileName ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <FileText className="w-5 h-5 text-teal-600" />
+                      <span className="text-sm font-medium text-teal-700">{fileName}</span>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600 font-medium">Drop file here or click to browse</p>
+                      <p className="text-xs text-gray-400 mt-1">PDF, JPG, PNG, DOC up to 50MB</p>
+                    </>
+                  )}
+                </div>
+                {errors.file && <p className="text-xs text-red-500 mt-1">{errors.file}</p>}
+              </div>
+
+              {/* Document name */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Document Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={docName}
+                  onChange={e => { setDocName(e.target.value); setErrors(p => ({ ...p, docName: '' })); }}
+                  placeholder="e.g. Blood Test Results — March 2026"
+                  className={`w-full px-4 py-3 border-2 rounded-xl text-sm focus:outline-none focus:ring-2 transition-colors ${
+                    errors.docName ? 'border-red-300 focus:ring-red-400' : 'border-gray-200 focus:ring-teal-500 focus:border-teal-500'
+                  }`}
+                />
+                {errors.docName && <p className="text-xs text-red-500 mt-1">{errors.docName}</p>}
+              </div>
+
+              {/* Category */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {categories.map(cat => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setCategory(cat.id)}
+                      className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all ${
+                        category === cat.id
+                          ? 'border-teal-600 bg-teal-50'
+                          : 'border-gray-200 hover:border-teal-300'
+                      }`}
+                    >
+                      <span className="text-base">{cat.emoji}</span>
+                      <span className={`text-xs font-medium leading-tight text-center ${category === cat.id ? 'text-teal-700' : 'text-gray-600'}`}>
+                        {cat.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Date + Issued by */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={date}
+                    onChange={e => { setDate(e.target.value); setErrors(p => ({ ...p, date: '' })); }}
+                    className={`w-full px-4 py-3 border-2 rounded-xl text-sm focus:outline-none focus:ring-2 transition-colors ${
+                      errors.date ? 'border-red-300 focus:ring-red-400' : 'border-gray-200 focus:ring-teal-500 focus:border-teal-500'
+                    }`}
+                  />
+                  {errors.date && <p className="text-xs text-red-500 mt-1">{errors.date}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Issued By <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={issuedBy}
+                    onChange={e => { setIssuedBy(e.target.value); setErrors(p => ({ ...p, issuedBy: '' })); }}
+                    placeholder="e.g. Dr. Fatima"
+                    className={`w-full px-4 py-3 border-2 rounded-xl text-sm focus:outline-none focus:ring-2 transition-colors ${
+                      errors.issuedBy ? 'border-red-300 focus:ring-red-400' : 'border-gray-200 focus:ring-teal-500 focus:border-teal-500'
+                    }`}
+                  />
+                  {errors.issuedBy && <p className="text-xs text-red-500 mt-1">{errors.issuedBy}</p>}
+                </div>
+              </div>
+
+              {/* Privacy level */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Privacy Level</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: 'standard', label: 'Standard', desc: 'Regular medical document', icon: '📄' },
+                    { id: 'sensitive', label: 'Sensitive', desc: 'Extra protection applied', icon: '🔒' },
+                  ].map(opt => (
+                    <button
+                      key={opt.id}
+                      onClick={() => setPrivacyLevel(opt.id as 'standard' | 'sensitive')}
+                      className={`flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-all ${
+                        privacyLevel === opt.id
+                          ? 'border-teal-600 bg-teal-50'
+                          : 'border-gray-200 hover:border-teal-300'
+                      }`}
+                    >
+                      <span className="text-xl">{opt.icon}</span>
+                      <div>
+                        <p className={`text-xs font-semibold ${privacyLevel === opt.id ? 'text-teal-700' : 'text-gray-700'}`}>
+                          {opt.label}
+                        </p>
+                        <p className="text-xs text-gray-400">{opt.desc}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Notes <span className="text-gray-400 font-normal">(optional)</span></label>
+                <textarea
+                  value={notes}
+                  onChange={e => setNotes(e.target.value)}
+                  rows={2}
+                  placeholder="Any additional notes about this document..."
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                />
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-3 pt-1">
+                <button
+                  onClick={onClose}
+                  className="flex-1 py-3 rounded-xl font-semibold border-2 border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleUpload}
+                  className="flex-1 py-3 rounded-xl font-semibold bg-teal-600 text-white hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Upload className="w-4 h-4" />
+                  Upload Document
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
 
 export default function Documents() {
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -21,18 +440,6 @@ export default function Documents() {
   const [showSecurityModal, setShowSecurityModal] = useState(false);
   const [previewDocument, setPreviewDocument] = useState<Document | null>(null);
   const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
-  const [showScrollTop, setShowScrollTop] = useState(false);
-  const mainRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const el = mainRef.current;
-    if (!el) return;
-    const onScroll = () => setShowScrollTop(el.scrollTop > 300);
-    el.addEventListener('scroll', onScroll);
-    return () => el.removeEventListener('scroll', onScroll);
-  }, []);
-
-  const scrollToTop = () => mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
 
   const stats: DocumentStats = {
     totalDocuments: 22,
@@ -500,12 +907,12 @@ export default function Documents() {
 
   return (
     <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
-      <PatientTopNav patientName={MOCK_PATIENT.name} />
+      <PatientTopNav patientName="Ahmed Al Maktoum" />
 
       <div className="flex flex-1 overflow-hidden">
         <PatientSidebar currentPage="documents" />
 
-        <main ref={mainRef} className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto">
         <div className="flex-1 p-8 overflow-auto">
           <div className="mb-6 animate-fadeIn">
             <div className="flex items-center justify-between">
@@ -1015,6 +1422,17 @@ export default function Documents() {
           </div>
         </div>
       )}
+
+      {/* Secure Vault Modal */}
+      {showSecurityModal && (
+        <SecureVaultModal onClose={() => setShowSecurityModal(false)} />
+      )}
+
+      {/* Upload Document Modal */}
+      {showUploadModal && (
+        <UploadDocumentModal onClose={() => setShowUploadModal(false)} />
+      )}
+
       {/* Scroll to top button */}
       {showScrollTop && (
         <button
