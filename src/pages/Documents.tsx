@@ -1,13 +1,13 @@
-// do it tonight after the LabResults
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   FolderOpen, Upload, ShieldCheck, Search, Grid3x3, List,
   ChevronDown, FileText, Image, File, Download, Share2,
-  Eye, MoreVertical, X, CheckCircle, AlertTriangle, Calendar
+  Eye, MoreVertical, X, CheckCircle, AlertTriangle, Calendar, ChevronUp
 } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
 import PatientTopNav from '../components/patient/PatientTopNav';
 import type { Document, DocumentCategory, DocumentStats } from '../types/documents';
+import { MOCK_PATIENT } from '../types/patientDashboard';
 
 type ViewMode = 'grid' | 'list';
 type SortOption = 'newest' | 'oldest' | 'name-asc' | 'name-desc' | 'size' | 'category';
@@ -21,6 +21,18 @@ export default function Documents() {
   const [showSecurityModal, setShowSecurityModal] = useState(false);
   const [previewDocument, setPreviewDocument] = useState<Document | null>(null);
   const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+    const onScroll = () => setShowScrollTop(el.scrollTop > 300);
+    el.addEventListener('scroll', onScroll);
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const scrollToTop = () => mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
 
   const stats: DocumentStats = {
     totalDocuments: 22,
@@ -488,12 +500,12 @@ export default function Documents() {
 
   return (
     <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
-      <PatientTopNav patientName="Ahmed Al Maktoum" />
+      <PatientTopNav patientName={MOCK_PATIENT.name} />
 
       <div className="flex flex-1 overflow-hidden">
         <PatientSidebar currentPage="documents" />
 
-        <main className="flex-1 overflow-y-auto">
+        <main ref={mainRef} className="flex-1 overflow-y-auto">
         <div className="flex-1 p-8 overflow-auto">
           <div className="mb-6 animate-fadeIn">
             <div className="flex items-center justify-between">
@@ -1002,6 +1014,18 @@ export default function Documents() {
             </div>
           </div>
         </div>
+      )}
+    </div>
+
+      {/* Scroll to top button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 w-11 h-11 bg-teal-600 hover:bg-teal-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
+          aria-label="Scroll to top"
+        >
+          <ChevronUp className="w-5 h-5" />
+        </button>
       )}
     </div>
   );
