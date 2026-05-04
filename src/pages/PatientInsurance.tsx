@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Shield, Download, Phone, FileText, Check, ChevronDown, ChevronRight,
   X, Copy, MessageSquare, AlertCircle, Activity, FlaskConical, Eye,
   Stethoscope, Pill, Heart, Video, Search, Filter, Clock, CheckCircle,
-  AlertTriangle, Calendar, ChevronUp
+  AlertTriangle, Calendar, ChevronUp, CheckCircle2
 } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
 import PatientTopNav from '../components/patient/PatientTopNav';
@@ -171,6 +172,9 @@ export default function PatientInsurance() {
   const [benefitSearch, setBenefitSearch] = useState('');
   const [showScrollTop, setShowScrollTop] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
+  const [showContactDaman, setShowContactDaman] = useState(false);
+  const [showCallNow, setShowCallNow] = useState(false);
+  const [showCallEmergency, setShowCallEmergency] = useState(false);
 
   useEffect(() => {
     const el = mainRef.current;
@@ -230,7 +234,7 @@ export default function PatientInsurance() {
             >
               <Download size={15} /> Download Insurance Card
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-sm font-medium transition-colors">
+            <button onClick={() => setShowContactDaman(true)} className="flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-sm font-medium transition-colors">
               <Phone size={15} /> Contact Daman
             </button>
           </div>
@@ -460,7 +464,11 @@ export default function PatientInsurance() {
                       </div>
                       <div className="text-xs text-slate-400">{card.hours}</div>
                       <button
-                        onClick={() => card.btnLabel === 'Chat with Us' && navigate('/messaging')}
+                        onClick={() => {
+                          if (card.btnLabel === 'Chat with Us') navigate('/messaging');
+                          else if (card.btnLabel === 'Call Now') setShowCallNow(true);
+                          else if (card.btnLabel === 'Call Emergency') setShowCallEmergency(true);
+                        }}
                         className={`py-2 rounded-xl text-sm font-medium transition-colors ${card.btnClass}`}
                       >
                         {card.btnLabel}
@@ -492,6 +500,103 @@ export default function PatientInsurance() {
         >
           <ChevronUp className="w-5 h-5" />
         </button>
+      )}
+
+      {/* Contact Daman Modal */}
+      {showContactDaman && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Phone size={18} className="text-blue-600" />
+                </div>
+                <h3 className="font-bold text-slate-900">Contact Daman</h3>
+              </div>
+              <button onClick={() => setShowContactDaman(false)} className="p-1 hover:bg-slate-100 rounded-lg transition-colors">
+                <X size={18} className="text-slate-400" />
+              </button>
+            </div>
+            <div className="p-5 space-y-3">
+              {[
+                { label: 'Helpline', value: '800-DAMAN (32626)', note: 'Sun–Thu 8AM–8PM · Fri 9AM–1PM' },
+                { label: 'Emergency', value: '800-DAMAN (32626)', note: '24/7 — Always available' },
+                { label: 'Email', value: 'claims@daman.ae', note: '' },
+                { label: 'Website', value: 'www.damanhealth.ae', note: '' },
+              ].map(item => (
+                <div key={item.label} className="flex items-start justify-between py-2.5 border-b border-slate-100 last:border-0">
+                  <div>
+                    <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide">{item.label}</div>
+                    {item.note && <div className="text-xs text-slate-400 mt-0.5">{item.note}</div>}
+                  </div>
+                  <span className="text-sm font-semibold text-slate-800 text-right" style={{ fontFamily: 'DM Mono, monospace' }}>{item.value}</span>
+                </div>
+              ))}
+            </div>
+            <div className="px-5 pb-5">
+              <button onClick={() => setShowContactDaman(false)} className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition-colors">Close</button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Call Now Modal */}
+      {showCallNow && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Phone size={18} className="text-blue-600" />
+                </div>
+                <h3 className="font-bold text-slate-900">Daman Helpline</h3>
+              </div>
+              <button onClick={() => setShowCallNow(false)} className="p-1 hover:bg-slate-100 rounded-lg transition-colors">
+                <X size={18} className="text-slate-400" />
+              </button>
+            </div>
+            <div className="p-6 text-center">
+              <div className="text-2xl font-bold text-slate-900 mb-1" style={{ fontFamily: 'DM Mono, monospace' }}>800-DAMAN (32626)</div>
+              <div className="text-sm text-slate-500 mt-3 leading-relaxed">
+                Sunday–Thursday 8:00 AM – 8:00 PM<br />Friday 9:00 AM – 1:00 PM
+              </div>
+            </div>
+            <div className="px-5 pb-5">
+              <button onClick={() => setShowCallNow(false)} className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition-colors">Close</button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Call Emergency Modal */}
+      {showCallEmergency && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-red-100 rounded-full flex items-center justify-center">
+                  <Phone size={18} className="text-red-600" />
+                </div>
+                <h3 className="font-bold text-slate-900">24/7 Emergency Line</h3>
+              </div>
+              <button onClick={() => setShowCallEmergency(false)} className="p-1 hover:bg-slate-100 rounded-lg transition-colors">
+                <X size={18} className="text-slate-400" />
+              </button>
+            </div>
+            <div className="p-6 text-center">
+              <div className="text-2xl font-bold text-slate-900 mb-1" style={{ fontFamily: 'DM Mono, monospace' }}>800-DAMAN (32626)</div>
+              <div className="text-sm text-slate-500 mt-3 leading-relaxed">
+                Emergency claims are always approved.<br />Available 24 hours, 7 days a week.
+              </div>
+            </div>
+            <div className="px-5 pb-5">
+              <button onClick={() => setShowCallEmergency(false)} className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition-colors">Close</button>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
 
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
@@ -638,13 +743,36 @@ function ClaimDetailModal({
   addToast: (type: 'success' | 'error' | 'warning' | 'info', title: string, message?: string) => void;
 }) {
   const idRef = useRef<HTMLSpanElement>(null);
+  const [showDispute, setShowDispute] = useState(false);
+  const [disputeReason, setDisputeReason] = useState('');
+  const [disputeDesc, setDisputeDesc] = useState('');
+  const [disputeError, setDisputeError] = useState('');
+  const [disputeSuccess, setDisputeSuccess] = useState(false);
 
   function copyId() {
     navigator.clipboard.writeText(claim.id).catch(() => {});
     addToast('success', 'Claim ID copied');
   }
 
+  function submitDispute() {
+    if (!disputeDesc.trim()) {
+      setDisputeError('Please describe the issue before submitting.');
+      return;
+    }
+    setDisputeError('');
+    setDisputeSuccess(true);
+  }
+
+  function closeDispute() {
+    setShowDispute(false);
+    setDisputeReason('');
+    setDisputeDesc('');
+    setDisputeError('');
+    setDisputeSuccess(false);
+  }
+
   return (
+    <>
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ background: 'rgba(15,23,42,0.7)', backdropFilter: 'blur(6px)' }}
@@ -746,13 +874,98 @@ function ClaimDetailModal({
             >
               <Download size={14} /> Download Explanation of Benefits (EOB)
             </button>
-            <button className="w-full py-2 border border-red-200 text-red-500 hover:bg-red-50 rounded-xl text-sm font-medium transition-colors">
+            <button onClick={() => setShowDispute(true)} className="w-full py-2 border border-red-200 text-red-500 hover:bg-red-50 rounded-xl text-sm font-medium transition-colors">
               Dispute This Claim
             </button>
           </div>
         </div>
       </div>
     </div>
+
+    {/* Dispute Modal */}
+    {showDispute && createPortal(
+      <div className="fixed inset-0 bg-black/50 z-[300] flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-red-100 rounded-full flex items-center justify-center">
+                <AlertTriangle size={18} className="text-red-600" />
+              </div>
+              <h3 className="font-bold text-slate-900">Dispute Claim</h3>
+            </div>
+            <button onClick={closeDispute} className="p-1 hover:bg-slate-100 rounded-lg transition-colors">
+              <X size={18} className="text-slate-400" />
+            </button>
+          </div>
+
+          {disputeSuccess ? (
+            <div className="p-8 text-center">
+              <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle2 size={28} className="text-emerald-600" />
+              </div>
+              <h4 className="text-lg font-bold text-slate-900 mb-1">Dispute Submitted!</h4>
+              <p className="text-sm text-slate-500 mb-6">Daman will review within 5 business days.</p>
+              <button onClick={() => { closeDispute(); onClose(); }} className="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-medium transition-colors">Done</button>
+            </div>
+          ) : (
+            <div className="p-5 space-y-4">
+              {/* Claim summary */}
+              <div className="p-3 bg-slate-50 rounded-xl space-y-1 text-xs">
+                {[
+                  { label: 'Claim ID', value: claim.id },
+                  { label: 'Provider', value: claim.provider },
+                  { label: 'Service', value: claim.service },
+                  { label: 'Amount', value: `AED ${claim.total.toLocaleString()}` },
+                ].map(r => (
+                  <div key={r.label} className="flex justify-between">
+                    <span className="text-slate-400">{r.label}</span>
+                    <span className="font-semibold text-slate-700" style={{ fontFamily: 'DM Mono, monospace' }}>{r.value}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Reason selector */}
+              <div>
+                <p className="text-xs font-semibold text-slate-600 mb-2">Select a reason</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {['Incorrect amount charged', 'Service not received', 'Already paid', 'Duplicate claim'].map(opt => (
+                    <button
+                      key={opt}
+                      onClick={() => setDisputeReason(opt)}
+                      className={`p-3 rounded-xl border-2 text-left text-xs font-medium transition-all ${disputeReason === opt ? 'border-red-400 bg-red-50 text-red-700' : 'border-slate-200 text-slate-600 hover:border-slate-300'}`}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <p className="text-xs font-semibold text-slate-600 mb-2">Describe the issue <span className="text-red-500">*</span></p>
+                <textarea
+                  value={disputeDesc}
+                  onChange={e => { setDisputeDesc(e.target.value); setDisputeError(''); }}
+                  rows={3}
+                  placeholder="Please describe the issue in detail..."
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent"
+                />
+                {disputeError && <p className="text-xs text-red-500 mt-1">{disputeError}</p>}
+              </div>
+
+              <button
+                onClick={submitDispute}
+                className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-medium transition-colors"
+              >
+                Submit Dispute
+              </button>
+            </div>
+          )}
+        </div>
+      </div>,
+      document.body
+    )}
+    </>
   );
 }
 
@@ -912,35 +1125,83 @@ function BenefitsTab({
 
 /* ─── DOCUMENTS TAB ─── */
 function DocumentsTab({ addToast }: { addToast: (type: 'success' | 'error' | 'warning' | 'info', title: string, message?: string) => void }) {
+  const [previewDoc, setPreviewDoc] = useState<typeof DOCUMENTS[0] | null>(null);
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {DOCUMENTS.map(doc => (
-        <div key={doc.name} className="bg-white rounded-xl border border-slate-100 p-4 flex items-center gap-4 hover:border-blue-200 hover:bg-blue-50/20 transition-colors">
-          <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
-            <FileText size={18} className="text-red-600" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="font-semibold text-slate-800 text-sm truncate">{doc.name}</div>
-            <div className="text-xs text-slate-400 mt-0.5 truncate">{doc.desc}</div>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-xs text-slate-300" style={{ fontFamily: 'DM Mono, monospace', fontSize: 10 }}>{doc.date}</span>
-              <span className="text-slate-200">·</span>
-              <span className="text-xs text-slate-300" style={{ fontSize: 10 }}>{doc.size}</span>
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {DOCUMENTS.map(doc => (
+          <div key={doc.name} className="bg-white rounded-xl border border-slate-100 p-4 flex items-center gap-4 hover:border-blue-200 hover:bg-blue-50/20 transition-colors">
+            <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
+              <FileText size={18} className="text-red-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold text-slate-800 text-sm truncate">{doc.name}</div>
+              <div className="text-xs text-slate-400 mt-0.5 truncate">{doc.desc}</div>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs text-slate-300" style={{ fontFamily: 'DM Mono, monospace', fontSize: 10 }}>{doc.date}</span>
+                <span className="text-slate-200">·</span>
+                <span className="text-xs text-slate-300" style={{ fontSize: 10 }}>{doc.size}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <button onClick={() => setPreviewDoc(doc)} className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-blue-50 flex items-center justify-center text-slate-500 hover:text-blue-600 transition-colors">
+                <Eye size={14} />
+              </button>
+              <button
+                onClick={() => addToast('success', `Downloading ${doc.name}`)}
+                className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-teal-50 flex items-center justify-center text-slate-500 hover:text-teal-600 transition-colors"
+              >
+                <Download size={14} />
+              </button>
             </div>
           </div>
-          <div className="flex items-center gap-1 shrink-0">
-            <button className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-blue-50 flex items-center justify-center text-slate-500 hover:text-blue-600 transition-colors">
-              <Eye size={14} />
-            </button>
-            <button
-              onClick={() => addToast('success', `Downloading ${doc.name}`)}
-              className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-teal-50 flex items-center justify-center text-slate-500 hover:text-teal-600 transition-colors"
-            >
-              <Download size={14} />
-            </button>
+        ))}
+      </div>
+
+      {previewDoc && createPortal(
+        <div className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4" style={{ background: '#1E3A5F' }}>
+              <div className="flex items-center gap-3">
+                <FileText size={16} className="text-white/60" />
+                <span className="font-bold text-white text-sm truncate">{previewDoc.name}</span>
+              </div>
+              <button onClick={() => setPreviewDoc(null)} className="text-white/60 hover:text-white transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-5 border-b border-slate-100">
+              <div className="grid grid-cols-2 gap-y-2 text-sm">
+                {[
+                  { label: 'Document', value: previewDoc.name },
+                  { label: 'Description', value: previewDoc.desc },
+                  { label: 'Date', value: previewDoc.date },
+                  { label: 'Size', value: previewDoc.size },
+                ].map(r => (
+                  <div key={r.label} className="contents">
+                    <span className="text-xs text-slate-400 uppercase tracking-wide self-center">{r.label}</span>
+                    <span className="text-xs font-medium text-slate-700">{r.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mx-5 my-5 rounded-xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center py-14 gap-3">
+              <FileText size={32} className="text-slate-300" />
+              <p className="text-sm text-slate-400">Document preview not available in demo mode</p>
+            </div>
+            <div className="px-5 pb-5">
+              <button
+                onClick={() => { addToast('success', `Downloading ${previewDoc.name}`); setPreviewDoc(null); }}
+                className="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2"
+              >
+                <Download size={14} /> Download
+              </button>
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
+        </div>,
+        document.body
+      )}
+    </>
   );
 }
