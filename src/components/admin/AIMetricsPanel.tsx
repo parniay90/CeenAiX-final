@@ -1,5 +1,10 @@
 import React from 'react';
 import { Bot } from 'lucide-react';
+
+const nav = (href: string) => {
+  window.history.pushState({}, '', href);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+};
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { aiBarData } from '../../data/superAdminData';
 
@@ -29,8 +34,11 @@ const darkTooltipStyle = {
 
 const AIMetricsPanel: React.FC = () => (
   <div
-    className="rounded-2xl overflow-hidden"
+    className="rounded-2xl overflow-hidden cursor-pointer"
     style={{ background: '#1E293B', border: '1px solid rgba(51,65,85,0.5)' }}
+    onClick={() => nav('/admin/ai')}
+    onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(196,181,253,0.3)'; }}
+    onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(51,65,85,0.5)'; }}
   >
     {/* Header */}
     <div className="flex items-center justify-between px-5 py-3.5" style={{ borderBottom: '1px solid rgba(51,65,85,0.5)' }}>
@@ -45,7 +53,7 @@ const AIMetricsPanel: React.FC = () => (
           <div style={{ fontSize: 10, color: '#A78BFA' }}>Powered by Claude Sonnet · CeenAiX AI</div>
         </div>
       </div>
-      <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(51,65,85,0.8)' }}>
+      <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(51,65,85,0.8)' }} onClick={e => e.stopPropagation()}>
         {['Today', 'Week', 'Month'].map((t, i) => (
           <button key={t} className="px-2.5 py-1 text-xs transition-colors" style={{ background: i === 0 ? '#7C3AED' : 'rgba(30,41,59,0.5)', color: i === 0 ? '#fff' : '#94A3B8' }}>
             {t}

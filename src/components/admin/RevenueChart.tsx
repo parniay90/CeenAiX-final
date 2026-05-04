@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import { CircleDollarSign } from 'lucide-react';
+
+const nav = (href: string) => {
+  window.history.pushState({}, '', href);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+};
 import {
   AreaChart,
   Area,
@@ -35,8 +40,11 @@ const RevenueChart: React.FC = () => {
 
   return (
     <div
-      className="rounded-2xl overflow-hidden flex flex-col w-full h-full"
+      className="rounded-2xl overflow-hidden flex flex-col w-full h-full cursor-pointer"
       style={{ background: '#1E293B', border: '1px solid rgba(51,65,85,0.5)' }}
+      onClick={() => nav('/admin/revenue')}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(52,211,153,0.3)'; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(51,65,85,0.5)'; }}
     >
       <div
         className="flex items-center justify-between px-5 py-4 flex-shrink-0"
@@ -51,11 +59,11 @@ const RevenueChart: React.FC = () => {
             <div style={{ fontSize: 10, color: '#64748B' }}>April 2026 · AED 2.5M target</div>
           </div>
         </div>
-        <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(51,65,85,0.8)' }}>
+        <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid rgba(51,65,85,0.8)' }} onClick={e => e.stopPropagation()}>
           {tabs.map((t, i) => (
             <button
               key={t}
-              onClick={() => setActiveTab(t)}
+              onClick={e => { e.stopPropagation(); setActiveTab(t); }}
               className="px-2.5 py-1 text-xs transition-colors"
               style={{
                 background: activeTab === t ? '#0D9488' : 'rgba(30,41,59,0.5)',
@@ -73,8 +81,10 @@ const RevenueChart: React.FC = () => {
           {breakdowns.map(b => (
             <div
               key={b.label}
-              className="rounded-xl px-3 py-2"
+              className="rounded-xl px-3 py-2 transition-all duration-150"
               style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(51,65,85,0.4)' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = `${b.color}44`; e.currentTarget.style.background = 'rgba(30,41,59,0.7)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(51,65,85,0.4)'; e.currentTarget.style.background = 'rgba(15,23,42,0.5)'; }}
             >
               <div style={{ fontSize: 9, color: '#64748B', fontFamily: 'DM Mono, monospace', textTransform: 'uppercase', marginBottom: 2 }}>
                 {b.label}

@@ -14,6 +14,7 @@ interface KpiCard {
   trendColor: string;
   progress?: number;
   targetNum?: number;
+  href: string;
 }
 
 const cards: KpiCard[] = [
@@ -27,6 +28,7 @@ const cards: KpiCard[] = [
     trend: '↑ +12.4% this month',
     trendColor: '#34D399',
     targetNum: 48231,
+    href: '/admin/patients',
   },
   {
     icon: Stethoscope,
@@ -39,6 +41,7 @@ const cards: KpiCard[] = [
     trend: '↑ +8 this month',
     trendColor: '#34D399',
     targetNum: 847,
+    href: '/admin/doctors',
   },
   {
     icon: Building2,
@@ -50,6 +53,7 @@ const cards: KpiCard[] = [
     trend: '↑ +4 this month',
     trendColor: '#34D399',
     targetNum: 34,
+    href: '/admin/workspaces',
   },
   {
     icon: Bot,
@@ -62,6 +66,7 @@ const cards: KpiCard[] = [
     trend: '↑ +23.1% vs last month',
     trendColor: '#34D399',
     targetNum: 8921,
+    href: '/admin/ai',
   },
   {
     icon: CircleDollarSign,
@@ -75,6 +80,7 @@ const cards: KpiCard[] = [
     trend: '↑ +AED 847K April to date',
     trendColor: '#34D399',
     progress: 33.9,
+    href: '/admin/revenue',
   },
   {
     icon: Activity,
@@ -86,6 +92,7 @@ const cards: KpiCard[] = [
     sub: 'All systems operational ✅',
     trend: '0 incidents this month ✅',
     trendColor: '#34D399',
+    href: '/admin/system/status',
   },
 ];
 
@@ -110,6 +117,11 @@ function useCountUp(target: number, duration = 800): number {
   return val;
 }
 
+const nav = (href: string) => {
+  window.history.pushState({}, '', href);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+};
+
 const KpiCardDisplay: React.FC<{ card: KpiCard; idx: number }> = ({ card, idx }) => {
   const Icon = card.icon;
   const [visible, setVisible] = useState(false);
@@ -128,6 +140,7 @@ const KpiCardDisplay: React.FC<{ card: KpiCard; idx: number }> = ({ card, idx })
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(16px)',
       }}
+      onClick={() => nav(card.href)}
       onMouseEnter={e => { e.currentTarget.style.background = '#263548'; e.currentTarget.style.transform = 'scale(1.02)'; }}
       onMouseLeave={e => { e.currentTarget.style.background = '#1E293B'; e.currentTarget.style.transform = 'scale(1)'; }}
     >

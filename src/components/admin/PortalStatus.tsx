@@ -2,6 +2,20 @@ import React from 'react';
 import { Heart, Stethoscope, Pill, FlaskConical, Shield, Settings } from 'lucide-react';
 import { portals } from '../../data/superAdminData';
 
+const nav = (href: string) => {
+  window.history.pushState({}, '', href);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+};
+
+const portalRoutes: Record<string, string> = {
+  patient: '/patient/home',
+  doctor: '/doctor/dashboard',
+  pharmacy: '/pharmacy/dashboard',
+  lab: '/lab/dashboard',
+  insurance: '/insurance',
+  admin: '/admin/dashboard',
+};
+
 const iconMap: Record<string, React.ElementType> = {
   Heart,
   Stethoscope,
@@ -52,8 +66,9 @@ const PortalStatus: React.FC = () => (
             key={portal.id}
             className="flex items-center gap-3 rounded-xl px-3 py-2.5 cursor-pointer transition-all duration-150"
             style={{ background: 'rgba(15,23,42,0.4)', border: '1px solid rgba(51,65,85,0.4)' }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(51,65,85,0.25)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(15,23,42,0.4)'; }}
+            onClick={() => nav(portalRoutes[portal.id] ?? '/admin/system/status')}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(51,65,85,0.25)'; e.currentTarget.style.borderColor = 'rgba(13,148,136,0.3)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(15,23,42,0.4)'; e.currentTarget.style.borderColor = 'rgba(51,65,85,0.4)'; }}
           >
             <div
               className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"

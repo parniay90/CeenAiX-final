@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Map } from 'lucide-react';
 import { orgDots, OrgDot } from '../../data/superAdminData';
 
+const nav = (href: string) => {
+  window.history.pushState({}, '', href);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+};
+
 const typeColor: Record<OrgDot['type'], string> = {
   hospital: '#3B82F6',
   clinic: '#0D9488',
@@ -107,7 +112,7 @@ const UAEMap: React.FC = () => {
             const cx = (dot.x / 100) * 104;
             const cy = (dot.y / 100) * 96;
             return (
-              <g key={dot.id}>
+              <g key={dot.id} onClick={() => nav('/admin/workspaces')} style={{ cursor: 'pointer' }}>
                 {isPulse && isVisible && (
                   <>
                     <circle cx={cx} cy={cy} r="6" fill="none" stroke={color} strokeWidth="0.5" opacity="0.2">

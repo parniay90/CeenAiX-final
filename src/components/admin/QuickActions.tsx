@@ -1,6 +1,11 @@
 import React from 'react';
 import { UserCheck, Building2, CircleDollarSign, Bot, Shield, AlertOctagon, FileBarChart, Terminal } from 'lucide-react';
 
+const nav = (href: string) => {
+  window.history.pushState({}, '', href);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+};
+
 const actions = [
   {
     icon: UserCheck,
@@ -11,6 +16,7 @@ const actions = [
     border: 'rgba(59,130,246,0.2)',
     badge: 23,
     badgeColor: '#FCD34D',
+    href: '/admin/doctors',
   },
   {
     icon: Building2,
@@ -21,6 +27,7 @@ const actions = [
     border: 'rgba(13,148,136,0.2)',
     badge: 2,
     badgeColor: '#FCD34D',
+    href: '/admin/workspaces',
   },
   {
     icon: CircleDollarSign,
@@ -31,6 +38,7 @@ const actions = [
     border: 'rgba(5,150,105,0.2)',
     badge: null,
     badgeColor: null,
+    href: '/admin/revenue',
   },
   {
     icon: Bot,
@@ -41,6 +49,7 @@ const actions = [
     border: 'rgba(124,58,237,0.2)',
     badge: null,
     badgeColor: null,
+    href: '/admin/ai',
   },
   {
     icon: Shield,
@@ -51,6 +60,7 @@ const actions = [
     border: 'rgba(5,150,105,0.2)',
     badge: null,
     badgeColor: null,
+    href: '/admin/compliance/dha',
   },
   {
     icon: AlertOctagon,
@@ -61,6 +71,7 @@ const actions = [
     border: 'rgba(239,68,68,0.2)',
     badge: 1,
     badgeColor: '#F87171',
+    href: '/admin/security',
   },
   {
     icon: FileBarChart,
@@ -71,6 +82,7 @@ const actions = [
     border: 'rgba(71,85,105,0.2)',
     badge: null,
     badgeColor: null,
+    href: '/admin/audit',
   },
   {
     icon: Terminal,
@@ -81,6 +93,7 @@ const actions = [
     border: 'rgba(71,85,105,0.2)',
     badge: null,
     badgeColor: null,
+    href: '/admin/system/status',
   },
 ];
 
@@ -104,6 +117,7 @@ const QuickActions: React.FC = () => (
         return (
           <button
             key={action.label}
+            onClick={() => nav(action.href)}
             className="flex flex-col items-center gap-2 rounded-xl py-3 px-2 transition-all duration-150 relative group"
             style={{ background: 'transparent' }}
             onMouseEnter={e => {

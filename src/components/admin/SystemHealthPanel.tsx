@@ -2,6 +2,11 @@ import React from 'react';
 import { Activity, ExternalLink } from 'lucide-react';
 import { systemServices, integrations } from '../../data/superAdminData';
 
+const nav = (href: string) => {
+  window.history.pushState({}, '', href);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+};
+
 const statusDot: Record<'healthy' | 'warning' | 'error', string> = {
   healthy: '#34D399',
   warning: '#FCD34D',
@@ -43,7 +48,11 @@ const SystemHealthPanel: React.FC = () => {
               {hasWarning ? 'Degraded Service' : 'All Systems Operational'}
             </span>
           </div>
-          <button className="flex items-center gap-1" style={{ fontSize: 11, color: '#2DD4BF' }}>
+          <button
+            onClick={() => nav('/admin/system/status')}
+            className="flex items-center gap-1 transition-opacity hover:opacity-80"
+            style={{ fontSize: 11, color: '#2DD4BF' }}
+          >
             View Details <ExternalLink style={{ width: 10, height: 10 }} />
           </button>
         </div>
@@ -54,8 +63,11 @@ const SystemHealthPanel: React.FC = () => {
           {systemServices.map(svc => (
             <div
               key={svc.name}
-              className="flex items-center justify-between rounded-xl px-3 py-2.5"
+              className="flex items-center justify-between rounded-xl px-3 py-2.5 cursor-pointer transition-all duration-150"
               style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid rgba(51,65,85,0.4)' }}
+              onClick={() => nav('/admin/system/status')}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(30,41,59,0.8)'; e.currentTarget.style.borderColor = 'rgba(13,148,136,0.3)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(15,23,42,0.5)'; e.currentTarget.style.borderColor = 'rgba(51,65,85,0.4)'; }}
             >
               <div className="flex items-center gap-2 min-w-0">
                 <div
@@ -106,8 +118,9 @@ const SystemHealthPanel: React.FC = () => {
               return (
                 <div
                   key={intg.name}
-                  className="flex items-center gap-1.5 rounded-lg px-2.5 py-1"
+                  className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 cursor-pointer transition-opacity hover:opacity-80"
                   style={{ background: cfg.bg, border: `1px solid ${cfg.dot}22` }}
+                  onClick={() => nav('/admin/integrations')}
                 >
                   <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cfg.dot }} />
                   <span style={{ fontSize: 10, color: '#CBD5E1' }}>{intg.name}</span>

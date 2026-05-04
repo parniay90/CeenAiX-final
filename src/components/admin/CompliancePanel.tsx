@@ -2,6 +2,11 @@ import React from 'react';
 import { Shield, CheckCircle, AlertTriangle, Clock } from 'lucide-react';
 import { docLicenseExpiries } from '../../data/superAdminData';
 
+const nav = (href: string) => {
+  window.history.pushState({}, '', href);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+};
+
 const checklist = [
   { label: 'DHA Platform License', status: 'ok' as const, detail: 'Valid until Dec 2026' },
   { label: 'NABIDH HIE Approved', status: 'ok' as const, detail: 'Approved · Active' },
@@ -19,8 +24,11 @@ const CompliancePanel: React.FC = () => {
 
   return (
     <div
-      className="rounded-2xl overflow-hidden flex flex-col"
+      className="rounded-2xl overflow-hidden flex flex-col cursor-pointer"
       style={{ background: '#1E293B', border: '1px solid rgba(51,65,85,0.5)' }}
+      onClick={() => nav('/admin/compliance/dha')}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(13,148,136,0.4)'; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(51,65,85,0.5)'; }}
     >
       <div
         className="flex items-center justify-between px-5 py-4 flex-shrink-0"
@@ -134,11 +142,12 @@ const CompliancePanel: React.FC = () => {
             {docLicenseExpiries.map(doc => (
               <div
                 key={doc.name}
-                className="flex items-center gap-2 rounded-lg px-3 py-2"
+                className="flex items-center gap-2 rounded-lg px-3 py-2 cursor-pointer transition-opacity hover:opacity-80"
                 style={{
                   background: doc.days <= 20 ? 'rgba(239,68,68,0.07)' : 'rgba(245,158,11,0.07)',
                   border: `1px solid ${doc.days <= 20 ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)'}`,
                 }}
+                onClick={e => { e.stopPropagation(); nav('/admin/doctors'); }}
               >
                 <Clock style={{ width: 11, height: 11, color: doc.days <= 20 ? '#F87171' : '#FCD34D', flexShrink: 0 }} />
                 <span style={{ fontSize: 11, color: '#CBD5E1', flex: 1 }}>{doc.name}</span>

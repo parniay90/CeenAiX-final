@@ -2,6 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Activity, Pause, Play } from 'lucide-react';
 import { initialFeedItems, newFeedTemplates, FeedItem } from '../../data/superAdminData';
 
+const nav = (href: string) => {
+  window.history.pushState({}, '', href);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+};
+
 const typeStyle: Record<FeedItem['type'], { dot: string; icon: string }> = {
   success: { dot: '#34D399', icon: '#34D399' },
   info: { dot: '#60A5FA', icon: '#60A5FA' },
@@ -83,6 +88,7 @@ const ActivityFeed: React.FC = () => {
                 transform: isNew ? 'translateX(0)' : undefined,
                 opacity: 1,
               }}
+              onClick={() => nav('/admin/audit')}
               onMouseEnter={e => { e.currentTarget.style.background = 'rgba(51,65,85,0.2)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = isNew ? 'rgba(13,148,136,0.06)' : 'transparent'; }}
             >
@@ -108,12 +114,19 @@ const ActivityFeed: React.FC = () => {
 
       {/* Footer */}
       <div
-        className="px-4 py-2.5 text-center flex-shrink-0"
-        style={{ borderTop: '1px solid rgba(51,65,85,0.5)', fontSize: 11, color: '#475569', fontFamily: 'Inter, sans-serif' }}
+        className="px-4 py-2.5 flex-shrink-0 flex items-center justify-between"
+        style={{ borderTop: '1px solid rgba(51,65,85,0.5)' }}
       >
-        Showing live activity across all CeenAiX portals
-        <br />
-        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10 }}>Today: 127,450 AI sessions · 3,847 consultations</span>
+        <span style={{ fontSize: 10, color: '#475569', fontFamily: 'DM Mono, monospace' }}>
+          127,450 AI sessions · 3,847 consultations today
+        </span>
+        <button
+          onClick={() => nav('/admin/audit')}
+          className="text-xs transition-opacity hover:opacity-80"
+          style={{ color: '#0D9488' }}
+        >
+          View full log →
+        </button>
       </div>
     </div>
   );
