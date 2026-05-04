@@ -498,7 +498,6 @@ export default function LabResults() {
         </div>
         </main>
       </div>
-    </div>
 
       {/* Scroll to top button */}
       {showScrollTop && (
