@@ -24,6 +24,7 @@ import AdminWorkspaces from './pages/AdminWorkspaces';
 import AdminIntegrations from './pages/AdminIntegrations';
 import AdminIntegrationDetail from './pages/AdminIntegrationDetail';
 import AdminRevenue from './pages/AdminRevenue';
+import PlatformSettingsPage from './pages/PlatformSettings/PlatformSettingsPage';
 import NabidhPage from './pages/NabidhPage';
 import AuditLogsPage from './pages/AuditLogsPage';
 import DhaCompliancePage from './pages/DhaCompliancePage';
@@ -144,6 +145,8 @@ function App() {
         setView('admin-nabidh');
       } else if (path.startsWith('/admin/integrations/')) {
         setView('admin-integration-detail');
+      } else if (path === '/admin/settings/platform') {
+        setView('admin-platform-settings');
       } else if (path === '/admin/integrations') {
         setView('admin-integrations');
       } else if (path === '/pharmacy/dashboard' || path.startsWith('/pharmacy/')) {
@@ -247,6 +250,7 @@ function App() {
   if (view === 'admin-support') return <AdminSupport />;
   if (view === 'admin-workspaces') return <AdminWorkspaces />;
   if (view === 'admin-revenue') return <AdminRevenue />;
+  if (view === 'admin-platform-settings') return <PlatformSettingsPage />;
   if (view === 'admin-nabidh') return <NabidhPage />;
   if (view === 'admin-security') return <SecurityPage />;
   if (view === 'admin-dha-compliance') return <DhaCompliancePage />;

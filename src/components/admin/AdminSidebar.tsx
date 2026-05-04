@@ -195,6 +195,7 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
                       'settings-security': '/admin/settings/security',
                       'settings-notifications': '/admin/settings/notifications',
                       'audit-me': '/admin/audit/me',
+                      'platform-settings': '/admin/settings/platform',
                     };
                     if (navPaths[item.id]) {
                       window.history.pushState({}, '', navPaths[item.id]);
