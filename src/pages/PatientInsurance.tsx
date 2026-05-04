@@ -3,11 +3,12 @@ import {
   Shield, Download, Phone, FileText, Check, ChevronDown, ChevronRight,
   X, Copy, MessageSquare, AlertCircle, Activity, FlaskConical, Eye,
   Stethoscope, Pill, Heart, Video, Search, Filter, Clock, CheckCircle,
-  AlertTriangle, Calendar
+  AlertTriangle, Calendar, ChevronUp
 } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
 import PatientTopNav from '../components/patient/PatientTopNav';
 import { ToastContainer, useToast } from '../components/common/Toast';
+import { MOCK_PATIENT } from '../types/patientDashboard';
 
 function navigate(path: string) {
   window.history.pushState({}, '', path);
@@ -126,7 +127,7 @@ const BENEFITS = [
 
 const DOCUMENTS = [
   { name: 'Insurance Policy Document', desc: 'Daman Gold — Full Policy 2026', date: '1 Jan 2026', size: '2.4 MB', type: 'pdf' },
-  { name: 'Insurance Card', desc: 'Digital Insurance Card · Parnia Yazdkhasti', date: 'Today', size: '140 KB', type: 'pdf' },
+  { name: 'Insurance Card', desc: `Digital Insurance Card · ${MOCK_PATIENT.name}`, date: 'Today', size: '140 KB', type: 'pdf' },
   { name: 'EOB — Apr 7, 2026', desc: 'CLM-20260407-00481 · Cardiology Consultation', date: '7 Apr 2026', size: '84 KB', type: 'pdf' },
   { name: 'EOB — Feb 15, 2026', desc: 'CLM-20260215-00294 · Cardiac MRI', date: '15 Feb 2026', size: '92 KB', type: 'pdf' },
   { name: 'Annual Summary 2025', desc: 'Daman Gold · Full year claims history', date: '31 Dec 2025', size: '1.1 MB', type: 'pdf' },
@@ -168,6 +169,19 @@ export default function PatientInsurance() {
   const [showExclusions, setShowExclusions] = useState(false);
   const [showPreAuthHistory, setShowPreAuthHistory] = useState(false);
   const [benefitSearch, setBenefitSearch] = useState('');
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+    const onScroll = () => setShowScrollTop(el.scrollTop > 300);
+    el.addEventListener('scroll', onScroll);
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const scrollToTop = () => mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+
   const { toasts, dismiss, addToast } = useToast();
 
   const totalUsed = 12400;
@@ -194,11 +208,11 @@ export default function PatientInsurance() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden" style={{ background: '#F8FAFC' }}>
-      <PatientTopNav patientName="Parnia Yazdkhasti" />
+      <PatientTopNav patientName={MOCK_PATIENT.name} />
       <div className="flex flex-1 overflow-hidden">
         <PatientSidebar currentPage="insurance" />
 
-        <main className="flex-1 overflow-y-auto">
+        <main ref={mainRef} className="flex-1 overflow-y-auto">
           {/* PAGE HEADER */}
           <div className="bg-white border-b border-slate-200 px-8 py-4 flex items-center gap-4">
             <div className="flex items-center gap-3 flex-1">
@@ -248,7 +262,7 @@ export default function PatientInsurance() {
                   </div>
 
                   <div className="mb-3">
-                    <div className="font-bold text-white uppercase tracking-widest mb-1" style={{ fontFamily: 'DM Mono, monospace', fontSize: 16, letterSpacing: '0.12em' }}>PARNIA YAZDKHASTI</div>
+                    <div className="font-bold text-white uppercase tracking-widest mb-1" style={{ fontFamily: 'DM Mono, monospace', fontSize: 16, letterSpacing: '0.12em' }}>{MOCK_PATIENT.name.toUpperCase()}</div>
                     <div className="text-white/70" style={{ fontFamily: 'DM Mono, monospace', fontSize: 12 }}>Member: DAM-IND-PT001-2024</div>
                   </div>
 
@@ -467,6 +481,17 @@ export default function PatientInsurance() {
           onClose={() => setSelectedClaim(null)}
           addToast={addToast}
         />
+      )}
+
+      {/* Scroll to top button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 w-11 h-11 bg-teal-600 hover:bg-teal-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
+          aria-label="Scroll to top"
+        >
+          <ChevronUp className="w-5 h-5" />
+        </button>
       )}
 
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
