@@ -1,6 +1,5 @@
-// do it tonight
-import { useState } from 'react';
-import { FlaskConical, CheckCircle, AlertTriangle, Calendar, Building2, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { FlaskConical, CheckCircle, AlertTriangle, Calendar, Building2, AlertCircle, ChevronUp } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
 import PatientTopNav from '../components/patient/PatientTopNav';
 import RecentResultsTab from '../components/labResults/RecentResultsTab';
@@ -9,9 +8,22 @@ import AllHistoryTab from '../components/labResults/AllHistoryTab';
 import UpcomingLabsTab from '../components/labResults/UpcomingLabsTab';
 import AllReportsTab from '../components/labResults/AllReportsTab';
 import type { LabVisit, UpcomingLabOrder } from '../types/patientLabResults';
+import { MOCK_PATIENT } from '../types/patientDashboard';
 
 export default function LabResults() {
   const [activeTab, setActiveTab] = useState<'recent' | 'trends' | 'history' | 'upcoming' | 'reports'>('recent');
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+    const onScroll = () => setShowScrollTop(el.scrollTop > 300);
+    el.addEventListener('scroll', onScroll);
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const scrollToTop = () => mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
 
   const latestVisit: LabVisit = {
     id: 'visit-1',
@@ -312,12 +324,12 @@ export default function LabResults() {
 
   return (
     <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
-      <PatientTopNav patientName="Parnia Yazdkhasti" />
+      <PatientTopNav patientName={MOCK_PATIENT.name} />
 
       <div className="flex flex-1 overflow-hidden">
         <PatientSidebar currentPage="lab-results" />
 
-        <main className="flex-1 overflow-y-auto">
+        <main ref={mainRef} className="flex-1 overflow-y-auto">
         <div className="flex-1">
         <div className="p-8">
           <div className="animate-fadeIn">
@@ -486,6 +498,18 @@ export default function LabResults() {
         </div>
         </main>
       </div>
+    </div>
+
+      {/* Scroll to top button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 w-11 h-11 bg-teal-600 hover:bg-teal-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
+          aria-label="Scroll to top"
+        >
+          <ChevronUp className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 }
