@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import {
   FolderOpen, Upload, ShieldCheck, Search, Grid3x3, List,
   ChevronDown, FileText, Image, File, Download, Share2,
-  Eye, MoreVertical, X, CheckCircle, AlertTriangle, Calendar, ChevronUp
+  Eye, MoreVertical, X, CheckCircle, AlertTriangle, Calendar, ChevronUp, Clock, Bell
 } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
 import PatientTopNav from '../components/patient/PatientTopNav';
@@ -13,6 +13,102 @@ import { MOCK_PATIENT } from '../types/patientDashboard';
 type ViewMode = 'grid' | 'list';
 type SortOption = 'newest' | 'oldest' | 'name-asc' | 'name-desc' | 'size' | 'category';
 
+
+// ── Set Document Reminder Modal ───────────────────────────────────────────────
+function SetDocReminderModal({ onClose }: { onClose: () => void }) {
+  const [date, setDate] = useState('');
+  const [channels, setChannels] = useState({ app: true, sms: false, whatsapp: false });
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState('');
+
+  const toggleChannel = (ch: keyof typeof channels) => {
+    setChannels(prev => ({ ...prev, [ch]: !prev[ch] }));
+  };
+
+  const handleSave = () => {
+    if (!date) { setError('Please select a reminder date'); return; }
+    setSaved(true);
+  };
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={saved ? undefined : onClose}>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center">
+              <Bell className="w-5 h-5 text-teal-600" />
+            </div>
+            <div>
+              <p className="font-bold text-gray-900 text-sm">Set Reminder</p>
+              <p className="text-xs text-gray-400 mt-0.5">Influenza Vaccine — Oct 2026</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+            <X className="w-4 h-4 text-gray-600" />
+          </button>
+        </div>
+        <div className="px-6 py-5">
+          {saved ? (
+            <div className="text-center py-4">
+              <div className="w-16 h-16 rounded-full bg-teal-50 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-teal-600" />
+              </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-2">Reminder Set!</h3>
+              <p className="text-gray-500 text-sm">You will be reminded about your Influenza Vaccine on</p>
+              <p className="text-teal-600 font-bold text-base mt-1">{new Date(date).toLocaleDateString('en-AE', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+              <p className="text-gray-400 text-xs mt-2">
+                Via: {[channels.app && 'App', channels.sms && 'SMS', channels.whatsapp && 'WhatsApp'].filter(Boolean).join(', ') || 'No channel selected'}
+              </p>
+              <button onClick={onClose} className="mt-6 w-full py-3 bg-teal-600 text-white rounded-xl font-semibold hover:bg-teal-700 transition-colors">
+                Done
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Reminder Date <span className="text-red-500">*</span></label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={e => { setDate(e.target.value); setError(''); }}
+                  className={`w-full px-4 py-3 border-2 rounded-xl text-sm focus:outline-none focus:ring-2 transition-colors ${error ? 'border-red-300 focus:ring-red-400' : 'border-gray-200 focus:ring-teal-500 focus:border-teal-500'}`}
+                />
+                {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Notify via</label>
+                <div className="space-y-2">
+                  {[
+                    { key: 'app', label: '📱 App Notification' },
+                    { key: 'sms', label: '💬 SMS' },
+                    { key: 'whatsapp', label: '🟢 WhatsApp' },
+                  ].map(({ key, label }) => (
+                    <button
+                      key={key}
+                      onClick={() => toggleChannel(key as keyof typeof channels)}
+                      className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 transition-all ${channels[key as keyof typeof channels] ? 'border-teal-600 bg-teal-50' : 'border-gray-200 hover:border-gray-300'}`}
+                    >
+                      <span className="text-sm text-gray-700">{label}</span>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${channels[key as keyof typeof channels] ? 'border-teal-600 bg-teal-600' : 'border-gray-300'}`}>
+                        {channels[key as keyof typeof channels] && <div className="w-2 h-2 bg-white rounded-full" />}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-3 pt-1">
+                <button onClick={onClose} className="flex-1 py-3 rounded-xl font-semibold border-2 border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors">Cancel</button>
+                <button onClick={handleSave} className="flex-1 py-3 rounded-xl font-semibold bg-teal-600 text-white hover:bg-teal-700 transition-colors">Save Reminder</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
 
 // ── Secure Vault Modal ────────────────────────────────────────────────────────
 function SecureVaultModal({ onClose }: { onClose: () => void }) {
@@ -303,6 +399,8 @@ export default function Documents() {
   const [previewDocument, setPreviewDocument] = useState<Document | null>(null);
   const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showBookTestModal, setShowBookTestModal] = useState(false);
+  const [showSetReminderModal, setShowSetReminderModal] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -988,10 +1086,14 @@ export default function Documents() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button className="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded-lg transition-all">
+                    <button
+                      onClick={() => setPreviewDocument(mockDocuments.find(d => d.id === 'doc-004') || null)}
+                      className="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded-lg transition-all">
                       View Document
                     </button>
-                    <button className="px-3 py-1 text-xs bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition-all">
+                    <button
+                      onClick={() => setShowBookTestModal(true)}
+                      className="px-3 py-1 text-xs bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition-all">
                       Book Test
                     </button>
                   </div>
@@ -1005,10 +1107,14 @@ export default function Documents() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button className="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded-lg transition-all">
+                    <button
+                      onClick={() => setPreviewDocument(mockDocuments.find(d => d.id === 'doc-019') || null)}
+                      className="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded-lg transition-all">
                       View Record
                     </button>
-                    <button className="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded-lg transition-all">
+                    <button
+                      onClick={() => setShowSetReminderModal(true)}
+                      className="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200 rounded-lg transition-all">
                       Set Reminder
                     </button>
                   </div>
@@ -1296,6 +1402,43 @@ export default function Documents() {
           </div>
         </div>
       )}
+      {/* Book Test Modal — Coming Soon */}
+      {showBookTestModal && createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowBookTestModal(false)}>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-teal-600" />
+                </div>
+                <p className="font-bold text-gray-900 text-sm">Book Lab Test</p>
+              </div>
+              <button onClick={() => setShowBookTestModal(false)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                <X className="w-4 h-4 text-gray-600" />
+              </button>
+            </div>
+            <div className="px-6 py-8 text-center">
+              <div className="w-16 h-16 rounded-full bg-teal-50 flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-8 h-8 text-teal-400" />
+              </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-2">In Progress</h3>
+              <p className="text-gray-500 text-sm">Lab test booking will be available soon. You can book your Vitamin D retest through the Appointments page in the meantime.</p>
+              <button onClick={() => setShowBookTestModal(false)} className="mt-6 px-6 py-2 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition-colors">
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Set Reminder Modal */}
+      {showSetReminderModal && createPortal(
+        <SetDocReminderModal onClose={() => setShowSetReminderModal(false)} />,
+        document.body
+      )}
+
       {/* Secure Vault Modal */}
       {showSecurityModal && (
         <SecureVaultModal onClose={() => setShowSecurityModal(false)} />
