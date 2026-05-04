@@ -1,7 +1,7 @@
 // do it after the LabResults and Documents
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { MessageCircle, Search, CreditCard as Edit, MoreVertical, Send, Paperclip, Smile, Mic, Calendar, Info, X, FileText, Image as ImageIcon, Activity, Download, Check, Clock, Phone, MapPin, Award, ChevronLeft, Video, PhoneCall, PhoneOff, VideoOff, MicOff, Volume2, Maximize2, Settings, ChevronUp, CheckCircle2, User } from 'lucide-react';
+import { MessageCircle, Search, CreditCard as Edit, MoreVertical, Send, Paperclip, Smile, Mic, Calendar, Info, X, FileText, Image as ImageIcon, Activity, Download, Check, Clock, Phone, MapPin, Award, ChevronLeft, Video, PhoneCall, PhoneOff, VideoOff, MicOff, Volume2, Maximize2, Settings, ChevronUp, CheckCircle2, User, Lock } from 'lucide-react';
 import PatientSidebar from '../components/patient/PatientSidebar';
 import PatientTopNav from '../components/patient/PatientTopNav';
 import { MOCK_PATIENT } from '../types/patientDashboard';
@@ -84,6 +84,15 @@ export default function Messages() {
   const [downloadModal, setDownloadModal] = useState<{ name: string } | null>(null);
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+
+  // Quick-action modal states
+  const [showVitalsModal, setShowVitalsModal] = useState(false);
+  const [selectedVitals, setSelectedVitals] = useState<string[]>([]);
+  const [vitalsShared, setVitalsShared] = useState(false);
+  const [showLabModal, setShowLabModal] = useState(false);
+  const [selectedLabs, setSelectedLabs] = useState<string[]>([]);
+  const [labsShared, setLabsShared] = useState(false);
+  const [showScanModal, setShowScanModal] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -845,19 +854,19 @@ export default function Messages() {
 
               <div className="bg-white border-t border-slate-200 p-4">
                 <div className="flex items-center gap-2 mb-3 overflow-x-auto pb-2">
-                  <button className="px-3 py-1.5 bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50 hover:text-teal-600 text-slate-600 rounded-full text-xs font-medium flex items-center gap-2 whitespace-nowrap transition-all">
+                  <button onClick={() => { setSelectedVitals([]); setVitalsShared(false); setShowVitalsModal(true); }} className="px-3 py-1.5 bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50 hover:text-teal-600 text-slate-600 rounded-full text-xs font-medium flex items-center gap-2 whitespace-nowrap transition-all">
                     <Activity className="w-3.5 h-3.5" />
                     Share Vitals
                   </button>
-                  <button className="px-3 py-1.5 bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50 hover:text-teal-600 text-slate-600 rounded-full text-xs font-medium flex items-center gap-2 whitespace-nowrap transition-all">
+                  <button onClick={() => { setSelectedLabs([]); setLabsShared(false); setShowLabModal(true); }} className="px-3 py-1.5 bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50 hover:text-teal-600 text-slate-600 rounded-full text-xs font-medium flex items-center gap-2 whitespace-nowrap transition-all">
                     <FileText className="w-3.5 h-3.5" />
                     Share Lab Result
                   </button>
-                  <button className="px-3 py-1.5 bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50 hover:text-teal-600 text-slate-600 rounded-full text-xs font-medium flex items-center gap-2 whitespace-nowrap transition-all">
+                  <button onClick={() => setShowScanModal(true)} className="px-3 py-1.5 bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50 hover:text-teal-600 text-slate-600 rounded-full text-xs font-medium flex items-center gap-2 whitespace-nowrap transition-all">
                     <ImageIcon className="w-3.5 h-3.5" />
                     Share Scan
                   </button>
-                  <button className="px-3 py-1.5 bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50 hover:text-teal-600 text-slate-600 rounded-full text-xs font-medium flex items-center gap-2 whitespace-nowrap transition-all">
+                  <button onClick={() => { window.location.href = '/appointments'; }} className="px-3 py-1.5 bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50 hover:text-teal-600 text-slate-600 rounded-full text-xs font-medium flex items-center gap-2 whitespace-nowrap transition-all">
                     <Calendar className="w-3.5 h-3.5" />
                     Request Appointment
                   </button>
@@ -1213,6 +1222,51 @@ export default function Messages() {
         </div>
       )}
 
+      {/* Shared Docs Panel */}
+      {showSharedDocs && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setShowSharedDocs(false)} />
+          <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl z-50 flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+              <h3 className="font-bold text-slate-900">Shared Documents</h3>
+              <button onClick={() => setShowSharedDocs(false)} className="p-1 hover:bg-slate-100 rounded-lg transition-all">
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {[
+                { name: 'Full Blood Panel — March 2026', type: 'PDF', size: '284 KB', sharedBy: 'Dr. Fatima', ago: '28 days ago', badgeLabel: 'Lab Report', badgeCls: 'bg-emerald-100 text-emerald-700' },
+                { name: 'Cardiac MRI Report — February 2026', type: 'PDF', size: '1.2 MB', sharedBy: 'Dr. Ahmed', ago: '49 days ago', badgeLabel: 'Imaging', badgeCls: 'bg-blue-100 text-blue-700' },
+                { name: 'Active Prescriptions — March 2026', type: 'PDF', size: '156 KB', sharedBy: 'Dr. Fatima', ago: '28 days ago', badgeLabel: 'Prescription', badgeCls: 'bg-teal-100 text-teal-700' },
+              ].map((doc, i) => (
+                <div key={i} className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-9 h-9 bg-white border border-slate-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <FileText className="w-4 h-4 text-slate-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-slate-900 leading-snug">{doc.name}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{doc.type} · {doc.size} · {doc.sharedBy} · {doc.ago}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${doc.badgeCls}`}>{doc.badgeLabel}</span>
+                    <div className="flex gap-2">
+                      <button className="px-3 py-1 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-lg text-xs font-medium transition-all">Preview</button>
+                      <button className="px-3 py-1 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-medium transition-all">Download</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="px-5 py-3 border-t border-slate-200 flex items-center justify-center gap-2 text-xs text-slate-400">
+              <Lock className="w-3.5 h-3.5" />
+              All documents are encrypted
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Scroll to top */}
       {showScrollTop && (
         <button
@@ -1351,6 +1405,169 @@ export default function Messages() {
             <h3 className="text-lg font-bold text-slate-900 mb-2">In Progress</h3>
             <p className="text-sm text-slate-500 mb-6">Full doctor profiles are coming soon.</p>
             <button onClick={() => setShowProfileModal(false)} className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-all">Got it</button>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Share Vitals Modal */}
+      {showVitalsModal && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-teal-50 rounded-full flex items-center justify-center">
+                  <Activity className="w-5 h-5 text-teal-600" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">Share Vitals</h3>
+              </div>
+              <button onClick={() => setShowVitalsModal(false)} className="p-1 hover:bg-slate-100 rounded-lg transition-all">
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+            {vitalsShared ? (
+              <div className="p-8 text-center">
+                <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle2 className="w-7 h-7 text-emerald-600" />
+                </div>
+                <h4 className="text-lg font-bold text-slate-900 mb-1">Vitals Shared!</h4>
+                <p className="text-sm text-slate-500 mb-6">Your selected vitals have been sent to {activeConversation?.contact.name}.</p>
+                <button onClick={() => setShowVitalsModal(false)} className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-all">Done</button>
+              </div>
+            ) : (
+              <div className="p-5">
+                <p className="text-sm text-slate-500 mb-4">Select vitals to share with {activeConversation?.contact.name}:</p>
+                <div className="grid grid-cols-2 gap-3 mb-5">
+                  {[
+                    { id: 'bp', label: 'Blood Pressure', value: '128/82 mmHg', note: 'recorded today' },
+                    { id: 'hr', label: 'Heart Rate', value: '72 bpm', note: 'recorded today' },
+                    { id: 'bs', label: 'Blood Sugar', value: '125 mg/dL', note: 'fasting · recorded today' },
+                    { id: 'wt', label: 'Weight', value: '85.2 kg', note: 'recorded today' },
+                    { id: 'o2', label: 'SpO2', value: '98%', note: 'recorded today' },
+                    { id: 'tm', label: 'Temperature', value: '36.8°C', note: 'recorded today' },
+                  ].map(v => {
+                    const sel = selectedVitals.includes(v.id);
+                    return (
+                      <button
+                        key={v.id}
+                        onClick={() => setSelectedVitals(prev => sel ? prev.filter(x => x !== v.id) : [...prev, v.id])}
+                        className={`p-3 rounded-xl border-2 text-left transition-all ${sel ? 'border-teal-500 bg-teal-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
+                      >
+                        <p className="text-xs font-semibold text-slate-500 mb-0.5">{v.label}</p>
+                        <p className="text-sm font-bold text-slate-900">{v.value}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{v.note}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+                <button
+                  disabled={selectedVitals.length === 0}
+                  onClick={() => setVitalsShared(true)}
+                  className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl font-medium transition-all"
+                >
+                  Share with {activeConversation?.contact.name}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Share Lab Result Modal */}
+      {showLabModal && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-teal-50 rounded-full flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-teal-600" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">Share Lab Result</h3>
+              </div>
+              <button onClick={() => setShowLabModal(false)} className="p-1 hover:bg-slate-100 rounded-lg transition-all">
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+            {labsShared ? (
+              <div className="p-8 text-center">
+                <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle2 className="w-7 h-7 text-emerald-600" />
+                </div>
+                <h4 className="text-lg font-bold text-slate-900 mb-1">Lab Results Shared!</h4>
+                <p className="text-sm text-slate-500 mb-6">Your selected results have been sent to {activeConversation?.contact.name}.</p>
+                <button onClick={() => setShowLabModal(false)} className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-all">Done</button>
+              </div>
+            ) : (
+              <div className="p-5">
+                <p className="text-sm text-slate-500 mb-4">Select results to share with {activeConversation?.contact.name}:</p>
+                <div className="space-y-2 mb-5">
+                  {[
+                    { id: 'hba1c', name: 'HbA1c (Glycated Hemoglobin)', value: '6.8%', unit: '', status: 'abnormal', date: 'Apr 5, 2026' },
+                    { id: 'chol', name: 'Total Cholesterol', value: '185', unit: 'mg/dL', status: 'normal', date: 'Mar 15, 2026' },
+                    { id: 'ldl', name: 'LDL Cholesterol', value: '105', unit: 'mg/dL', status: 'abnormal', date: 'Mar 15, 2026' },
+                    { id: 'creat', name: 'Creatinine', value: '1.1', unit: 'mg/dL', status: 'normal', date: 'Feb 20, 2026' },
+                  ].map(r => {
+                    const sel = selectedLabs.includes(r.id);
+                    return (
+                      <button
+                        key={r.id}
+                        onClick={() => setSelectedLabs(prev => sel ? prev.filter(x => x !== r.id) : [...prev, r.id])}
+                        className={`w-full p-3 rounded-xl border-2 text-left transition-all ${sel ? 'border-teal-500 bg-teal-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-slate-900">{r.name}</p>
+                            <p className="text-xs text-slate-400 mt-0.5">{r.date}</p>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className="text-sm font-bold text-slate-900">{r.value}{r.unit ? ` ${r.unit}` : ''}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${r.status === 'normal' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                              {r.status === 'normal' ? 'Normal' : 'Abnormal'}
+                            </span>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <button
+                  disabled={selectedLabs.length === 0}
+                  onClick={() => setLabsShared(true)}
+                  className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl font-medium transition-all"
+                >
+                  Share with {activeConversation?.contact.name}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Share Scan Modal */}
+      {showScanModal && createPortal(
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-teal-50 rounded-full flex items-center justify-center">
+                  <ImageIcon className="w-5 h-5 text-teal-600" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">Share Scan</h3>
+              </div>
+              <button onClick={() => setShowScanModal(false)} className="p-1 hover:bg-slate-100 rounded-lg transition-all">
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
+            </div>
+            <div className="p-8 text-center">
+              <div className="w-12 h-12 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-6 h-6 text-teal-600" />
+              </div>
+              <h4 className="text-lg font-bold text-slate-900 mb-2">Coming Soon</h4>
+              <p className="text-sm text-slate-500 mb-6">Sharing imaging scans directly from messages will be available soon. You can share scans from the Documents page in the meantime.</p>
+              <button onClick={() => setShowScanModal(false)} className="w-full px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium transition-all">Got it</button>
+            </div>
           </div>
         </div>,
         document.body
