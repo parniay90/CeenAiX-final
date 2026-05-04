@@ -52,7 +52,6 @@ const navSections: NavSection[] = [
   {
     titleKey: 'admin.sidebar.system',
     items: [
-      { id: 'system', labelKey: 'admin.sidebar.systemHealth', icon: Server },
       { id: 'system-status', labelKey: 'admin.sidebar.systemStatus', icon: Activity },
       { id: 'system-changelog', labelKey: 'admin.sidebar.changelog', icon: ScrollText },
       { id: 'platform-settings', labelKey: 'admin.sidebar.platformSettings', icon: Settings },
@@ -186,7 +185,6 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
                       compliance: '/admin/compliance/dha',
                       security: '/admin/security',
                       audit: '/admin/audit',
-                      system: '/admin/system/status',
                       'system-status': '/admin/system/status',
                       'system-changelog': '/admin/system/changelog',
                       'api-keys': '/admin/settings/api-keys',
