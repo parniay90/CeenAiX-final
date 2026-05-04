@@ -38,11 +38,11 @@ export default function UpcomingLabsTab({ order }: UpcomingLabsTabProps) {
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-slate-600">Date:</span>
-              <span className="text-sm font-bold text-slate-900">Thursday, 10 April 2026</span>
+              <span className="text-sm font-bold text-slate-900">{selectedDate ? new Date(selectedDate).toLocaleDateString('en-AE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : 'Thursday, 10 April 2026'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-slate-600">Time:</span>
-              <span className="text-sm font-bold text-slate-900">{selectedTime} AM</span>
+              <span className="text-sm font-bold text-slate-900">{selectedTime === '08:00' ? '8:00 AM' : selectedTime === '08:30' ? '8:30 AM' : selectedTime === '09:00' ? '9:00 AM' : selectedTime === '09:30' ? '9:30 AM' : '10:00 AM'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-slate-600">Address:</span>
@@ -190,41 +190,66 @@ export default function UpcomingLabsTab({ order }: UpcomingLabsTabProps) {
         </div>
 
         {showBooking && (
-          <div className="mt-6 p-6 bg-slate-50 rounded-xl border border-slate-200">
-            <h5 className="text-sm font-bold text-slate-900 mb-4">Book Your Appointment</h5>
+          <div className="mt-6 p-6 bg-teal-50 rounded-xl border-2 border-teal-200">
+            <h5 className="text-sm font-bold text-gray-900 mb-5">Book Your Appointment</h5>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
+              {/* Date — styled input */}
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-2">Preferred Date</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Preferred Date
+                </label>
                 <input
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg"
+                  className="w-full appearance-none px-4 py-3 border-2 border-teal-200 bg-white rounded-xl text-base font-bold text-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 cursor-pointer"
                 />
               </div>
 
+              {/* Time — pill buttons */}
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-2">Preferred Time (Morning recommended for fasting tests)</label>
-                <select
-                  value={selectedTime}
-                  onChange={(e) => setSelectedTime(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg"
-                >
-                  <option value="08:00">8:00 AM (Recommended)</option>
-                  <option value="08:30">8:30 AM</option>
-                  <option value="09:00">9:00 AM</option>
-                  <option value="09:30">9:30 AM</option>
-                  <option value="10:00">10:00 AM</option>
-                </select>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Preferred Time <span className="text-xs text-teal-600 font-normal">(morning recommended for fasting tests)</span>
+                </label>
+                <div className="grid grid-cols-5 gap-2">
+                  {[
+                    { value: '08:00', label: '8:00 AM', recommended: true },
+                    { value: '08:30', label: '8:30 AM', recommended: false },
+                    { value: '09:00', label: '9:00 AM', recommended: false },
+                    { value: '09:30', label: '9:30 AM', recommended: false },
+                    { value: '10:00', label: '10:00 AM', recommended: false },
+                  ].map(slot => (
+                    <button
+                      key={slot.value}
+                      onClick={() => setSelectedTime(slot.value)}
+                      className={`flex flex-col items-center py-3 px-2 rounded-xl border-2 transition-all ${
+                        selectedTime === slot.value
+                          ? 'border-teal-600 bg-teal-600 text-white'
+                          : 'border-teal-200 bg-white text-gray-700 hover:border-teal-400'
+                      }`}
+                    >
+                      <span className="text-xs font-bold">{slot.label}</span>
+                      {slot.recommended && (
+                        <span className={`text-xs mt-0.5 ${selectedTime === slot.value ? 'text-teal-100' : 'text-teal-500'}`}>
+                          ⭐ Best
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <button
                 onClick={handleBooking}
-                className="w-full px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-bold"
+                disabled={!selectedDate}
+                className="w-full px-6 py-3 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Confirm Lab Appointment
               </button>
+              {!selectedDate && (
+                <p className="text-xs text-red-500 text-center -mt-3">Please select a date to continue</p>
+              )}
             </div>
           </div>
         )}
