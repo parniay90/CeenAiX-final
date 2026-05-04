@@ -184,6 +184,7 @@ const AdminSidebar: React.FC<Props> = ({ activeSection, onSectionChange }) => {
                       revenue: '/admin/revenue',
                       nabidh: '/admin/integrations/nabidh',
                       compliance: '/admin/compliance/dha',
+                      security: '/admin/security',
                       audit: '/admin/audit',
                       'system-status': '/admin/system/status',
                       'system-changelog': '/admin/system/changelog',
