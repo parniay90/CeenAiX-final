@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Activity, Shield, Brain, Users, Clock, Award, ChevronRight, Check, Menu, X, Heart, Zap, Star, ArrowRight, Play, Stethoscope, FlaskConical, Pill, FileText, Lock, Globe as Globe2, TrendingUp, MessageCircle, Bell, ChevronDown } from 'lucide-react';
+import LandingDemoLaunchSection from '../components/landing/LandingDemoLaunchSection';
 
 function navigate(path: string) {
   window.history.pushState({}, '', path);
@@ -696,6 +697,9 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Demo Request & Launch Notification */}
+      <LandingDemoLaunchSection />
 
       {/* CTA */}
       <section className="relative py-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
