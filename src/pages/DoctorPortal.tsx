@@ -2,11 +2,6 @@ import React, { useState, useEffect } from 'react';
 import DoctorSidebarNew from '../components/doctor/DoctorSidebarNew';
 import DoctorTopBarNew from '../components/doctor/DoctorTopBarNew';
 import CriticalAlertBanner from '../components/doctor/CriticalAlertBanner';
-
-const navigateTo = (path: string) => {
-  window.history.pushState({}, '', path);
-  window.dispatchEvent(new PopStateEvent('popstate'));
-};
 import {
   Users,
   Stethoscope,
@@ -34,6 +29,11 @@ import {
   AlertOctagon,
   CheckCircle2
 } from 'lucide-react';
+
+const navigateTo = (path: string) => {
+  window.history.pushState({}, '', path);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+};
 
 const DoctorPortal: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
