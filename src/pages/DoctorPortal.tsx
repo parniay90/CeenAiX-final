@@ -37,8 +37,7 @@ import {
 
 const DoctorPortal: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [showWorkspace, setShowWorkspace] = useState(false);
-  const [sessionDuration, setSessionDuration] = useState(277);
+const [sessionDuration, setSessionDuration] = useState(277);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -135,30 +134,34 @@ const DoctorPortal: React.FC = () => {
       value: '8',
       sub: '5 done · 1 in progress · 2 remaining',
       color: 'teal',
-      progress: 62.5
+      progress: 62.5,
+      path: '/doctor/appointments'
     },
     {
       icon: PenLine,
       label: 'Prescriptions Written',
       value: '4',
       sub: 'Today · 1 pharmacy query pending',
-      color: 'purple',
-      badge: 'Query'
+      color: 'teal',
+      badge: 'Query',
+      path: '/doctor/prescribe'
     },
     {
       icon: FlaskConical,
       label: 'Lab Orders Today',
       value: '3',
       sub: '1 critical pending · 1 complete',
-      color: 'indigo',
-      critical: true
+      color: 'blue',
+      critical: true,
+      path: '/doctor/labs'
     },
     {
       icon: MessageSquare,
       label: 'Unread Messages',
       value: '4',
       sub: '1 critical lab · 1 pharma query · 2 patients',
-      color: 'blue'
+      color: 'blue',
+      path: '/doctor/messages'
     },
     {
       icon: CircleDollarSign,
@@ -234,12 +237,12 @@ const DoctorPortal: React.FC = () => {
   ];
 
   const quickActions = [
-    { icon: ClipboardList, label: 'Write Prescription', color: 'purple' },
-    { icon: TestTube, label: 'Order Lab Test', color: 'indigo', badge: '1 critical' },
-    { icon: Calendar, label: 'Block Time Off', color: 'slate' },
-    { icon: Send, label: 'Send Referral', color: 'teal' },
-    { icon: FileText, label: 'Write Certificate', color: 'blue' },
-    { icon: Bot, label: 'Ask Clinical AI', color: 'indigo' }
+    { icon: ClipboardList, label: 'Write Prescription', color: 'teal', path: '/doctor/prescribe' },
+    { icon: TestTube, label: 'Order Lab Test', color: 'blue', badge: '1 critical', path: '/doctor/labs' },
+    { icon: Calendar, label: 'Block Time Off', color: 'slate', path: '/doctor/appointments' },
+    { icon: Send, label: 'Send Referral', color: 'teal', path: '/doctor/labs' },
+    { icon: FileText, label: 'Consultation Workspace', color: 'blue', path: '/consultation' },
+    { icon: Bot, label: 'Ask Clinical AI', color: 'slate', path: '/consultation' }
   ];
 
   return (
@@ -323,7 +326,7 @@ const DoctorPortal: React.FC = () => {
 
               <div className="flex flex-col space-y-3">
                 <button
-                  onClick={() => setShowWorkspace(true)}
+                  onClick={() => navigateTo('/consultation')}
                   className="flex items-center justify-center space-x-2 px-6 py-4 bg-white hover:bg-slate-50 text-[#0A1628] rounded-2xl font-bold text-[15px] shadow-xl hover:scale-105 transition-all"
                   style={{ fontFamily: 'Plus Jakarta Sans, sans-serif' }}
                 >
@@ -332,13 +335,28 @@ const DoctorPortal: React.FC = () => {
                 </button>
 
                 <div className="flex space-x-2">
-                  <button className="flex-1 px-3 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-medium transition-colors">
+                  <button
+                    onClick={() => navigateTo('/consultation')}
+                    className="flex-1 px-3 py-2 bg-teal-500/30 hover:bg-teal-500/40 text-teal-200 border border-teal-400/30 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1"
+                  >
+                    <Bot className="w-3 h-3" /> AI Recorder
+                  </button>
+                  <button
+                    onClick={() => navigateTo('/consultation')}
+                    className="flex-1 px-3 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-medium transition-colors"
+                  >
                     📋 SOAP Notes
                   </button>
-                  <button className="flex-1 px-3 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-medium transition-colors">
+                  <button
+                    onClick={() => navigateTo('/doctor/prescribe')}
+                    className="flex-1 px-3 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-medium transition-colors"
+                  >
                     💊 Prescribe
                   </button>
-                  <button className="flex-1 px-3 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-medium transition-colors">
+                  <button
+                    onClick={() => navigateTo('/doctor/labs')}
+                    className="flex-1 px-3 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-medium transition-colors"
+                  >
                     🔬 Order Lab
                   </button>
                 </div>
@@ -351,8 +369,6 @@ const DoctorPortal: React.FC = () => {
               const Icon = card.icon;
               const colors = {
                 teal: { bg: 'bg-teal-100', icon: 'text-teal-600', text: 'text-teal-600' },
-                purple: { bg: 'bg-purple-100', icon: 'text-purple-600', text: 'text-purple-600' },
-                indigo: { bg: 'bg-indigo-100', icon: 'text-indigo-600', text: 'text-indigo-600' },
                 blue: { bg: 'bg-blue-100', icon: 'text-blue-600', text: 'text-blue-600' },
                 emerald: { bg: 'bg-emerald-100', icon: 'text-emerald-600', text: 'text-emerald-600' },
                 slate: { bg: 'bg-slate-100', icon: 'text-slate-600', text: 'text-slate-600' }
@@ -363,9 +379,11 @@ const DoctorPortal: React.FC = () => {
                 <div
                   key={index}
                   onClick={() => {
-                    if (card.label === 'Appointments Today') {
-                      window.location.href = '/doctor/appointments';
-                    }
+                    const path = (card as any).path;
+                    if (path) navigateTo(path);
+                    else if (card.label === 'Appointments Today') navigateTo('/doctor/appointments');
+                    else if (card.label === 'DHA License Status') navigateTo('/doctor/profile');
+                    else if (card.label === 'Revenue Today') navigateTo('/doctor/earnings');
                   }}
                   className={`bg-white rounded-2xl p-5 shadow-md border border-slate-200 hover:shadow-xl hover:scale-[1.015] transition-all cursor-pointer ${
                     card.critical ? 'ring-2 ring-red-500 animate-pulse' : ''
@@ -565,7 +583,10 @@ const DoctorPortal: React.FC = () => {
               </div>
 
               <div className="px-6 py-3 border-t border-slate-200">
-                <button className="text-teal-600 text-xs font-medium hover:underline">
+                <button
+                  onClick={() => navigateTo('/doctor/labs')}
+                  className="text-teal-600 text-xs font-medium hover:underline"
+                >
                   View All Lab Results →
                 </button>
               </div>
@@ -581,7 +602,10 @@ const DoctorPortal: React.FC = () => {
                 </div>
                 <div className="flex items-center space-x-3">
                   <span className="text-blue-500 text-xs font-bold">4 unread</span>
-                  <button className="text-teal-600 text-xs font-medium hover:underline">
+                  <button
+                    onClick={() => navigateTo('/doctor/messages')}
+                    className="text-teal-600 text-xs font-medium hover:underline"
+                  >
                     View All →
                   </button>
                 </div>
@@ -591,6 +615,7 @@ const DoctorPortal: React.FC = () => {
                 {messages.map((msg, index) => (
                   <div
                     key={index}
+                    onClick={() => navigateTo('/doctor/messages')}
                     className={`px-4 py-3.5 hover:bg-blue-50/30 transition-colors cursor-pointer ${
                       msg.type === 'critical' ? 'bg-red-50' : 'bg-blue-50/20'
                     }`}
@@ -620,11 +645,14 @@ const DoctorPortal: React.FC = () => {
                         <p className="text-[10px] text-slate-400 font-mono">{msg.time}</p>
                       </div>
 
-                      <button className={`px-2 py-1 text-[10px] font-semibold rounded transition-colors ${
-                        msg.type === 'critical' ? 'bg-red-600 text-white hover:bg-red-700' :
-                        msg.type === 'pharmacy' ? 'bg-amber-500 text-white hover:bg-amber-600' :
-                        'bg-teal-600 text-white hover:bg-teal-700'
-                      }`}>
+                      <button
+                        onClick={e => { e.stopPropagation(); navigateTo('/doctor/messages'); }}
+                        className={`px-2 py-1 text-[10px] font-semibold rounded transition-colors ${
+                          msg.type === 'critical' ? 'bg-red-600 text-white hover:bg-red-700' :
+                          msg.type === 'pharmacy' ? 'bg-amber-500 text-white hover:bg-amber-600' :
+                          'bg-teal-600 text-white hover:bg-teal-700'
+                        }`}
+                      >
                         {msg.type === 'critical' ? 'Ack' : msg.type === 'pharmacy' ? 'Respond' : 'Reply'}
                       </button>
                     </div>
@@ -668,7 +696,10 @@ const DoctorPortal: React.FC = () => {
                 <p className="text-xs text-slate-600 leading-relaxed mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
                   HbA1c has improved 0.6% over 6 months at your current treatment. Projected to reach 6.5% target by June 2026.
                 </p>
-                <button className="text-indigo-600 text-[11px] font-medium hover:underline">
+                <button
+                  onClick={() => navigateTo('/doctor/patients')}
+                  className="text-indigo-600 text-[11px] font-medium hover:underline"
+                >
                   View Patient →
                 </button>
               </div>
@@ -683,7 +714,10 @@ const DoctorPortal: React.FC = () => {
                 <p className="text-xs text-amber-700 leading-relaxed mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
                   Enalapril + Spironolactone combination increases hyperkalemia risk. Current K: 4.1 mEq/L (borderline).
                 </p>
-                <button className="text-amber-600 text-[11px] font-medium hover:underline">
+                <button
+                  onClick={() => navigateTo('/consultation')}
+                  className="text-amber-600 text-[11px] font-medium hover:underline"
+                >
                   Flag in Notes
                 </button>
               </div>
@@ -698,7 +732,10 @@ const DoctorPortal: React.FC = () => {
                 <p className="text-xs text-emerald-700 leading-relaxed mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
                   New patient reporting palpitations. Suggested: 12-lead ECG + 24h Holter as first step to rule out arrhythmia.
                 </p>
-                <button className="text-emerald-600 text-[11px] font-medium hover:underline">
+                <button
+                  onClick={() => navigateTo('/doctor/labs')}
+                  className="text-emerald-600 text-[11px] font-medium hover:underline"
+                >
                   Add to Pre-Order
                 </button>
               </div>
@@ -713,8 +750,6 @@ const DoctorPortal: React.FC = () => {
               {quickActions.map((action, index) => {
                 const Icon = action.icon;
                 const colors = {
-                  purple: 'hover:bg-purple-50 hover:border-purple-300',
-                  indigo: 'hover:bg-indigo-50 hover:border-indigo-300',
                   slate: 'hover:bg-slate-50 hover:border-slate-300',
                   teal: 'hover:bg-teal-50 hover:border-teal-300',
                   blue: 'hover:bg-blue-50 hover:border-blue-300'
@@ -722,6 +757,7 @@ const DoctorPortal: React.FC = () => {
                 return (
                   <button
                     key={index}
+                    onClick={() => navigateTo((action as any).path)}
                     className={`bg-white border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center space-y-2 hover:scale-105 transition-all shadow-sm hover:shadow-md ${
                       colors[action.color as keyof typeof colors]
                     }`}

@@ -69,6 +69,7 @@ import DoctorEarnings from './pages/DoctorEarnings';
 import DoctorSettings from './pages/DoctorSettings';
 import DoctorProfile from './pages/DoctorProfile';
 import RoleLogin from './pages/RoleLogin';
+import ClinicPortal from './pages/clinic/ClinicPortal';
 
 function App() {
   const [view, setView] = useState<string>('landing');
@@ -149,6 +150,8 @@ function App() {
         setView('admin-platform-settings');
       } else if (path === '/admin/integrations') {
         setView('admin-integrations');
+      } else if (path.startsWith('/clinic/')) {
+        setView('clinic-portal');
       } else if (path === '/pharmacy/dashboard' || path.startsWith('/pharmacy/')) {
         setView('pharmacy-portal');
       } else if (path === '/diagnostics/dashboard' || path.startsWith('/diagnostics/')) {
@@ -260,6 +263,7 @@ function App() {
     const id = window.location.pathname.replace('/admin/integrations/', '');
     return <AdminIntegrationDetail integrationId={id} />;
   }
+  if (view === 'clinic-portal') return <ClinicPortal />;
   if (view === 'pharmacy-dashboard') return <PharmacyDashboard />;
   if (view === 'pharmacy-portal') return <PharmacyPortal />;
   if (view === 'diagnostics-portal') return <DiagnosticsPortal />;

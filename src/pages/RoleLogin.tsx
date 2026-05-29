@@ -76,6 +76,16 @@ const roles: Role[] = [
     border: 'border-rose-200',
     path: '/admin/dashboard',
   },
+  {
+    id: 'clinic',
+    label: 'Clinic / Hospital',
+    sub: 'Manage doctors, appointments, pricing & clinic operations',
+    icon: Building2,
+    color: 'text-teal-700',
+    bg: 'bg-teal-50',
+    border: 'border-teal-200',
+    path: '/clinic/dashboard',
+  },
 ];
 
 const demoCreds: Record<string, { email: string; name: string }> = {
@@ -85,6 +95,7 @@ const demoCreds: Record<string, { email: string; name: string }> = {
   lab: { email: 'fatima.lab@demo.ceenaix.ae', name: 'Fatima Al Rashidi' },
   insurance: { email: 'insurance@demo.ceenaix.ae', name: 'Mariam Al Suwaidi' },
   admin: { email: 'admin@demo.ceenaix.ae', name: 'CeenAiX Admin' },
+  clinic: { email: 'clinic@demo.ceenaix.ae', name: 'Al Noor Medical Center' },
 };
 
 export default function RoleLogin() {
