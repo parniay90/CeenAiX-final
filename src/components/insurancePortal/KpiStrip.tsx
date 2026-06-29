@@ -3,14 +3,13 @@ import { ClipboardList, FileText, Zap, AlertTriangle, Clock, Users } from 'lucid
 
 interface KpiCard {
   icon: React.ElementType;
-  iconBg: string;
-  iconColor: string;
+  accent: string;
   value: string;
-  valueColor: string;
   label: string;
-  sub1: string;
-  sub2?: string;
-  sub2Color?: string;
+  sub: string;
+  badge?: string;
+  badgeColor?: string;
+  badgeBg?: string;
   pulse?: boolean;
   navTarget: string;
 }
@@ -18,58 +17,67 @@ interface KpiCard {
 const cards: KpiCard[] = [
   {
     icon: ClipboardList,
-    iconBg: '#FEF3C7', iconColor: '#D97706',
-    value: '16', valueColor: '#D97706',
-    label: 'PENDING PRE-AUTHORIZATIONS',
-    sub1: '8 urgent (4h) · 8 standard',
+    accent: '#F59E0B',
+    value: '16',
+    label: 'Pending Pre-Auths',
+    sub: '8 urgent · 8 standard',
+    badge: '1 OVERDUE',
+    badgeColor: '#DC2626',
+    badgeBg: '#FEE2E2',
     pulse: true,
     navTarget: 'preauth',
   },
   {
     icon: FileText,
-    iconBg: '#DBEAFE', iconColor: '#2563EB',
-    value: '312', valueColor: '#1E293B',
-    label: 'CLAIMS SUBMITTED TODAY',
-    sub1: 'AED 1,247,840',
-    sub2: '78.2% auto-approved',
-    sub2Color: '#059669',
+    accent: '#2563EB',
+    value: '312',
+    label: 'Claims Today',
+    sub: 'AED 1,247,840 total value',
+    badge: '42 pending',
+    badgeColor: '#2563EB',
+    badgeBg: '#DBEAFE',
     navTarget: 'claims',
   },
   {
     icon: Zap,
-    iconBg: '#D1FAE5', iconColor: '#059669',
-    value: '78.2%', valueColor: '#059669',
-    label: 'AI AUTO-APPROVAL RATE',
-    sub1: '244 of 312 claims today',
-    sub2: '↑ +2.1% vs last week',
-    sub2Color: '#059669',
+    accent: '#059669',
+    value: '78.2%',
+    label: 'AI Auto-Approval',
+    sub: '244 of 312 claims approved',
+    badge: '↑ +2.1%',
+    badgeColor: '#059669',
+    badgeBg: '#DCFCE7',
     navTarget: 'analytics',
   },
   {
     icon: AlertTriangle,
-    iconBg: '#FEE2E2', iconColor: '#DC2626',
-    value: '5', valueColor: '#DC2626',
-    label: 'ACTIVE FRAUD ALERTS',
-    sub1: '2 HIGH risk · 3 medium',
+    accent: '#DC2626',
+    value: '5',
+    label: 'Fraud Alerts',
+    sub: '2 HIGH · 3 MEDIUM risk',
+    badge: '2 HIGH',
+    badgeColor: '#DC2626',
+    badgeBg: '#FEE2E2',
     pulse: true,
     navTarget: 'fraud',
   },
   {
     icon: Clock,
-    iconBg: '#CCFBF1', iconColor: '#0D9488',
-    value: '4.2h', valueColor: '#0D9488',
-    label: 'AVG PROCESSING TIME',
-    sub1: 'DHA target: 8h standard ✅',
-    sub2: '4h urgent ⚠️ (1 breach)',
-    sub2Color: '#D97706',
+    accent: '#0D9488',
+    value: '4.2h',
+    label: 'Avg Processing',
+    sub: 'DHA 4h urgent · 8h standard',
+    badge: '1 breach',
+    badgeColor: '#D97706',
+    badgeBg: '#FEF3C7',
     navTarget: 'analytics',
   },
   {
     icon: Users,
-    iconBg: '#DBEAFE', iconColor: '#2563EB',
-    value: '8,247', valueColor: '#2563EB',
-    label: 'ACTIVE MEMBERS ON CEENAIX',
-    sub1: 'Gold 2,847 · Silver 3,104 · Basic 1,892',
+    accent: '#7C3AED',
+    value: '8,247',
+    label: 'Active Members',
+    sub: 'Gold · Silver · Basic',
     navTarget: 'members',
   },
 ];
@@ -80,57 +88,64 @@ interface Props {
 
 const KpiCard: React.FC<{ card: KpiCard; idx: number; onNavigate: (page: string) => void }> = ({ card, idx, onNavigate }) => {
   const [visible, setVisible] = useState(false);
+  const [hovered, setHovered] = useState(false);
+
   useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 150 + idx * 60);
+    const t = setTimeout(() => setVisible(true), idx * 60);
     return () => clearTimeout(t);
   }, [idx]);
 
   const Icon = card.icon;
+
   return (
     <div
       onClick={() => onNavigate(card.navTarget)}
-      className="flex flex-col rounded-2xl p-4 cursor-pointer transition-all duration-200"
+      className="cursor-pointer rounded-xl flex flex-col"
       style={{
-        background: '#fff',
-        border: card.pulse ? '1.5px solid #FCA5A5' : '1px solid #E2E8F0',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        background: '#ffffff',
+        border: '1px solid #E2E8F0',
+        borderLeft: `3px solid ${card.accent}`,
+        padding: '16px 16px 14px',
+        boxShadow: hovered ? `0 4px 16px rgba(0,0,0,0.1)` : '0 1px 3px rgba(0,0,0,0.05)',
         opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(12px)',
-        transition: 'opacity 400ms ease, transform 400ms ease, box-shadow 150ms, background 150ms',
+        transform: visible ? 'translateY(0)' : 'translateY(10px)',
+        transition: 'opacity 350ms ease, transform 350ms ease, box-shadow 150ms, border-color 150ms',
       }}
-      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(30,58,95,0.12)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-      onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
-      <div className="flex items-start justify-between mb-3">
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center"
-          style={{ background: card.iconBg }}
-        >
-          <Icon style={{ width: 20, height: 20, color: card.iconColor }} />
+      <div className="flex items-center justify-between mb-3">
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${card.accent}18` }}>
+          <Icon style={{ width: 15, height: 15, color: card.accent }} />
         </div>
-        {card.pulse && (
-          <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: card.iconColor }} />
+        {card.badge && (
+          <span
+            className="rounded-full px-2 py-0.5"
+            style={{ fontSize: 10, fontWeight: 700, color: card.badgeColor, background: card.badgeBg, fontFamily: 'DM Mono, monospace' }}
+          >
+            {card.pulse && <span className="inline-block w-1 h-1 rounded-full mr-1 align-middle animate-pulse" style={{ background: card.badgeColor }} />}
+            {card.badge}
+          </span>
         )}
       </div>
-      <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 30, fontWeight: 700, color: card.valueColor, lineHeight: 1, marginBottom: 4 }}>
+
+      <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 28, fontWeight: 800, color: '#0F172A', lineHeight: 1, marginBottom: 4 }}>
         {card.value}
       </div>
-      <div style={{ fontSize: 10, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600, marginBottom: 6 }}>
+
+      <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 4 }}>
         {card.label}
       </div>
-      <div style={{ fontSize: 11, color: '#64748B' }}>{card.sub1}</div>
-      {card.sub2 && (
-        <div style={{ fontSize: 11, color: card.sub2Color ?? '#64748B', marginTop: 2 }}>{card.sub2}</div>
-      )}
-      <div className="mt-auto pt-3 flex items-center gap-1" style={{ fontSize: 10, color: '#94A3B8' }}>
-        <span>View details →</span>
+
+      <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 'auto' }}>
+        {card.sub}
       </div>
     </div>
   );
 };
 
 const KpiStrip: React.FC<Props> = ({ onNavigate }) => (
-  <div className="grid grid-cols-6 gap-4 mb-5">
+  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
     {cards.map((card, idx) => (
       <KpiCard key={card.label} card={card} idx={idx} onNavigate={onNavigate} />
     ))}

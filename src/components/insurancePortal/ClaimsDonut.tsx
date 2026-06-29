@@ -1,12 +1,12 @@
 import React from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
-import { FileText } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 
 const SEGMENTS = [
-  { name: 'Auto-approved', value: 244, amount: 934200, color: '#0D9488', label: '✅ Auto-approved', navTarget: 'claims' },
-  { name: 'Pending', value: 42, amount: 201640, color: '#D97706', label: '⏳ Pending', navTarget: 'claims' },
-  { name: 'Denied', value: 18, amount: 72800, color: '#DC2626', label: '❌ Denied', navTarget: 'claims' },
-  { name: 'Appealed', value: 8, amount: 39200, color: '#7C3AED', label: '⚖ Appealed', navTarget: 'claims' },
+  { name: 'Auto-approved', value: 244, amount: 934200, color: '#059669' },
+  { name: 'Pending',       value: 42,  amount: 201640, color: '#D97706' },
+  { name: 'Denied',        value: 18,  amount: 72800,  color: '#DC2626' },
+  { name: 'Appealed',      value: 8,   amount: 39200,  color: '#7C3AED' },
 ];
 
 interface Props {
@@ -14,58 +14,56 @@ interface Props {
 }
 
 const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: { name: string; value: number }[] }) => {
-  if (active && payload && payload.length) {
-    const seg = SEGMENTS.find(s => s.name === payload[0].name);
-    return (
-      <div className="rounded-xl p-3 shadow-xl" style={{ background: '#1E293B', border: '1px solid #334155' }}>
-        <p className="font-bold text-white" style={{ fontSize: 13 }}>{payload[0].name}</p>
-        <p className="text-slate-300" style={{ fontFamily: 'DM Mono, monospace', fontSize: 12 }}>
-          {payload[0].value} claims
+  if (!active || !payload?.length) return null;
+  const seg = SEGMENTS.find(s => s.name === payload[0].name);
+  return (
+    <div className="rounded-lg px-3 py-2.5 shadow-xl" style={{ background: '#1E293B', border: '1px solid #334155' }}>
+      <p className="font-bold text-white mb-1" style={{ fontSize: 12 }}>{payload[0].name}</p>
+      <p style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: '#CBD5E1' }}>
+        {payload[0].value} claims
+      </p>
+      {seg && (
+        <p style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: '#34D399', marginTop: 2 }}>
+          AED {seg.amount.toLocaleString()}
         </p>
-        {seg && (
-          <p className="text-emerald-400" style={{ fontFamily: 'DM Mono, monospace', fontSize: 11 }}>
-            AED {seg.amount.toLocaleString()}
-          </p>
-        )}
-      </div>
-    );
-  }
-  return null;
+      )}
+    </div>
+  );
 };
 
-const ClaimsDonut: React.FC<Props> = ({ onNavigate }) => {
-  return (
-    <div
-      className="bg-white rounded-2xl p-5 cursor-pointer transition-all duration-200"
-      style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.07)' }}
-      onClick={() => onNavigate('claims')}
-      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(30,58,95,0.12)'; }}
-      onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.07)'; }}
-    >
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <FileText size={16} style={{ color: '#0F2D4A' }} />
-          <h3 className="font-bold text-slate-800" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: 14 }}>
-            Claims Today
-          </h3>
-        </div>
-        <span className="font-bold text-teal-600 hover:text-teal-700 transition-colors" style={{ fontSize: 11 }}>
-          View All →
+const ClaimsDonut: React.FC<Props> = ({ onNavigate }) => (
+  <div
+    className="rounded-xl cursor-pointer"
+    style={{ background: '#ffffff', border: '1px solid #E2E8F0', borderLeft: '3px solid #2563EB', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
+    onClick={() => onNavigate('claims')}
+    onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.1)'; }}
+    onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)'; }}
+  >
+    {/* Header */}
+    <div className="flex items-center justify-between px-4 pt-4 pb-3" style={{ borderBottom: '1px solid #F1F5F9' }}>
+      <div className="flex items-center gap-2">
+        <TrendingUp style={{ width: 14, height: 14, color: '#2563EB' }} />
+        <span style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontWeight: 700, fontSize: 13, color: '#0F172A' }}>
+          Claims Today
         </span>
       </div>
+      <span style={{ fontSize: 11, color: '#2563EB', fontWeight: 600 }}>View all →</span>
+    </div>
 
-      <div className="relative" style={{ height: 180 }}>
+    <div className="px-4 pb-4 pt-3">
+      {/* Donut */}
+      <div className="relative" style={{ height: 160 }}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={SEGMENTS}
               cx="50%"
               cy="50%"
-              innerRadius={55}
-              outerRadius={80}
-              paddingAngle={2}
+              innerRadius={52}
+              outerRadius={72}
+              paddingAngle={3}
               dataKey="value"
-              animationDuration={800}
+              animationDuration={700}
             >
               {SEGMENTS.map((seg, i) => (
                 <Cell key={i} fill={seg.color} />
@@ -75,49 +73,54 @@ const ClaimsDonut: React.FC<Props> = ({ onNavigate }) => {
           </PieChart>
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="font-bold leading-none" style={{ fontFamily: 'DM Mono, monospace', fontSize: 24, color: '#1E293B' }}>
+          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 26, fontWeight: 800, color: '#0F172A', lineHeight: 1 }}>
             312
           </span>
-          <span className="text-slate-400" style={{ fontSize: 11 }}>claims</span>
+          <span style={{ fontSize: 10, color: '#94A3B8', marginTop: 2 }}>claims today</span>
         </div>
       </div>
 
-      <div className="space-y-2 mt-3">
+      {/* Legend */}
+      <div className="space-y-2 mt-2">
         {SEGMENTS.map(seg => (
           <div key={seg.name} className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: seg.color }} />
-              <span className="text-slate-600" style={{ fontSize: 12 }}>{seg.label}: {seg.value}</span>
+              <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ background: seg.color }} />
+              <span style={{ fontSize: 12, color: '#475569' }}>{seg.name}</span>
+              <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, fontWeight: 700, color: '#0F172A' }}>
+                {seg.value}
+              </span>
             </div>
-            <span className="font-medium" style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: '#64748B' }}>
+            <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: '#94A3B8' }}>
               AED {seg.amount.toLocaleString()}
             </span>
           </div>
         ))}
       </div>
 
-      <div className="mt-4 pt-3 space-y-1.5" style={{ borderTop: '1px solid #F1F5F9' }}>
-        <div className="flex justify-between items-center">
-          <span className="text-slate-500" style={{ fontSize: 12 }}>Total claim value</span>
-          <span className="font-bold" style={{ fontFamily: 'DM Mono, monospace', fontSize: 14, color: '#1E293B' }}>
+      {/* Totals */}
+      <div className="mt-3 pt-3 space-y-1.5" style={{ borderTop: '1px solid #F1F5F9' }}>
+        <div className="flex justify-between">
+          <span style={{ fontSize: 12, color: '#64748B' }}>Total value</span>
+          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 13, fontWeight: 800, color: '#0F172A' }}>
             AED 1,247,840
           </span>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-slate-500" style={{ fontSize: 12 }}>Daman exposure today</span>
-          <span className="font-bold" style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: '#059669' }}>
+        <div className="flex justify-between">
+          <span style={{ fontSize: 12, color: '#64748B' }}>Daman exposure</span>
+          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, fontWeight: 700, color: '#059669' }}>
             AED 934,200
           </span>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-slate-500" style={{ fontSize: 12 }}>Pending decision</span>
-          <span className="font-bold" style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, color: '#D97706' }}>
+        <div className="flex justify-between">
+          <span style={{ fontSize: 12, color: '#64748B' }}>Pending decision</span>
+          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 12, fontWeight: 700, color: '#D97706' }}>
             AED 201,640
           </span>
         </div>
       </div>
     </div>
-  );
-};
+  </div>
+);
 
 export default ClaimsDonut;
